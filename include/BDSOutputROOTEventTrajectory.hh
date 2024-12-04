@@ -142,6 +142,7 @@ public:
     std::vector<TVector3> pxpypz;  
     std::vector<int>      charge;
     std::vector<double>   kineticEnergy;
+    std::vector<double>   p;
     std::vector<int>      turn;
     std::vector<double>   mass;
     std::vector<double>   rigidity;    
@@ -192,6 +193,7 @@ public:
   std::vector<std::vector<double>>   S;
   std::vector<std::vector<TVector3>> PXPYPZ;
   std::vector<std::vector<double>>   T;
+  std::vector<std::vector<double>>   p;
 
   /// @{ Local coordinates.
   std::vector<std::vector<TVector3>> xyz;
@@ -234,7 +236,7 @@ public:
 
   friend std::ostream& operator<< (std::ostream& out, BDSOutputROOTEventTrajectory const &p);
   
-  ClassDef(BDSOutputROOTEventTrajectory,5);
+  ClassDef(BDSOutputROOTEventTrajectory,6);
 };
 
 #endif

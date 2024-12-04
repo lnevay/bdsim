@@ -91,6 +91,7 @@ Output Changes
   an element (:code:`staEk`) have all been added to the model tree in the output as
   calculated by BDSIM as it now integrates the time and acceleration / decceleration
   along the beamline.
+* Add the magnitude of the momentum to the trajectory output.
 
 
 Output Class Versions
@@ -135,7 +136,7 @@ Output Class Versions
 +-----------------------------------+-------------+-----------------+-----------------+
 | BDSOutputROOTEventSamplerS        | N           | 1               | 1               |
 +-----------------------------------+-------------+-----------------+-----------------+
-| BDSOutputROOTEventTrajectory      | N           | 5               | 5               |
+| BDSOutputROOTEventTrajectory      | Y           | 5               | 6               |
 +-----------------------------------+-------------+-----------------+-----------------+
 | BDSOutputROOTEventTrajectoryPoint | N           | 6               | 6               |
 +-----------------------------------+-------------+-----------------+-----------------+

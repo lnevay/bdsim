@@ -164,6 +164,7 @@ void BDSOutputROOTEventTrajectory::Fill(const BDSTrajectoriesToStore* trajectori
       filters.push_back(trajectories->filtersMatched.at(traj));
       
       XYZ.push_back(itj.XYZ);
+      p.push_back(itj.p);
       modelIndicies.push_back(itj.modelIndex);
       
       if (stMo)
@@ -297,6 +298,7 @@ void BDSOutputROOTEventTrajectory::FillIndividualTrajectory(IndividualTrajectory
   itj.S.push_back(point->GetPreS() / CLHEP::m);
   itj.T.push_back(point->GetPreGlobalTime() / CLHEP::ns);
   itj.kineticEnergy.push_back(point->GetKineticEnergy() / CLHEP::GeV);
+  itj.p.push_back(mom.mag());
   
   itj.materialID.push_back(materialToID.at(point->GetMaterial()));
   
@@ -365,6 +367,7 @@ void BDSOutputROOTEventTrajectory::FlushLocal()
   XYZ.clear();
   S.clear();
   PXPYPZ.clear();
+  p.clear();
   T.clear();
   
   xyz.clear();
@@ -418,7 +421,7 @@ void BDSOutputROOTEventTrajectory::Fill(const BDSOutputROOTEventTrajectory* othe
   S                   = other->S;
   PXPYPZ              = other->PXPYPZ;
   T                   = other->T;
-
+  p                   = other->p;
   xyz                 = other->xyz;
   pxpypz              = other->pxpypz;
   charge              = other->charge;
@@ -514,7 +517,7 @@ std::vector<BDSOutputROOTEventTrajectoryPoint> BDSOutputROOTEventTrajectory::tra
       bool changeInEnergy = energyDeposit[ti][i] > 1e-9;
       if ( (ppt != -1 && ppt != 1 && ppt != 10 && ppt != 0 && notGeneral) || changeInEnergy)
         {
-          BDSOutputROOTEventTrajectoryPoint p(partID[ti],
+          BDSOutputROOTEventTrajectoryPoint point(partID[ti],
                                               trackID[ti],
                                               parentID[ti],
                                               parentIndex[ti],
@@ -524,6 +527,7 @@ std::vector<BDSOutputROOTEventTrajectoryPoint> BDSOutputROOTEventTrajectory::tra
                                               energyDeposit[ti][i],
                                               XYZ[ti][i],
                                               usePXPYPZ ? PXPYPZ[ti][i] : TVector3(),
+                                              p[ti][i],
                                               modelIndicies[ti][i],
                                               useT ? T[ti][i]      : 0,
                                               useLocal ? xyz[ti][i] : TVector3(),
@@ -539,7 +543,7 @@ std::vector<BDSOutputROOTEventTrajectoryPoint> BDSOutputROOTEventTrajectory::tra
                                               useIon ? nElectrons[ti][i] : 0,
                                               useMat ? materialID[ti][i] : -1,
                                               i);
-          tpv.push_back(p);
+          tpv.push_back(point);
         }
     }
   return tpv;
@@ -605,8 +609,8 @@ BDSOutputROOTEventTrajectoryPoint BDSOutputROOTEventTrajectory::parentProcessPoi
   bool useEK     = !kineticEnergy.empty();
   bool useMat    = !materialID.empty();
 
-  BDSOutputROOTEventTrajectoryPoint p(partID[pi],
-                                      trackID[pi],
+  BDSOutputROOTEventTrajectoryPoint tp(partID[pi],
+                                       trackID[pi],
                                       parentID[pi],
                                       parentIndex[pi],
                                       postProcessTypes[pi][si],
@@ -615,6 +619,7 @@ BDSOutputROOTEventTrajectoryPoint BDSOutputROOTEventTrajectory::parentProcessPoi
                                       energyDeposit[pi][si],
                                       XYZ[pi][si],
                                       usePXPYPZ ? PXPYPZ[pi][si] : TVector3(),
+                                      p[pi][si],
                                       modelIndicies[pi][si],
                                       useT ? T[pi][si]      : 0,
                                       useLocal ? xyz[pi][si] : TVector3(),
@@ -630,7 +635,7 @@ BDSOutputROOTEventTrajectoryPoint BDSOutputROOTEventTrajectory::parentProcessPoi
                                       useIon ? nElectrons[pi][si] : 0,
                                       useMat ? materialID[pi][si] : -1,
                                       si);
-  return p;
+  return tp;
 }
 
 std::vector<BDSOutputROOTEventTrajectoryPoint> BDSOutputROOTEventTrajectory::processHistory(int trackIDIn) const
@@ -669,7 +674,7 @@ std::vector<BDSOutputROOTEventTrajectoryPoint> BDSOutputROOTEventTrajectory::pro
           psi = 0;
         }
       
-      BDSOutputROOTEventTrajectoryPoint p(partID[pi],
+      BDSOutputROOTEventTrajectoryPoint point(partID[pi],
                                           trackID[pi],
                                           parentID[pi],
                                           parentIndex[pi],
@@ -679,6 +684,7 @@ std::vector<BDSOutputROOTEventTrajectoryPoint> BDSOutputROOTEventTrajectory::pro
                                           energyDeposit[pi][psi],
                                           XYZ[pi][psi],
                                           usePXPYPZ ? PXPYPZ[ti][psi] : TVector3(),
+                                          p[pi][psi],
                                           modelIndicies[ti][psi],
                                           useT ? T[ti][psi]      : 0,
                                           useLocal ? xyz[ti][psi] : TVector3(),
@@ -694,7 +700,7 @@ std::vector<BDSOutputROOTEventTrajectoryPoint> BDSOutputROOTEventTrajectory::pro
                                           useIon ? nElectrons[ti][psi] : 0,
                                           useMat ? materialID[ti][psi] : -1,
                                           (int)psi);
-      tpv.push_back(p);
+      tpv.push_back(point);
       ti = (int)pi;
     }
   std::reverse(tpv.begin(),tpv.end());

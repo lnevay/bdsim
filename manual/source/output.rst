@@ -1427,6 +1427,8 @@ This is the first (0th) trajectory for each event and the energy deposited of al
 | kineticEnergy            | std::vector<std::vector<double>>    | Kinetic energy of the particle at the pre-step point    |
 |                          |                                     | (GeV)                                                   |
 +--------------------------+-------------------------------------+---------------------------------------------------------+
+| p                        | std::vector<double>                 | Magnitude of momentum at the pre-step point (GeV/c)     |
++--------------------------+-------------------------------------+---------------------------------------------------------+
 | turnsTaken (\**)         | std::vector<std::vector<int>>       | Number of turns taken at this step                      |
 +--------------------------+-------------------------------------+---------------------------------------------------------+
 | mass (\**)               | std::vector<std::vector<double>>    | Mass of particle (GeV)                                  |
