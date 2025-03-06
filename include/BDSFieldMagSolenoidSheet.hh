@@ -48,24 +48,25 @@ public:
   /// This constructor uses the "field" and "length" parameters
   /// from the BDSMagnetStrength instance and forwards to the next constructor.
   BDSFieldMagSolenoidSheet(BDSMagnetStrength const* strength,
-                           G4double radiusIn);
-  /// More reasonable constructor for the internal parameterisation.
-  BDSFieldMagSolenoidSheet(G4double fullLength,
+                           G4double radiusIn ,G4double toleranceIn = 0.0);
+  /// More reasonable constructor for the internal parameterisation. 'strength'
+  /// can be either B0 or I. This is interpreted via 'strengthIsCurrent'. Have
+  /// to do this as the signature would be the same for either case.
+  BDSFieldMagSolenoidSheet(G4double strength,
+                           G4bool   strengthIsCurrent,
                            G4double sheetRadius,
-                           G4double B0);
-
+                           G4double fullLength,
+                           G4double toleranceIn = 0.0);
   virtual ~BDSFieldMagSolenoidSheet(){;}
 
   /// Calculate the field value.
   virtual G4ThreeVector GetField(const G4ThreeVector& position,
                                  const G4double       t = 0) const;
   
-  /// Generalised Complete Elliptical Integral.
-  static G4double CEL(G4double kc,
-                      G4double p,
-                      G4double c,
-                      G4double s,
-                      G4int nIterationLimit = 1000);
+  /// @{ Accessor.
+  inline G4double GetB0() const {return B0;}
+  inline G4double GetI()  const {return I;}
+  /// @}
 
 private:
   /// Approximation for rho=0 Bz field. Brho=0 by definition. zp and zm are z+halfLength
@@ -75,8 +76,10 @@ private:
   G4double a;
   G4double halfLength;
   G4double B0;
+  G4double I;
   G4double spatialLimit;
   G4double normalisation;
+  G4double coilTolerance;
 };
 
 #endif

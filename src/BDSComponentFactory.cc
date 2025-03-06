@@ -27,6 +27,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSCollimatorCrystal.hh"
 #include "BDSCollimatorElliptical.hh"
 #include "BDSCollimatorJaw.hh"
+#include "BDSCollimatorTipJaw.hh"
 #include "BDSCollimatorRectangular.hh"
 #include "BDSColours.hh"
 #include "BDSColourFromMaterial.hh"
@@ -42,6 +43,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSLaserWire.hh"
 #include "BDSLine.hh"
 #include "BDSMagnet.hh"
+#include "BDSMuonCooler.hh"
 #include "BDSSamplerPlane.hh"
 #include "BDSScreen.hh"
 #include "BDSShield.hh"
@@ -89,6 +91,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSMagnetStrength.hh"
 #include "BDSMagnetType.hh"
 #include "BDSMaterials.hh"
+#include "BDSMuonCoolerBuilder.hh"
 #include "BDSParser.hh"
 #include "BDSParticleDefinition.hh"
 #include "BDSUtilities.hh"
@@ -368,6 +371,10 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateComponent(Element const* ele
       {component = CreateTarget(); break;}
     case ElementType::_JCOL:
       {component = CreateJawCollimator(); break;}
+    case ElementType::_JCOLTIP:
+      {component = CreateTipJawCollimator(); break;}
+    case ElementType::_MUONCOOLER:
+      {component = CreateMuonCooler(); break;}
     case ElementType::_MUONSPOILER:
       {component = CreateMuonSpoiler(); break;}
     case ElementType::_SHIELD:
@@ -446,7 +453,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateComponent(Element const* ele
   }
   catch (BDSException& e)
     {
-      e.AppendToMessage("\nError in creating component \"" + elementName + "\"");
+      e.AppendToMessage("\nBDSComponentFactory> Problem creating element \"" + element->name + "\"");
       throw e;
     }
   
@@ -467,6 +474,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateComponent(Element const* ele
 	case ElementType::_ECOL:
 	case ElementType::_RCOL:
 	case ElementType::_JCOL:
+  case ElementType::_JCOLTIP:
 	  {
 	    if (BDSGlobalConstants::Instance()->CollimatorsAreInfiniteAbsorbers())
 	      {component->SetMinimumKineticEnergy(std::numeric_limits<double>::max());}
@@ -670,7 +678,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateRF(RFFieldDirection directio
     }
   
   BDSLine* cavityLine = new BDSLine(elementName);
-
+  
   if (buildIncomingFringe)
     {
       //BDSMagnetStrength* stIn = PrepareCavityFringeStrength(element, cavityLength, currentArcLength, true);
@@ -1519,6 +1527,31 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateJawCollimator()
 			      PrepareColour(element, material));
 }
 
+BDSAcceleratorComponent* BDSComponentFactory::CreateTipJawCollimator()
+{
+  if (!HasSufficientMinimumLength(element))
+    {return nullptr;}
+  auto collimatorMaterial = PrepareMaterial(element);
+  auto collimatorTipMaterial = PrepareTipMaterial(element);
+  return new BDSCollimatorTipJaw(elementName,
+				 element->l*CLHEP::m,
+				 PrepareHorizontalWidth(element),
+                                 element->xsize*CLHEP::m,
+                                 element->ysize*CLHEP::m,
+                                 element->xsizeLeft*CLHEP::m,
+                                 element->xsizeRight*CLHEP::m,
+                                 element->jawTiltLeft*CLHEP::rad,
+                                 element->jawTiltRight*CLHEP::rad,
+                                 element->tipThickness*CLHEP::m,
+				 true,
+				 true,
+				 collimatorMaterial,
+				 collimatorTipMaterial,
+				 PrepareVacuumMaterial(element),
+				 PrepareColour(element, collimatorMaterial),
+				 PrepareColour(element, collimatorTipMaterial));
+}
+
 BDSAcceleratorComponent* BDSComponentFactory::CreateMuonSpoiler()
 {
   if (!HasSufficientMinimumLength(element))
@@ -1554,6 +1587,22 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateMuonSpoiler()
 		       nullptr,
 		       0,
 		       outerField);
+}
+
+BDSAcceleratorComponent* BDSComponentFactory::CreateMuonCooler()
+{
+  if (!HasSufficientMinimumLength(element))
+    {return nullptr;}
+
+  GMAD::CoolingChannel def = BDSParser::Instance()->GetCoolingChannel(element->coolingDefinition);
+  auto beamPipeInfo = PrepareBeamPipeInfo(element);
+  auto result = BDS::BuildMuonCooler(elementName,
+                                     element->l * CLHEP::m,
+                                     element->horizontalWidth * CLHEP::m,
+                                     def,
+                                     beamPipeInfo,
+                                     BRho());
+  return result;
 }
 
 BDSAcceleratorComponent* BDSComponentFactory::CreateShield()
@@ -2861,6 +2910,25 @@ G4Material* BDSComponentFactory::PrepareMaterial(Element const* el)
   G4String materialName = el->material;
   if (materialName.empty())
     {throw BDSException(__METHOD_NAME__, "element \"" + el->name + "\" has no material specified.");}
+  else
+    {return BDSMaterials::Instance()->GetMaterial(materialName);}
+}
+
+G4Material* BDSComponentFactory::PrepareTipMaterial(Element const* el,
+                                                    const G4String& defaultMaterialName)
+{
+  G4String materialName = el->tipMaterial;
+  if (materialName.empty())
+    {return BDSMaterials::Instance()->GetMaterial(defaultMaterialName);}
+  else
+    {return BDSMaterials::Instance()->GetMaterial(materialName);}
+}
+
+G4Material* BDSComponentFactory::PrepareTipMaterial(Element const* el)
+{
+  G4String materialName = el->tipMaterial;
+  if (materialName.empty())
+    {throw BDSException(__METHOD_NAME__, "element \"" + el->name + "\" has no tip material specified.");}
   else
     {return BDSMaterials::Instance()->GetMaterial(materialName);}
 }

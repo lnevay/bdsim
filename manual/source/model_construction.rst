@@ -206,6 +206,7 @@ The following elements may be defined
 * `target`_
 * `rcol`_
 * `jcol`_
+* `jcoltip`_
 * `ecol`_
 * `degrader`_
 * `muspoiler`_
@@ -223,6 +224,7 @@ The following elements may be defined
 * `marker`_
 * `wirescanner`_
 * `ct`_
+* `muoncooler`_
 
 .. TODO add screen, awakescreen
 
@@ -1340,6 +1342,87 @@ Examples: ::
    j2: jcol, l=0.9*m, horizontalWidth=1*m, material="Cu", xsizeLeft=1*cm, xsizeRight=2*m;
 
 
+jcoltip
+^^^^^^^
+
+.. figure:: figures/jcoltip.png
+    :width: 40%
+    :align: center
+
+`jcoltip` defines a jaw collimator with an additional tip material. It consists of two square blocks on either side in the horizontal plane, similar to `jcol`, but with a tip of a different material. If a vertical `jcoltip` is required, the `tilt` parameter should be used to rotate it by :math:`\pi/2`. The horizontal position of each jaw can be set separately with the `xsizeLeft` and `xsizeRight` apertures, which are the distances from the centre of the element to the left and right jaws, respectively.
+
+The tip thickness and material are defined using `tipThickness` and `tipMaterial`. The collimator jaws can be individually tilted in a plane perpendicular to the jaw opening plane with the `jawTiltLeft` and `jawTiltRight` arguments. In this case, the set aperture is in the middle of the collimator. This feature can be useful for example in aligning the jaws to the beam envelope.
+
+.. tabularcolumns:: |p{4cm}|p{4cm}|p{2cm}|p{2cm}|
+
++------------------------+-----------------------------------+----------------+---------------+
+| **Parameter**          | **Description**                   | **Default**    | **Required**  |
++========================+===================================+================+===============+
+| `l`                    | Length [m]                        | 0              | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `xsize`                | Horizontal half aperture [m]      | 0              | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `ysize`                | Half height of jaws [m]           | 0              | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `material`             | Bulk material of the jaw          | None           | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `tipMaterial`          | Material of the jaw tip           | None           | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `tipThickness`         | Thickness of the tip [m]          | 0              | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `xsizeLeft`            | Left jaw aperture [m]             | 0              | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `xsizeRight`           | Right jaw aperture [m]            | 0              | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `jawTiltLeft`          | Left jaw tilt angle [rad]         | 0              | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `jawTiltRight`         | Right jaw tilt angle [rad]        | 0              | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `horizontalWidth`      | Outer full width [m]              | 0.5 m          | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `colour`               | Name of colour desired for        | ""             | No            |
+|                        | block. See :ref:`colours`.        |                |               |
++------------------------+-----------------------------------+----------------+---------------+
+| `minimumKineticEnergy` | Minimum kinetic energy below      | 0              | No            |
+|                        | which to artificially kill        |                |               |
+|                        | particles in this collimator only |                |               |
++------------------------+-----------------------------------+----------------+---------------+
+
+Notes: 
+
+* The `horizontalWidth` must be greater than 2x `xsize`.
+* To prevent the jaws overlapping with one another, a jaw cannot be constructed that crosses the
+  X axis of the element (i.e supplying a negative `xsizeLeft` or `xsizeRight` will not work). Should
+  you require this, please offset the element using the element parameters `offsetX` and `offsetY` instead.
+* To construct a collimator jaws with one jaw closed (i.e. an offset of 0), the horizontal half aperture
+  must be set to 0, with the other jaws half aperture set as appropriate.
+* If `xsize`, `xsizeLeft` and `xsizeRight` are not specified, the collimator will be constructed
+  as a box with no aperture.
+* For **only one jaw**, specifying a jaw aperture which is larger than half the `horizontalWidth` value
+  will result in that jaw not being constructed. If both jaw apertures are greater than
+  half the `horizontalWidth`, no jaws will be built and BDSIM will exit.
+* To preserve the longitudinal dimensions, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
+  uses parallelepipeds instead of boxes for the collimator jaws. Relative to using angled boxes, this can introduce and
+  error in the material traversed by incident particles, which scales as $b\tan(\alpha)$, where b is
+  the impact parameter (depth of impact) and $\alpha$ is the jaw tilt angle.
+* The parameter `minimumKineticEnergy` (GeV by default) may be specified to artificially kill
+  particles below this kinetic energy in the collimator. This is useful to match other simulations
+  where collimators can be assumed to be infinite absorbers. If this behaviour is required, the
+  user should specify an energy greater than the total beam energy.
+* All collimators can be made infinite absorbers with the general option
+  :code:`collimatorsAreInfiniteAbsorbers` (see :ref:`options-tracking`).
+
+Examples: ::
+
+   ! standard
+   col: jcoltip, l=1.22*m, material="Cu", tipMaterial="W", tipThickness=1*cm, xsize=0.1*cm, ysize=5*cm;
+
+   ! two separately specified jaws with tip material
+   j1: jcoltip, l=1*m, horizontalWidth=1*m, material="Cu", tipMaterial="W", tipThickness=1*cm, xsizeLeft=1*cm, xsizeRight=1.5*cm;
+
+   ! only left jaw with tip
+   j2: jcoltip, l=1*m, horizontalWidth=1*m, material="Cu", tipMaterial="W", tipThickness=1*cm, xsizeLeft=1*cm, xsizeRight=2*m;
+
 
 degrader
 ^^^^^^^^
@@ -2091,6 +2174,166 @@ Examples: ::
 | `dicomDataPath`         | Path to the colourMap.dat file. During the conversion of the CT    |
 |                         | image, the temporary .g4dcm file will also be stored in this path. |
 +-------------------------+--------------------------------------------------------------------+
+
+muoncooler
+^^^^^^^^^^^^
+
+.. figure:: figures/muoncooler.png
+	    :width: 70%
+	    :align: center
+
+
+`muoncooler` defines a **complete** 6D muon cooling lattice. Upon instantiation, a logical volume 
+with the specified horizontal width and length is generated, providing space for the 
+placement of the main 6D ionisation cooling beamline elements: solenoids, dipoles, RF cavities, and absorbers. 
+The element ensures that fringe effects from all magnets are accounted for and 
+allowing for accurate summation of the electric and magnetic field contributions across the entire 
+lattice.
+
+In the current 6D cooling implementation, the cooling channel can include:  
+
+- **Solenoids (coils)**  
+- **Dipoles (field only, no physical magnet)** 
+- **RF cavities**  
+- **Absorbers**  
+
+Parameters for these components can be specified as either:  
+
+- A **single value**, applying uniformly across all instances of that component  
+- A **list of values**, where each value corresponds to the respective component's position in the cooling channel  
+
+**Electric and Magnetic Field Models**
+
+- The **solenoid field model** can be either a **sheet model** (`solenoidsheet`) or a **block model** (`solenoidblock`). 
+- For dipoles, two models exist currently: `dipole` and `dipoleenge`. The `dipole` model is a simple hard-edge dipole field, while the `dipoleenge` model includes Enge-type fringe fields and follows the treatment outlined in: Muratori, B.D. et al (2015) ‘Analytical expressions for fringe fields in multipole magnets’, *Physical Review Special Topics - Accelerators and Beams*, 18(6). https://doi.org/10.1103/physrevstab.18.064001   
+- For the RF cavities, a simple RF pillbox (`rfpillbox`) model has been implemented.
+
+
+**Table of Parameters**
+
+
++------------------------------+-------------------------------+--------------+
+| **Parameter**                | **Description**               | **Type**     |
++==============================+===============================+==============+
+| `nCoils`                     | Number of solenoid coils in   | Integer      |
+|                              | the cooling channel           |              |
++------------------------------+-------------------------------+--------------+
+| `coilInnerRadius`            | Inner radii of coils [m]      | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `coilRadialThickness`        | Radial thicknesses of coils   | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `coilLengthZ`                | Lengths of coils along Z [m]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `coilOffsetZ`                | Z-positions of coil centers   | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `coilCurrent`                | Currents in [A] (sheet model) | List[Float]  |
+|                              | or densities                  |              |
+|                              | [A/m^2] (block model)         |              |
++------------------------------+-------------------------------+--------------+
+| `coilMaterial`               | Materials of coils            | List[String] |
++------------------------------+-------------------------------+--------------+
+| `onAxisTolerance`            | on-axis Tolerance for         | Float        |
+|                              | CEL integral calculation [T]  |              |
++------------------------------+-------------------------------+--------------+
+| `nDipoles`                   | Number of dipoles             | Integer      |
++------------------------------+-------------------------------+--------------+
+| `dipoleAperture`             |Aperture radii of dipoles [m]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `dipoleLengthZ`              | Lengths of dipoles along Z [m]| List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `dipoleFieldStrength`        | Peak magnetic field strengths | List[Float]  |
+|                              | of dipoles [T]                |              |
++------------------------------+-------------------------------+--------------+
+| `dipoleEngeCoefficient`      | C1 Enge coefficients of       | List[Float]  |
+|                              | dipoles                       |              |
++------------------------------+-------------------------------+--------------+
+| `dipoleOffsetZ`              | Z-positions of dipoles [m]    | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `nAbsorbers`                 | Number of absorbers           | Integer      |
++------------------------------+-------------------------------+--------------+
+| `absorberType`               | Types of absorbers            | List[String] |
+|                              | ("cylinder" or "wedge")       |              |
++------------------------------+-------------------------------+--------------+
+| `absorberMaterial`           | Materials of absorbers        | List[String] |
++------------------------------+-------------------------------+--------------+
+| `absorberOffsetZ`            | Z-positions of absorbers [m]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `absorberCylinderLength`     | Lengths of cylindrical        | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberCylinderRadius`     | Radii of cylindrical          | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeOpeningAngle`  | Opening angles of wedge       |List[Float]   |
+|                              | absorbers [rad]               |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeHeight`        | Heights of wedge              | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeRotationAngle` | Rotation angles of            | List[Float]  |
+|                              | wedge absorbers [rad]         |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeOffsetX`       | X-offsets of wedge            | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeOffsetY`       | Y-offsets of wedge            | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeApexToBase`    | Apex-to-base lengths          | List[Float]  |
+|                              | of wedge absorbers [m]        |              |
++------------------------------+-------------------------------+--------------+
+| `nRFCavities`                | Number of RF cavities         | Integer      |
++------------------------------+-------------------------------+--------------+
+| `rfOffsetZ`                  | Z-positions of RF cavities    | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfTimeOffset`               | Time offsets for RF cavities  | List[Float]  |
+|                              | [ns]                          |              |
++------------------------------+-------------------------------+--------------+
+| `rfLength`                   | Inner lengths of RF cavities  | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfVoltage`                  | Peak E-Field of RF cavities   | List[Float]  |
+|                              | [MV/m]                        |              |
++------------------------------+-------------------------------+--------------+
+| `rfPhase`                    | Phases of RF cavities         | List[Float]  |
+|                              | [rad]                         |              |
++------------------------------+-------------------------------+--------------+
+| `rfFrequency`                | Frequencies of RF cavities    | List[Float]  |
+|                              | [Hz]                          |              |
++------------------------------+-------------------------------+--------------+
+| `rfWindowThickness`          | Thickness of the RF window    | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfWindowMaterial`           | RF Window Material            | List[String] |
++------------------------------+-------------------------------+--------------+
+| `rfWindowRadius`             | Radii of RF cavities          | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfCavityMaterial`           | RF cavity materials           | List[String] |
+|                              |                               |              |
++------------------------------+-------------------------------+--------------+
+| `rfCavityVacuumMaterial`     | RF cavity vacuum material     | List[String] |
++------------------------------+-------------------------------+--------------+
+| `rfCavityThickness`          | Thickness of RF cavities      | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `magneticFieldModel`         | Model for solenoid field      | String       |
++------------------------------+-------------------------------+--------------+
+| `dipoleFieldModel`           | Model for dipole field        | String       |
++------------------------------+-------------------------------+--------------+
+| `electricFieldModel`         | Model for RF electric field   | String       |
++------------------------------+-------------------------------+--------------+
+| `l`                          | Length of the cooling channel | Float        |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `horizontalWidth`            | Width of the cooling channel  | Float        |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+
+An example of a cooling channel has been provided in `/examples/components/muoncooler.gmad`, and can be used as a template for development.  
 
 
 .. _offsets-and-tilts:

@@ -73,7 +73,9 @@ namespace GMAD
     _CT            = 75,
     _TARGET        = 76,
     _RFX           = 77,
-    _RFY           = 78
+    _RFY           = 78,
+    _MUONCOOLER    = 79,
+    _JCOLTIP       = 80
   };
 
   /// conversion from enum to string

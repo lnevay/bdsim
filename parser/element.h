@@ -185,6 +185,11 @@ namespace GMAD
     double undulatorGap;
     double undulatorMagnetHeight;
     ///@}
+
+    ///@{ for jaw collimator with tip
+    double tipThickness; ///< tip thickness
+    std::string tipMaterial; ///< tip material
+    ///@}
   
     ///@{ temporary string for bias setting
     std::string bias;
@@ -236,6 +241,9 @@ namespace GMAD
     std::string crystalBoth;
     double      crystalAngleYAxisLeft;
     double      crystalAngleYAxisRight;
+    
+    /// For muon cooler
+    std::string coolingDefinition;
   
     /// Whether the angle was set. Unique as we may technically have 0 angle but a finite
     /// field. This allows us to distinguish later on.

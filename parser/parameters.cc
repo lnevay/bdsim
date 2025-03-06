@@ -196,11 +196,16 @@ Parameters::Parameters()
   setMap["jawTiltLeft"] = false;
   setMap["jawTiltRight"] = false;
 
+  setMap["tipMaterial"] = false;
+  setMap["tipThickness"] = false;
+
   setMap["crystalLeft"]            = false;
   setMap["crystalRight"]           = false;
   setMap["crystalBoth"]            = false;
   setMap["crystalAngleYAxisLeft"]  = false;
   setMap["crystalAngleYAxisRight"] = false;
+
+  setMap["coolingDefinition"] = false;
 }
 
 void Parameters::flush()
