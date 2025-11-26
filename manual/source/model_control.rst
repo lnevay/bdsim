@@ -16,9 +16,12 @@ Model Control
     
 * :ref:`physics-processes`
 
+  - :ref:`physics-macro-file`
   - :ref:`physics-modular-physics-lists`
+  - :ref:`physics-em-extra-notes`
   - :ref:`physics-geant4-lists`
   - :ref:`physics-complete-lists`
+  - :ref:`physics-proton-diffraction`
   - :ref:`millicharged-physics`
 
 * :ref:`physics-biasing`
