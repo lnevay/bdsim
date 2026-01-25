@@ -581,7 +581,7 @@ BDSTrajectoriesToStore* BDSEventAction::IdentifyTrajectoriesForStorage(const G4E
                   double dS = hit->GetSHit();
                   for (const auto& v : trajSRangeToStore)
                     {           
-                      if ( dS >= v.first && dS <= v.second) 
+                      if (dS >= v.first && dS <= v.second)
                         {
                           BDSTrajectory* trajToStore = trackIDMap[hit->GetTrackID()];
                           if (!interestingTraj[trajToStore])
@@ -606,7 +606,7 @@ BDSTrajectoriesToStore* BDSEventAction::IdentifyTrajectoriesForStorage(const G4E
                   double dS = hit->GetSHit();
                   for (const auto& v : trajSRangeToStore)
                     {           
-                      if ( dS >= v.first && dS <= v.second) 
+                      if (dS >= v.first && dS <= v.second)
                         {
                           BDSTrajectory* trajToStore = trackIDMap[hit->GetTrackID()];
                           if (!interestingTraj[trajToStore])
