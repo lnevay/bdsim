@@ -62,14 +62,14 @@ void Aperture::PublishMembers()
 void Aperture::print() const
 {
   std::cout << "Aperture: "
-	    << "name "          << name          << std::endl
-	    << "apertureType "  << apertureType  << std::endl
-	    << "aper1 "         << aper1         << std::endl
-	    << "aper2 "         << aper2         << std::endl
-    	    << "aper3 "         << aper3         << std::endl
-    	    << "aper4 "         << aper4         << std::endl
-	    << "tilt "          << tilt          << std::endl
-	    << "offsetX "       << offsetX       << std::endl
-	    << "offsetY "       << offsetY       << std::endl
-	    << "nPoints "       << nPoints       << std::endl;
+            << "name "          << name          << std::endl
+            << "apertureType "  << apertureType  << std::endl
+            << "aper1 "         << aper1         << std::endl
+            << "aper2 "         << aper2         << std::endl
+            << "aper3 "         << aper3         << std::endl
+            << "aper4 "         << aper4         << std::endl
+            << "tilt "          << tilt          << std::endl
+            << "offsetX "       << offsetX       << std::endl
+            << "offsetY "       << offsetY       << std::endl
+            << "nPoints "       << nPoints       << std::endl;
 }

@@ -337,17 +337,17 @@ void BDSOutputROOTEventModel::Fill(const std::vector<G4int>&                coll
       BDSBeamPipeInfo2* beampipeinfo = (*i)->GetBeamPipeInfo();
       
       if (beampipeinfo)
-      {
-        BDSAperture* apIn  = beampipeinfo->aperture;
-        const auto apInNums = apIn->ApertureNumbers();
-        BDSAperture* apOut = beampipeinfo->apertureOut;
-        beamPipeAper1.push_back(apInNums[0] / CLHEP::m);
-        beamPipeAper2.push_back(apInNums[1] / CLHEP::m);
-        beamPipeAper3.push_back(apInNums[2] / CLHEP::m);
-        beamPipeAper4.push_back(apInNums[3] / CLHEP::m);
-        //if (apOut)
-        //{;} //TBC
-      }
+        {
+          BDSAperture* apIn  = beampipeinfo->aperture;
+          const auto apInNums = apIn->ApertureNumbers();
+          BDSAperture* apOut = beampipeinfo->apertureOut;
+          beamPipeAper1.push_back(apInNums[0] / CLHEP::m);
+          beamPipeAper2.push_back(apInNums[1] / CLHEP::m);
+          beamPipeAper3.push_back(apInNums[2] / CLHEP::m);
+          beamPipeAper4.push_back(apInNums[3] / CLHEP::m);
+          //if (apOut)
+          //{;} //TBC
+        }
       beamPipeType.push_back(beampipeinfo  ? beampipeinfo->beamPipeType.ToString() : "");
       
       // associated material if any

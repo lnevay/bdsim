@@ -92,21 +92,21 @@ void BDSBeamPipeFactoryBase::BuildLogicalVolumes(const G4String& nameIn,
 {
   // build the logical volumes
   vacuumLV = new G4LogicalVolume(vacuumSolid,
-				   vacuumMaterialIn,
-				   nameIn + "_vacuum_lv");
+                                 vacuumMaterialIn,
+                                 nameIn + "_vacuum_lv");
   allLogicalVolumes.insert(vacuumLV);
   
   if (beamPipeSolid)
-  {
-    beamPipeLV = new G4LogicalVolume(beamPipeSolid,
-                                     beamPipeMaterialIn,
-                                     nameIn + "_beampipe_lv");
-    allLogicalVolumes.insert(beamPipeLV);
-  }
+    {
+      beamPipeLV = new G4LogicalVolume(beamPipeSolid,
+                                       beamPipeMaterialIn,
+                                       nameIn + "_beampipe_lv");
+      allLogicalVolumes.insert(beamPipeLV);
+    }
   G4Material* emptyMaterial = BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->EmptyMaterial());
   containerLV = new G4LogicalVolume(containerSolid,
-				    emptyMaterial,
-				    nameIn + "_container_lv");
+                                    emptyMaterial,
+                                    nameIn + "_container_lv");
 }
 
 void BDSBeamPipeFactoryBase::SetVisAttributes(G4Material* beamPipeMaterialIn,
@@ -163,39 +163,39 @@ void BDSBeamPipeFactoryBase::PlaceComponents(const G4String& nameIn)
   // place the components inside the container
   // note we don't need the pointer for anything - it's registered upon construction with g4  
   vacuumPV = new G4PVPlacement(nullptr,                  // no rotation
-			       G4ThreeVector(),          // position
-			       vacuumLV,                 // lv to be placed
-			       nameIn + "_vacuum_pv",    // name
-			       containerLV,              // mother lv to be placed in
-			       false,                    // no boolean operation
-			       0,                        // copy number
-			       checkOverlaps);           // whether to check overlaps
+                               G4ThreeVector(),          // position
+                               vacuumLV,                 // lv to be placed
+                               nameIn + "_vacuum_pv",    // name
+                               containerLV,              // mother lv to be placed in
+                               false,                    // no boolean operation
+                               0,                        // copy number
+                               checkOverlaps);           // whether to check overlaps
   allPhysicalVolumes.insert(vacuumPV);
   
-	if (beamPipeLV)
-  {
-    beamPipePV = new G4PVPlacement(nullptr,                      // no rotation
-                                   G4ThreeVector(),              // position
-                                   beamPipeLV,                   // lv to be placed
-                                   nameIn + "_beampipe_pipe_pv", // name
-                                   containerLV,                  // mother lv to be placed in
-                                   false,                        // no boolean operation
-                                   0,                            // copy number
-                                   checkOverlaps);               // whether to check overlaps
-    allPhysicalVolumes.insert(beamPipePV);
-  }
+  if (beamPipeLV)
+    {
+      beamPipePV = new G4PVPlacement(nullptr,                      // no rotation
+                                     G4ThreeVector(),              // position
+                                     beamPipeLV,                   // lv to be placed
+                                     nameIn + "_beampipe_pipe_pv", // name
+                                     containerLV,                  // mother lv to be placed in
+                                     false,                        // no boolean operation
+                                     0,                            // copy number
+                                     checkOverlaps);               // whether to check overlaps
+      allPhysicalVolumes.insert(beamPipePV);
+    }
 }
 
 BDSBeamPipe* BDSBeamPipeFactoryBase::BuildBeamPipeAndRegisterVolumes(const BDSExtent& extent,
-								     G4double  containerRadius,
-								     G4bool    containerIsCircular)
+                                                                     G4double  containerRadius,
+                                                                     G4bool    containerIsCircular)
 {  
   // build the BDSBeamPipe instance and return it
   BDSBeamPipe* aPipe = new BDSBeamPipe(containerSolid,containerLV,extent,
                                        containerSubtractionSolid,
                                        vacuumLV,containerIsCircular,containerRadius,
                                        inputFaceNormal, outputFaceNormal);
-
+  
   // register objects
   aPipe->RegisterSolid(allSolids);
   aPipe->RegisterLogicalVolume(allLogicalVolumes); //using geometry component base class method

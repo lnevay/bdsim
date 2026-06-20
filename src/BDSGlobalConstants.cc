@@ -99,44 +99,44 @@ BDSGlobalConstants::BDSGlobalConstants(const GMAD::Options& opt):
 
   // beam pipe
   defaultBeamPipeModel = new BDSBeamPipeInfo(options.apertureType,
-					     options.aper1 * CLHEP::m,
-					     options.aper2 * CLHEP::m,
-					     options.aper3 * CLHEP::m,
-					     options.aper4 * CLHEP::m,
-					     options.vacMaterial,
-					     options.beampipeThickness * CLHEP::m,
-					     options.beampipeMaterial);
+                                             options.aper1 * CLHEP::m,
+                                             options.aper2 * CLHEP::m,
+                                             options.aper3 * CLHEP::m,
+                                             options.aper4 * CLHEP::m,
+                                             options.vacMaterial,
+                                             options.beampipeThickness * CLHEP::m,
+                                             options.beampipeMaterial);
   
   
   defaultBeamPipeModel2 = new BDSBeamPipeInfo2(bpt,
-					       defaultAperture,
-					       BDSMaterials::Instance()->GetMaterial(options.vacMaterial),
-					       options.beampipeThickness * CLHEP::m,
-					       BDSMaterials::Instance()->GetMaterial(options.beampipeMaterial));
+                                               defaultAperture,
+                                               BDSMaterials::Instance()->GetMaterial(options.vacMaterial),
+                                               options.beampipeThickness * CLHEP::m,
+                                               BDSMaterials::Instance()->GetMaterial(options.beampipeMaterial));
   
   // magnet geometry
   G4double horizontalWidth = options.horizontalWidth * CLHEP::m;
   if (horizontalWidth < 2*defaultBeamPipeModel2->Extent().MaximumAbsTransverse())
     {
       G4cerr << __METHOD_NAME__ << "Error: option \"horizontalWidth\" " << horizontalWidth
-	     << " must be greater than 2x (\"aper1\" + \"beamPipeThickness\") ("
-	     << defaultBeamPipeModel->aper1 << " + " << defaultBeamPipeModel->beamPipeThickness << ")" << G4endl;
+             << " must be greater than 2x (\"aper1\" + \"beamPipeThickness\") ("
+             << defaultBeamPipeModel->aper1 << " + " << defaultBeamPipeModel->beamPipeThickness << ")" << G4endl;
       throw BDSException(__METHOD_NAME__,"error in beam pipe defaults");
     }
   magnetGeometryType = BDS::DetermineMagnetGeometryType(options.magnetGeometryType);
 
   // tunnel
   tunnelInfo = new BDSTunnelInfo(options.tunnelType,
-				 options.tunnelThickness     * CLHEP::m,
-				 options.tunnelSoilThickness * CLHEP::m,
-				 options.tunnelMaterial,
-				 options.soilMaterial,
-				 options.buildTunnelFloor,
-				 options.tunnelFloorOffset   * CLHEP::m,
-				 options.tunnelAper1         * CLHEP::m,
-				 options.tunnelAper2         * CLHEP::m,
-				 options.storeElossTunnel,
-				 options.tunnelVisible);
+                                 options.tunnelThickness     * CLHEP::m,
+                                 options.tunnelSoilThickness * CLHEP::m,
+                                 options.tunnelMaterial,
+                                 options.soilMaterial,
+                                 options.buildTunnelFloor,
+                                 options.tunnelFloorOffset   * CLHEP::m,
+                                 options.tunnelAper1         * CLHEP::m,
+                                 options.tunnelAper2         * CLHEP::m,
+                                 options.storeElossTunnel,
+                                 options.tunnelVisible);
   
   // defaults - parameters of the laserwire process
   itsLaserwireWavelength = 0.532 * CLHEP::micrometer;
