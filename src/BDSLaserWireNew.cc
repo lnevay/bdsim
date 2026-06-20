@@ -41,7 +41,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSLaserWireNew::BDSLaserWireNew(G4String         nameIn,
 				 G4double         lengthIn,
-				 BDSBeamPipeInfo* beamPipeInfoIn,
+				 BDSBeamPipeInfo2* beamPipeInfoIn,
 				 BDSLaser*        laserIn,
 				 G4double         wireDiameterIn,
 				 G4double         wireLengthIn,
@@ -94,8 +94,8 @@ BDSLaserWireNew::~BDSLaserWireNew()
 
 void BDSLaserWireNew::BuildContainerLogicalVolume()
 {
-  BDSBeamPipeFactory *factory = BDSBeamPipeFactory::Instance();
-  BDSBeamPipe *pipe = factory->CreateBeamPipe(name + "_beampipe",
+  BDSBeamPipeFactory factory;
+  BDSBeamPipe* pipe = factory.CreateBeamPipe(name + "_beampipe",
 					      chordLength,
 					      beamPipeInfo);
   RegisterDaughter(pipe);
@@ -186,11 +186,13 @@ G4VSolid* BDSLaserWireNew::BuildHyperbolicWireSolid()
   wireColour->SetAlpha(0.5);
 
 
-  auto bpf =  BDSBeamPipeFactory::Instance();
-  BDSBeamPipe* intersectionBP = bpf->CreateBeamPipeForVacuumIntersection(name + "_vacuum_intersection",
+  BDSBeamPipeFactory bpf;
+  /*BDSBeamPipe* intersectionBP = bpf.CreateBeamPipeForVacuumIntersection(name + "_vacuum_intersection",
 									 chordLength,
 									 GetBeamPipeInfo());
   G4VSolid* vacuumSolid = intersectionBP->GetContainerSolid();
+  */
+  G4VSolid*  vacuumSolid = nullptr; // TDDO
   // do intersection with vacuumSolid
   RegisterSolid(vacuumSolid);
   

@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSGasJet.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo.hh"
+#include "BDSBeamPipeInfo2.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
@@ -38,7 +38,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSGasJet::BDSGasJet(const G4String& nameIn,
                      G4double    lengthIn,
-                     BDSBeamPipeInfo* beamPipeInfoIn,
+                     BDSBeamPipeInfo2* beamPipeInfoIn,
                      G4Material* gasMaterialIn,
                      G4double    xSizeIn,
                      G4double    ySizeIn,
@@ -95,8 +95,8 @@ G4String BDSGasJet::Material() const
 
 void BDSGasJet::BuildContainerLogicalVolume()
 {
-  BDSBeamPipeFactory* factory = BDSBeamPipeFactory::Instance();
-  BDSBeamPipe* pipe = factory->CreateBeamPipe(name + "_beampipe",
+  BDSBeamPipeFactory factory;
+  BDSBeamPipe* pipe = factory.CreateBeamPipe(name + "_beampipe",
                                               chordLength,
                                               beamPipeInfo);
   RegisterDaughter(pipe);

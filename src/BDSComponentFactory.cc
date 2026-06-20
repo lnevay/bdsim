@@ -1499,7 +1499,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateBeamMaskCollimator()
   {circularOuter = true;}
   return new BDSCollimatorBeamMask(elementName,
                                    element->l*CLHEP::m,
-                                   PrepareBeamPipeInfo(element),
+                                   PrepareBeamPipeInfo2(element),
                                    PrepareHorizontalWidth(element, 0.15*CLHEP::m),
                                    PrepareMaterial(element),
                                    PrepareVacuumMaterial(element),
@@ -1530,7 +1530,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateGasCapillary()
 
   return new BDSGasCapillary(elementName,
                              element->l*CLHEP::m,
-                             PrepareBeamPipeInfo(element),
+                             PrepareBeamPipeInfo2(element),
                              PrepareHorizontalWidth(element, 0.15*CLHEP::m),
                              BDSMaterials::Instance()->GetMaterial(materials[0]),
                              BDSMaterials::Instance()->GetMaterial(materials[1]),
@@ -1547,7 +1547,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateGasJet()
 
   return new BDSGasJet(elementName,
                        element->l*CLHEP::m,
-                       PrepareBeamPipeInfo(element),
+                       PrepareBeamPipeInfo2(element),
                        PrepareMaterial(element),
                        element->xdir*CLHEP::m,
                        element->ydir*CLHEP::m,
@@ -2130,8 +2130,8 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateThinRMatrix(G4double        
   beamPipeInfo->beamPipeType = BDSBeamPipeType::circularvacuum;
 
   // override beampipe radius if supplied - must be set to be iris size for cavity model fringes.
-  if (BDS::IsFinite(beamPipeRadius))
-	  {beamPipeInfo->aper1 = beamPipeRadius;}
+  //if (BDS::IsFinite(beamPipeRadius)) TODO
+	//  {beamPipeInfo->aperture->aper1 = beamPipeRadius;}
 
   BDSMagnetOuterInfo* magnetOuterInfo = PrepareMagnetOuterInfo(name, element, -angleIn, angleIn, beamPipeInfo);
   magnetOuterInfo->geometryType = BDSMagnetGeometryType::none;
@@ -2181,16 +2181,8 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateGaborLens()
   if (!HasSufficientMinimumLength(element))
     {return nullptr;}
   // force circular vacuum volume
-  BDSBeamPipeInfo* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel();
-  BDSBeamPipeInfo* bpInfo = new BDSBeamPipeInfo(defaultModel,
-                                                "circular",
-                                                element->aper1 * CLHEP::m,
-                                                0,0,0,
-                                                element->vacuumMaterial,
-                                                element->beampipeThickness * CLHEP::m,
-                                                element->beampipeMaterial,
-                                                G4ThreeVector(0,0,-1),
-                                                G4ThreeVector(0,0,1));
+  BDSBeamPipeInfo* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel(); // TODO
+  BDSBeamPipeInfo2* bpInfo =  PrepareBeamPipeInfo2(element);
 
   const BDSFieldType gaborLensField = BDSFieldType::gaborlens;
   BDSIntegratorType intType = integratorSet->Integrator(gaborLensField);
@@ -2255,7 +2247,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateLaserwire(G4double syncrhono
   
   return (new BDSLaserWireNew(elementName,
                               element->l*CLHEP::m,
-                              PrepareBeamPipeInfo(element),
+                              PrepareBeamPipeInfo2(element),
                               laser,
                               30.0*laser->Sigma0(),
                               element->wireLength*CLHEP::m,

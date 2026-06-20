@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAcceleratorComponent.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo.hh"
+#include "BDSBeamPipeInfo2.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
 #include "BDSFieldBuilder.hh"
@@ -60,7 +60,7 @@ BDSGaborLens::BDSGaborLens(const G4String& nameIn,
                            G4double electrodeThicknessIn,
                            G4Material* outerMaterialIn,
                            G4Colour* colourIn,
-                           BDSBeamPipeInfo* beamPipeInfoIn,
+                           BDSBeamPipeInfo2* beamPipeInfoIn,
                            BDSFieldInfo* vacuumFieldInfoIn):
   BDSAcceleratorComponent(nameIn, lengthIn, 0, "gaborlens", beamPipeInfoIn),
   horizontalWidth(horizontalWidthIn),
@@ -247,8 +247,8 @@ void BDSGaborLens::BuildOuter()
 
 void BDSGaborLens::BuildBeamPipe()
 {
-  BDSBeamPipeFactory* factory = BDSBeamPipeFactory::Instance();
-  BDSBeamPipe* pipe = factory->CreateBeamPipe(name + "_beampipe",
+  BDSBeamPipeFactory factory;
+  BDSBeamPipe* pipe = factory.CreateBeamPipe(name + "_beampipe",
                                               vacuumLength,
                                               beamPipeInfo);
   RegisterDaughter(pipe);

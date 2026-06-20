@@ -47,7 +47,7 @@ public:
           G4double electrodeThicknessIn,
           G4Material* outerMaterialIn,
           G4Colour* colourIn,
-          BDSBeamPipeInfo* beamPipeInfoIn = nullptr,
+          BDSBeamPipeInfo2* beamPipeInfoIn = nullptr,
           BDSFieldInfo* vacuumFieldInfoIn = nullptr);
     virtual ~BDSGaborLens();
   

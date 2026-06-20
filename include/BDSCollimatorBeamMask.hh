@@ -40,7 +40,7 @@ public:
   BDSCollimatorBeamMask() = delete;
   BDSCollimatorBeamMask(const G4String&  name,
                         G4double         length,
-                        BDSBeamPipeInfo* beamPipeInfoIn,
+                        BDSBeamPipeInfo2* beamPipeInfoIn,
                         G4double         horizontalWidth,
                         G4Material*      collimatorMaterial,
                         G4Material*      vacuumMaterial,

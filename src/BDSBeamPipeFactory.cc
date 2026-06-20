@@ -67,6 +67,15 @@ BDSBeamPipeFactoryBase* BDSBeamPipeFactory::GetAppropriateFactory(BDSBeamPipeTyp
     }
   return result;
 }
+
+BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipe(const G4String&  name,
+                                                G4double         length,
+                                                BDSBeamPipeInfo2* bpi)
+{
+  BDSBeamPipeFactoryBase* factory = GetAppropriateFactory(bpi->beamPipeType);
+  return factory->CreateBeamPipe(name, length, bpi);
+}
+
 /*
 BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipeForVacuumIntersection(const G4String&  name,
 								     G4double         length,
@@ -85,42 +94,4 @@ BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipeForVacuumIntersection(const G4Str
 			bpi->beamPipeThickness,
 			bpi->beamPipeMaterial);
 }
-
-BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipe(const G4String&  name,
-						G4double         length,
-						BDSBeamPipeInfo* bpi)
-{
-  if ((bpi->inputFaceNormal.z() > -1) || (bpi->outputFaceNormal.z() < 1))
-    {
-      return CreateBeamPipe(bpi->beamPipeType,
-			    name,
-			    length,
-			    bpi->inputFaceNormal,
-			    bpi->outputFaceNormal,
-			    bpi->aper1,
-			    bpi->aper2,
-			    bpi->aper3,
-			    bpi->aper4,
-			    bpi->vacuumMaterial,
-			    bpi->beamPipeThickness,
-			    bpi->beamPipeMaterial,
-			    bpi->pointsFileName,
-			    bpi->pointsUnit);
-    }
-  else
-    {
-      return CreateBeamPipe(bpi->beamPipeType,
-			    name,
-			    length,
-			    bpi->aper1,
-			    bpi->aper2,
-			    bpi->aper3,
-			    bpi->aper4,
-			    bpi->vacuumMaterial,
-			    bpi->beamPipeThickness,
-			    bpi->beamPipeMaterial,
-			    bpi->pointsFileName,
-			    bpi->pointsUnit);
-    }
-  return result;
 */

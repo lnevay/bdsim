@@ -43,7 +43,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSCollimatorBeamMask::BDSCollimatorBeamMask(const G4String& nameIn,
                                              G4double    lengthIn,
-                                             BDSBeamPipeInfo* beamPipeInfoIn,
+                                             BDSBeamPipeInfo2* beamPipeInfoIn,
                                              G4double    horizontalWidthIn,
                                              G4Material* collimatorMaterialIn,
                                              G4Material* vacuumMaterialIn,
@@ -121,10 +121,10 @@ G4String BDSCollimatorBeamMask::Material() const
 
 void BDSCollimatorBeamMask::BuildContainerLogicalVolume()
 {
-  BDSBeamPipeFactory* factory = BDSBeamPipeFactory::Instance();
-  BDSBeamPipe* pipe = factory->CreateBeamPipe(name + "_beampipe",
-                                              chordLength,
-                                              beamPipeInfo);
+  BDSBeamPipeFactory factory;
+  BDSBeamPipe* pipe = factory.CreateBeamPipe(name + "_beampipe",
+                                             chordLength,
+                                             beamPipeInfo);
   RegisterDaughter(pipe);
 
   // make the beam pipe container, this object's container

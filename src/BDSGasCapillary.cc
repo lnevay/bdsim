@@ -44,7 +44,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSGasCapillary::BDSGasCapillary(const G4String&  nameIn,
                                  G4double         lengthIn,
-                                 BDSBeamPipeInfo* beamPipeInfoIn,
+                                 BDSBeamPipeInfo2* beamPipeInfoIn,
                                  G4double         horizontalWidthIn,
                                  G4Material*      capillaryOuterMaterialIn,
                                  G4Material*      capillaryGasMaterialIn,
@@ -120,8 +120,8 @@ G4String BDSGasCapillary::ElectrodeMaterial() const
 
 void BDSGasCapillary::BuildContainerLogicalVolume()
 {
-  BDSBeamPipeFactory* factory = BDSBeamPipeFactory::Instance();
-  BDSBeamPipe* pipe = factory->CreateBeamPipe(name + "_beampipe",
+  BDSBeamPipeFactory factory;
+  BDSBeamPipe* pipe = factory.CreateBeamPipe(name + "_beampipe",
                                               chordLength,
                                               beamPipeInfo);
   RegisterDaughter(pipe);

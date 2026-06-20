@@ -38,7 +38,7 @@ class BDSGasJet: public BDSAcceleratorComponent
 public:
     BDSGasJet(const G4String&  name,
               G4double         length,
-              BDSBeamPipeInfo* beamPipeInfoIn,
+              BDSBeamPipeInfo2* beamPipeInfoIn,
               G4Material*      gasMaterial,
               G4double         xSize     = 0,
               G4double         ySize     = 0,
