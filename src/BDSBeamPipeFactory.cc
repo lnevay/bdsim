@@ -60,19 +60,19 @@ BDSBeamPipeFactoryBase* BDSBeamPipeFactory::GetAppropriateFactory(BDSBeamPipeTyp
     case BDSBeamPipeType::lhcdetailed:
       {result = lhcdetailed; break;}
     default:
-#ifdef BDSDEBUG
-      G4cout << __METHOD_NAME__ << "unknown type \"" << type << "\" - circular beampipe factory by default" << G4endl;
-#endif
-      return circular;
-      break;
+      {
+        throw BDSException(__METHOD_NAME__, "unimplemented beam pipe type.");
+        break;
+      }
     }
+  return result;
 }
-
+/*
 BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipeForVacuumIntersection(const G4String&  name,
 								     G4double         length,
-								     BDSBeamPipeInfo* bpi)
+								     BDSBeamPipeInfo2* bpi)
 {
-  BDSBeamPipeInfo copy = BDSBeamPipeInfo(*bpi);
+  BDSBeamPipeInfo2 copy = BDSBeamPipeInfo2(*bpi);
   copy.ShrinkBy(BDSGlobalConstants::Instance()->LengthSafetyLarge());
   return CreateBeamPipe(BDSBeamPipeType::circularvacuum,
 			name,
@@ -123,12 +123,4 @@ BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipe(const G4String&  name,
 			    bpi->pointsUnit);
     }
   return result;
-}
-
-BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipe(const G4String&  name,
-                                                G4double         length,
-                                                BDSBeamPipeInfo2* bpi)
-{
-  BDSBeamPipeFactoryBase* factory = GetAppropriateFactory(bpi->beamPipeType);
-  return factory->CreateBeamPipe(name, length, bpi);
-}
+*/
