@@ -19,6 +19,7 @@ Model Control
   - :ref:`physics-modular-physics-lists`
   - :ref:`physics-geant4-lists`
   - :ref:`physics-complete-lists`
+  - :ref:`millicharged-physics`
 
 * :ref:`physics-biasing`
 
@@ -406,7 +407,7 @@ The following beam distributions are available in BDSIM
 - `gaussmatrix`_
 - `gauss`_
 - `gausstwiss`_
-
+  
 **Uniform Type**
 - `circle`_
 - `square`_
@@ -416,6 +417,12 @@ The following beam distributions are available in BDSIM
 - `box`_
 - `halo`_
 - `halosigma`_
+
+**Slow Extraction**
+- `slowext`_
+- `gaussmatrixslowext`_
+- `gaussslowext`_
+- `gausstwissslowext`_
 
 **Composite**
 - `composite`_
@@ -452,29 +459,29 @@ particle - including the rest mass.
 
   .. tabularcolumns:: |p{5cm}|p{6cm}|p{2cm}|
 
-+----------------------------------+-------------------------------------------------------+----------+
-| Option                           | Description                                           | Default  |
-+==================================+=======================================================+==========+
-| `X0`                             | Horizontal position [m]                               | 0        |
-+----------------------------------+-------------------------------------------------------+----------+
-| `Y0`                             | Vertical position [m]                                 | 0        |
-+----------------------------------+-------------------------------------------------------+----------+
-| `Z0`                             | Longitudinal position [m]                             | 0        |
-+----------------------------------+-------------------------------------------------------+----------+
-| `S0`                             | Curvilinear S offset [m]                              | 0        |
-+----------------------------------+-------------------------------------------------------+----------+
-| `T0`                             | Longitudinal position [s]                             | 0        |
-+----------------------------------+-------------------------------------------------------+----------+
-| `Xp0`                            | Horizontal component momentum of unit vector          | 0        |
-+----------------------------------+-------------------------------------------------------+----------+
-| `Yp0`                            | Vertical component momentum of unit vector            | 0        |
-+----------------------------------+-------------------------------------------------------+----------+
-| `E0`                             | Central total energy of bunch distribution (GeV)      | 'energy' |
-+----------------------------------+-------------------------------------------------------+----------+
-| `Ek0`                            | Central kinetic energy of bunch distribution (GeV)    | \*       |
-+----------------------------------+-------------------------------------------------------+----------+
-| `P0`                             | Central momentum of bunch distribution (GeV)          | \*       |
-+----------------------------------+-------------------------------------------------------+----------+
++----------------------------------+-------------------------------------------------------+--------------+
+| **Variable**                     | **Description**                                       | **Default**  |
++==================================+=======================================================+==============+
+| `X0`                             | Horizontal position [m]                               | 0            |
++----------------------------------+-------------------------------------------------------+--------------+
+| `Y0`                             | Vertical position [m]                                 | 0            |
++----------------------------------+-------------------------------------------------------+--------------+
+| `Z0`                             | Longitudinal position [m]                             | 0            |
++----------------------------------+-------------------------------------------------------+--------------+
+| `S0`                             | Curvilinear S offset [m]                              | 0            |
++----------------------------------+-------------------------------------------------------+--------------+
+| `T0`                             | Longitudinal position [s]                             | 0            |
++----------------------------------+-------------------------------------------------------+--------------+
+| `Xp0`                            | Horizontal component momentum of unit vector          | 0            |
++----------------------------------+-------------------------------------------------------+--------------+
+| `Yp0`                            | Vertical component momentum of unit vector            | 0            |
++----------------------------------+-------------------------------------------------------+--------------+
+| `E0`                             | Central total energy of bunch distribution (GeV)      | 'energy'     |
++----------------------------------+-------------------------------------------------------+--------------+
+| `Ek0`                            | Central kinetic energy of bunch distribution (GeV)    | \*           |
++----------------------------------+-------------------------------------------------------+--------------+
+| `P0`                             | Central momentum of bunch distribution (GeV)          | \*           |
++----------------------------------+-------------------------------------------------------+--------------+
 
 * \* Only one of :code:`E0`, :code:`Ek0` and :code:`P0` can be set. The others are calculated from
   that value.
@@ -501,8 +508,13 @@ Generates a beam with all coordinates=0 at the nominal energy. ::
 Generates a particle with an offset of 100 :math:`\mu\mathrm{m}` horizontally and 3.5
 :math:`\mu\mathrm{m}` vertically.
 
+
+.. _beam-gauss-matrix:
+      
 gaussmatrix
 ***********
+
+Both :code:`gaussmatrix` and :code:`gauss-matrix` are accepted.
 
 Uses the :math:`N` dimensional Gaussian generator from `CLHEP`, `CLHEP::RandMultiGauss`. The generator
 is initialised by a :math:`6\times1` means vector and :math:`6\times 6` sigma matrix.
@@ -512,7 +524,7 @@ is initialised by a :math:`6\times1` means vector and :math:`6\times 6` sigma ma
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
 +------------------+-----------------------------------+
-| Option           | Description                       |
+| **Variable**     | **Description**                   |
 +==================+===================================+
 | `sigmaNM`        | Sigma matrix element (N,M)        |
 +------------------+-----------------------------------+
@@ -543,6 +555,9 @@ Examples: ::
 	  a *correlation* between `x` and `E`, other off-diagonal terms in the covariance matrix should
 	  be finite also.
 
+
+.. _beam-gauss:
+          
 gauss
 *****
 
@@ -578,7 +593,7 @@ and :code:`sigmaP` is subsequently calculated as above from this.
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
 +------------------+----------------------------------------------------+
-| Option           | Description                                        |
+| **Variable**     | **Description**                                    |
 +==================+====================================================+
 | `sigmaX`         | Horizontal Gaussian sigma [m]                      |
 +------------------+----------------------------------------------------+
@@ -597,8 +612,13 @@ and :code:`sigmaP` is subsequently calculated as above from this.
 | `sigmaT`         | Sigma of the temporal distribution [s]             |
 +------------------+----------------------------------------------------+
 
+
+.. _beam-gauss-twiss:
+
 gausstwiss
 **********
+
+Both :code:`gausstwiss` and :code:`gauss-twiss` are accepted.
 
 The beam parameters are defined by the usual Twiss parameters (listed below in full)
 :math:`\alpha`, :math:`\beta` and :math:`\gamma`, plus dispersion :math:`\eta`, from
@@ -640,7 +660,7 @@ which the beam :math:`\sigma` -matrix is calculated, using the following equatio
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
 +----------------------------------+-------------------------------------------------------+
-| Option                           | Description                                           |
+| **Variable**                     | **Description**                                       |
 +==================================+=======================================================+
 | `emitx`                          | Horizontal beam core geometric emittance [m rad]      |
 +----------------------------------+-------------------------------------------------------+
@@ -688,7 +708,7 @@ energy is also uniformly distributed between :math:`\pm` `envelopeE`. No distrib
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
 +----------------------------------+-------------------------------------------------------+
-| Option                           | Description                                           |
+| **Variable**                     | **Description**                                       |
 +==================================+=======================================================+
 | `envelopeR`                      | Maximum radial position from central value            |
 +----------------------------------+-------------------------------------------------------+
@@ -715,7 +735,7 @@ energy is also uniformly distributed between :math:`\pm` `envelopeE`.
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
 +----------------------------------+-------------------------------------------------------+
-| Option                           | Description                                           |
+| **Variable**                     | **Description**                                       |
 +==================================+=======================================================+
 | `envelopeX`                      | Maximum position in X [m]                             |
 +----------------------------------+-------------------------------------------------------+
@@ -753,22 +773,32 @@ ring
 
 The ring distribution randomly and uniformly distributes particles around a circle in `x` and `y`. Then,
 for a given x,y the radius is randomly and uniformly in density distributed in that annulus. For
-all other parameters, the `reference`_ coordinates are used, i.e. `xp`, `yp` etc.
+all other parameters, the `reference`_ coordinates are used. Optionally, a similar distribution in
+`xp` and `yp` can be provided between two radii. If not specified, then no angle is given.
 
 
 * All parameters from `reference`_ distribution are used as centroids.
 
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
-+----------------------------------+-------------------------------------------------------+
-| Option                           | Description                                           |
-+==================================+=======================================================+
-| `Rmin`                           | Minimum radius in `x` and `y` [m]                     |
-+----------------------------------+-------------------------------------------------------+
-| `Rmax`                           | Maximum radius in `x` and `y` [m]                     |
-+----------------------------------+-------------------------------------------------------+
++--------------------+------------------------------------+------------------+
+| **Variable**       | **Description**                    | **Range**        |
++====================+====================================+==================+
+| `Rmin`             | Minimum radius in `x` and `y` [m]  | 0 - inf.         |
++--------------------+------------------------------------+------------------+
+| `Rmax`             | Maximum radius in `x` and `y` [m]  | 0 - inf.         |
++--------------------+------------------------------------+------------------+
+| `Rpmin`            | Minimum radius in `rp` (optional)  | 0 - 1            |
++--------------------+------------------------------------+------------------+
+| `Rpmax`            | Maximum radius in `rp` (optional)  | 0 - 1            |
++--------------------+------------------------------------+------------------+
 
-* No variation in `z`, `xp`, `yp`, `t`, `s` and total energy. Only central values.
+* No variation in `z`, `t`, `s` and total energy. Only central values.
+* `Rpmin` and `Rpmax` are the radial component of the unit momentum vector, akin to `xp` and `yp`
+  and should be < 1.
+* `Rpmin` must be less than or equal to `Rpmax`.
+* If only one single, non-zero, value of `Rp` is required, both `Rpmin` and `Rpmax`
+  should be set to the same value.
 
 
 eshell
@@ -781,7 +811,7 @@ Defines an elliptical annulus in phase space in each dimension that's uncorrelat
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
 +----------------------------------+--------------------------------------------------------------------+
-| Option                           | Description                                                        |
+| **Variable**                     | **Description**                                                    |
 +==================================+====================================================================+
 | `shellX`                         | Ellipse semi-axis in phase space in horizontal position [m]        |
 +----------------------------------+--------------------------------------------------------------------+
@@ -852,7 +882,7 @@ This results in an uneven distribution in these variables over the range (cube p
 .. tabularcolumns:: |p{5cm}|p{9cm}|
 
 +----------------------------------+-------------------------------------------------------+
-| Option                           | Description                                           |
+| **Variable**                     | **Description**                                       |
 +==================================+=======================================================+
 | `envelopeX`                      | Maximum position in X [m]                             |
 +----------------------------------+-------------------------------------------------------+
@@ -906,7 +936,7 @@ weighting functions are either `flat`, one over emittance `oneoverr` or exponent
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
 +----------------------------------+-----------------------------------------------------------------------------+
-| Option                           | Description                                                                 |
+| **Variable**                     | **Description**                                                             |
 +==================================+=============================================================================+
 | `emitx`                          | Horizontal beam core geometric emittance [m rad]                            |
 |                                  | :math:`\epsilon_{{\rm core},x}`                                             |
@@ -980,6 +1010,8 @@ Example::
 halosigma
 *********
 
+Both :code:`halosigma` and :code:`halo-sigma` are accepted.
+
 Similar to type `halo` except instead of uniformly sampling :math:`J`, the single
 particle emittance (action), the particle's :math:`n\sigma` is sampled uniformly
 instead. The particle action :math:`J` is expressed in terms of the multiple of
@@ -1000,7 +1032,7 @@ re-weighting in post-processing.
 .. tabularcolumns:: |p{5cm}|p{10cm}|
 
 +----------------------------------+-----------------------------------------------------------------------------+
-| Option                           | Description                                                                 |
+| **Variable**                     | **Description**                                                             |
 +==================================+=============================================================================+
 | `emitx`                          | Horizontal beam core geometric emittance [m rad]                            |
 |                                  | :math:`\epsilon_{{\rm core},x}`                                             |
@@ -1051,6 +1083,129 @@ Example: ::
 	haloNSigmaYOuter      = 3.0;
 
 
+.. _beam-slowext:
+
+slowext
+*******
+
+* Also accepts :code:`slow-ext`.
+
+Spatial coordinates follow the reference beam parameters. Otherwise, the distribution
+produces a linear correlation between momentum and time as defined by a start and stop
+point in time (relative to the central `T0`) and from an offset in momentum at the start
+to a different value at the stop point. This is shown schematically below.
+
+.. figure:: figures/slowext-diagram.png
+   :width: 50%
+   :align: center
+
+
+Particles are uniformly and randomly drawn along this correlation. There must be a difference
+between the start and stop time. `dTStart` should be less than `dTStop`. `dPStart` can be less
+or greather than `dPStop`. The start and stop times can both be before or after zero as can the
+moemntum values both be above or below the nominal value.
+
++------------------+-------------------------------------------+
+| **Variable**     | **Description**                           |
++==================+===========================================+
+| `dTStart`        | Starting time offset from T0 (s)          |
++------------------+-------------------------------------------+
+| `dTStop`         | Stop time offset from T0 (s)              |
++------------------+-------------------------------------------+
+| `dPStart`        | Starting point offset in P from P0 (GeV)  |
++------------------+-------------------------------------------+
+| `dPStop`         | Stoppoing point offset in P from P0 (GeV) |
++------------------+-------------------------------------------+
+
+Example::
+
+  beam, particle = "proton",
+        momentum = 100*GeV,
+        distrType = "slowext",
+        dTStart = -2.4*s,
+        dTStop = 2.4*s,
+        dPStart = 0,
+        dPStop = 0.6*GeV;
+
+
+
+gaussslowext
+************
+
+* Also accepts :code:`gauss-slow-ext`.
+
+This distribution first uses the parameters of :ref:`beam-gauss` (i.e. an uncorrelated Gaussian),
+and then **adds** to that the P-T correlation of :ref:`beam-slowext`. The parameters of both can be used.
+
+Example::
+
+  beam,  particle = "proton",
+         momentum = 100*GeV,
+         distrType = "gaussslowext",
+         sigmaX  = 0.4*mm,
+         sigmaY  = 0.2*mm,
+         sigmaXp = 1e-6,
+         sigmaYp = 1e-7,
+         sigmaE  = 4e-4,
+         sigmaT  = 1e-9,
+         dTStart = -2.4*s,
+         dTStop = 2.4*s,
+         dPStart = 0,
+         dPStop = 0.6*GeV;
+
+
+        
+gaussmatrixslowext
+******************
+
+* Also accepts :code:`gauss-matrix-slow-ext`.
+
+This distribution first uses the parameters of :ref:`beam-gauss-matrix` and then **adds** to that
+the P-T correlation of :ref:`beam-slowext`. The parameters of both can be used.
+
+Example::
+
+  beam,  particle = "e-",
+         energy = 10.0*GeV,
+         distrType = "gaussmatrixslowext",
+         sigma11 = 0.002*mm*0.002*mm,
+         sigma22 = 0.09*0.005*0.09*0.005,
+         sigma33 = 0.002*mm*0.002*mm,
+         sigma44 = 0.09*0.005*0.09*0.005,
+         sigma55 = 1e-9*1e-9,          
+         sigma66 = 1e-5*1e-5,
+         dTStart = -2.4*s,
+         dTStop = 2.4*s,
+         dPStart = 0,
+         dPStop = 0.06*GeV;
+  
+
+
+gausstwissslowext
+*****************
+
+* Also accepts :code:`gauss-twiss-slow-ext`.
+
+This distribution first uses the parameters of :ref:`beam-gauss-twiss` and then **adds** to that
+the P-T correlation of :ref:`beam-slowext`. The parameters of both can be used.
+
+Example:: 
+
+  beam, particle="e-",
+        energy=1.0*GeV,
+        distrType="gausstwissslowext",
+        betx=4.60000*m,
+        bety=2.60000*m,
+        alfx=-0.3083824,
+        alfy= 0.0233215,
+        emitx=25e-9,
+        emity=25e-9,
+        dTStart = -2.4*s,
+        dTStop = 2.4*s,
+        dPStart = 0,
+        dPStop = 0.6*GeV;
+
+
 .. _beam-composite:
 
 composite
@@ -1062,23 +1217,24 @@ appropriate parameters need to be defined for each individual distribution.
 
 * All parameters from `reference`_ distribution are used as centroids.
 * The default for `xDistrType`, `yDistrType` and `zDistrType` are `reference`.
+* The weight is the product of the weight supplied from each distribution (default 1).
 
 .. tabularcolumns:: |p{3cm}|p{4cm}|p{4cm}|
 
-+---------------+--------------------------------+------------------------+
-| **Variable**  | **Description**                | **Coordinates Used**   |
-+===============+================================+========================+
-| `xDistrType`  | Horizontal distribution type   | x,xp,weight            |
-+---------------+--------------------------------+------------------------+
-| `yDistrType`  | Vertical distribution type     | y,yp                   |
-+---------------+--------------------------------+------------------------+
-| `zDistrType`  | Longitudinal distribution type | z,zp,s,T,totalEnergy   |
-+---------------+--------------------------------+------------------------+
++---------------+--------------------------------+------------------------------------+
+| **Variable**  | **Description**                | **Coordinates Used**               |
++===============+================================+====================================+
+| `xDistrType`  | Horizontal distribution type   | x, xp, weight                      |
++---------------+--------------------------------+------------------------------------+
+| `yDistrType`  | Vertical distribution type     | y, yp, weight                      |
++---------------+--------------------------------+------------------------------------+
+| `zDistrType`  | Longitudinal distribution type | z, zp, s, T, totalEnergy, weight   |
++---------------+--------------------------------+------------------------------------+
  
 .. note:: It is currently not possible to use two differently specified versions of the same
- 	  distribution within the composite distribution, i.e. gaussTwiss (parameter set 1) for x
-	  and gaussTwiss (parameter set 2) for y. They will have the same settings as (for example)
-	  only one betx can be specified.
+          distribution within the composite distribution, i.e. gaussTwiss (parameter set 1) for x
+          and gaussTwiss (parameter set 2) for y. They will have the same settings as (for example)
+          only one betx can be specified.
 
 Examples: ::
 
@@ -1109,24 +1265,25 @@ Examples: ::
 compositespacedirectionenergy
 *****************************
 
-* Also accepted :code:`compositesde`.
+* Also accepted :code:`compositesde` and :code:`composite-space-direction-energy`.
 
 The distribution allows 3 different distributions to be mixed together. One for spatial coordinates,
 one for directional, and one for energy & time.
 
 * All parameters from `reference`_ distribution are used as centroids.
 * The default for `spaceDistrType`, `directionDistrType` and `energyDistrType` are `reference`.
+* The weight is the product of the weight supplied from each distribution (default 1).
 
 .. tabularcolumns:: |p{3cm}|p{4cm}|p{4cm}|
 
 +----------------------+--------------------------------+------------------------+
 | **Variable**         | **Description**                | **Coordinates Used**   |
 +======================+================================+========================+
-| `spaceDistrType`     | Spatial distribution type      | x,y,z                  |
+| `spaceDistrType`     | Spatial distribution type      | x, y, z, weight        |
 +----------------------+--------------------------------+------------------------+
-| `directionDistrType` | Directional distribution type  | xp,yp,zp               |
+| `directionDistrType` | Directional distribution type  | xp, yp, zp, weight     |
 +----------------------+--------------------------------+------------------------+
-| `energyDistrType`    | Energy distribution type       | T,totalEnergy          |
+| `energyDistrType`    | Energy distribution type       | T, totalEnergy, weight |
 +----------------------+--------------------------------+------------------------+
 
 .. note:: It is currently not possible to use two differently specified versions of the same
@@ -1138,12 +1295,12 @@ Examples: ::
 
   beam, particle = "e-",
         kineticEnergy = 30*MeV,
-	distrType = "compositespacedirectionenergy",
-	spaceDistrType = "box",
-	directionDistrType = "sphere",
-	envelopeX = 2*cm,
-	envelopeY = 3*cm,
-	envelopeZ = 4*cm;
+        distrType = "compositespacedirectionenergy",
+        spaceDistrType = "box",
+        directionDistrType = "sphere",
+        envelopeX = 2*cm,
+        envelopeY = 3*cm,
+        envelopeZ = 4*cm;
 
 
 .. _beam-distributions-file-based:
@@ -1173,7 +1330,7 @@ looped (knowingly introducing potential correlations).
 For all the file-based distributions, the following beam options apply.
 
 +------------------------------+---------------+-----------------------------------------------+
-| **Option**                   |  **Default**  | **Description**                               |
+| **Variable**                 |  **Default**  | **Description**                               |
 +==============================+===============+===============================================+
 | `distrFileMatchLength`       | 1 (true)      | Whether to simulate the number of events      |
 |                              |               | that match the number of entries in the file  |
@@ -1314,7 +1471,7 @@ particle coordinates from the beginning. A warning will be printed out in this c
 .. tabularcolumns:: |p{3cm}|p{7cm}|p{3cm}|
 
 +----------------------------------+-------------------------------------------------------+---------------+
-| Option                           | Description                                           | **Required**  |
+| **Variable**                     | **Description**                                       | **Required**  |
 +==================================+=======================================================+===============+
 | `distrFile`                      | File path to ASCII data file                          | Yes           |
 +----------------------------------+-------------------------------------------------------+---------------+
@@ -1436,7 +1593,7 @@ Output from MAD-X PTC used as input for BDSIM.
 .. tabularcolumns:: |p{2cm}|p{3cm}|
 
 +----------------------------------+-------------------------------------------------------+
-| Option                           | Description                                           |
+| **Variable**                     | **Description**                                       |
 +==================================+=======================================================+
 | `distrFile`                      | PTC output file                                       |
 +----------------------------------+-------------------------------------------------------+
@@ -1452,6 +1609,8 @@ Output from MAD-X PTC used as input for BDSIM.
 
 eventgeneratorfile
 ******************
+
+Both :code:`eventgeneratorfile` and :code:`event-generator-file` are accepted.
 
 To use a file from an event generator, the HepMC3 library must be used and BDSIM must be
 compiled with respect to it.  See :ref:`installation-bdsim-config-options` for more details.
@@ -1474,7 +1633,7 @@ where `W` is some coordinate.
 .. tabularcolumns:: |p{5cm}|p{9cm}|
 
 +----------------------------+-----------------------------------------------------------+
-| Option                     | Description                                               |
+| **Variable**               | **Description**                                           |
 +============================+===========================================================+
 | distrType                  | This should be "eventgeneratorfile:format" where format   |
 |                            | one of the acceptable formats listed below.               |
@@ -1596,6 +1755,8 @@ For only pions: ::
 bdsimsampler
 ************
 
+Both :code:`bdsimsampler` and :code:`bdsim-sampler` are accepted.
+
 Recorded hits in a sampler in a BDSIM ROOT output file can be loaded back into BDSIM
 and launched through a model. This does not have to be the same model and the starting
 position does not need to be the same.
@@ -1606,7 +1767,7 @@ position does not need to be the same.
 	     in the original model as a beam offset.
 
 +----------------------------+-----------------------------------------------------------+
-| Option                     | Description                                               |
+| **Varaible**               | **Description**                                           |
 +============================+===========================================================+
 | `distrType`                | This should be "bdsimsampler:samplername".                |
 +----------------------------+-----------------------------------------------------------+
@@ -1820,6 +1981,14 @@ Examples: ::
 +------------------------------+------------------------------------------------------------------------+
 | dna                          | G4EmDNAPhysics list.  Only applies to G4_WATER material.               |
 +------------------------------+------------------------------------------------------------------------+
+| dna_chemistry                | G4EmDNAChemistry list. From Geant4 10.2 onwards.                       |
++------------------------------+------------------------------------------------------------------------+
+| dna_chemistry_1              | G4EmDNAChemistry list. From Geant4 10.7 onwards.                       |
++------------------------------+------------------------------------------------------------------------+
+| dna_chemistry_2              | G4EmDNAChemistry list. From Geant4 10.7 onwards.                       |
++------------------------------+------------------------------------------------------------------------+
+| dna_chemistry_3              | G4EmDNAChemistry list. From Geant4 10.7 onwards.                       |
++------------------------------+------------------------------------------------------------------------+
 | dna_1                        | Variant 1 of G4EmDNAPhysics list. Uses G4EmDNAPhysics_option1.         |
 +------------------------------+------------------------------------------------------------------------+
 | dna_X                        | Variant X of G4EmDNAPhysics list, where X is one of 1,2,3,4,5,6,7.     |
@@ -1864,6 +2033,10 @@ Examples: ::
 +------------------------------+------------------------------------------------------------------------+
 | ftfp_bert_hp                 | Similar to `FTFP_BERT`, but with the high precision neutron package.   |
 |                              | This is provided by `G4HadronPhysicsFTFP_BERT_HP`.                     |
++------------------------------+------------------------------------------------------------------------+
+| ftf_bic                      | Similar to `ftfp_bert`, but with the binary cascade for various        |
+|                              | particles - see Geant4 for which particles and which transition        |
+|                              | energies. Uses `G4HadronPhysicsFTF_BIC`.                               |
 +------------------------------+------------------------------------------------------------------------+
 | gamma_to_mumu                | Only gamma to a muon pair for gammas is registered.                    |
 +------------------------------+------------------------------------------------------------------------+
@@ -2229,6 +2402,42 @@ target of carbon. This example can be found in :code:`bdsim/examples/features/pr
           and therefore will affect ion-ion collisions too.
 
 
+.. _millicharged-physics:
+
+Millicharged Physics
+--------------------
+
+Currently, millicharged physics include EM transport and scattering processes.
+To simulate millicharged particles, the following options may be specified:
+
+.. tabularcolumns:: |p{5cm}|p{10cm}|p{3cm}|p{3cm}|
+
++-------------------+---------------------------------------+----------------+-----------------+
+| Parameter         | Description                           | Default        | Required        |
++===================+=======================================+================+=================+
+|`enableMillicharge`| Whether to allow millicharge physics. | False          | No              |
++-------------------+---------------------------------------+----------------+-----------------+
+|`millichargeName`  | Name of the particle.                 | "millicharged" | No              |
++-------------------+---------------------------------------+----------------+-----------------+
+|`millichargeMass`  | Rest mass [GeV].                      | 100            | No              |
++-------------------+---------------------------------------+----------------+-----------------+
+|`millichargeCharge`| Electric charge [e+].                 | 0.1            | No              |
++-------------------+---------------------------------------+----------------+-----------------+
+|`millichargeID`    | PDG ID.                               | 411000         | No              |
++-------------------+---------------------------------------+----------------+-----------------+
+
+Example: ::
+
+  beam, particle="millie",
+        kineticEnergy=100*GeV;
+
+  option, enableMillicharge=1,
+          millichargeName="millie",
+          millichargeMass=10*GeV,
+          millichargeCharge=0.01,
+          millichargeID=411000;
+        
+
 .. _physics-biasing:
 
 Physics Biasing
@@ -2272,7 +2481,8 @@ only one proton definition.
 .. note:: This only works with Geant4 version 10.1 or higher. It does not work Geant4.10.3.X series.
 
 1) Define a bias object with parameters in following table.
-2) Use :code:`bias`, :code:`biasMaterial` or :code:`biasVacuum` in an element definition naming the bias object.
+2) Use :code:`bias`, :code:`biasMaterial`, :code:`biasMaterialLV` or :code:`biasVacuum` in an element definition
+   naming the bias object.
 
 .. tabularcolumns:: |p{3cm}|p{10cm}|
    
@@ -2320,16 +2530,21 @@ Example::
 
 The process can also be attached to a specific element using the keywords :code:`biasVacuum` or
 :code:`biasMaterial` for the biasing to be attached the vacuum volume or everything outside the
-vacuum respectively::
+vacuum respectively. Alternatively the process can be attached to a specific logical volume of an element
+by using the keyword :code:`biasMaterialLV`::
 
   q1: quadrupole, l=1*m, material="Iron", biasVacuum="biasDef1 biasDef2"; ! uses the process biasDef1 and biasDef2
   q2: quadrupole, l=0.5*m, biasMaterial="biasDef2";
   q3: quadrupole, l=20*cm, k1=0.25, bias="biasDef1";
+  q4: quadrupole, l=20*cm, k1=0.25, biasMaterialLV="container:biasDef1";
 
 * :code:`biasVacuum` applies to "vacuum" parts of beam line elements, i.e. the
   inner volume of a beam pipe only in each component.
 * :code:`biasMaterial` applies to all volumes that are not the vacuum. This includes
   the beam pipe itself.
+* :code:`biasMaterialLV` looks in the logical volumes whose name contains a specific string (in the example it is
+  'container') and applies the bias to it. If multiple physical volumes are placed from the same logical volume
+  they will all be biased.
 * :code:`bias` applies to both the bias vacuum and material parts.
 * If both :code:`bias` and one or both of :code:`biasVacuum` and :code:`biasMaterial` are used
   then the effect is cumulative. :code:`bias` is just a way to add to both vacuum and material.
@@ -2342,7 +2557,8 @@ vacuum respectively::
 
 Defaults can be set with the options :code:`defaultBiasVacuum` and :code:`defaultBiasMaterial`. Only
 in the case where a beam line element has no biasing specified will these bias objects be applied.
-They will not be mixed with per-element definitions.
+They will not be mixed with per-element definitions. Using :code:`defaultBiasMaterial` impact both :code:`biasMaterial`
+and :code:`biasMaterialLV`.
 
 * The world logical volume (only, i.e. excluding any daughters) can be biased with the option
   :code:`biasForWorldVolume`.
@@ -3165,6 +3381,12 @@ Physics Processes
 |                                     | cut. Overwrites other production cuts unless these    |
 |                                     | are explicitly set (default 1e-3) [m].                |
 +-------------------------------------+-------------------------------------------------------+
+| extendPionDecayChannels             | Add the decay channels of pi+ -> gamma, mu+, nu_mu    |
+|                                     | and pi+ -> e+, nu_e as well as the charge conjugate   |
+|                                     | products for pi-. The branching ratios are 2e-4 and   |
+|                                     | 1.23e-4 as taken from the PDG. These are not normally |
+|                                     | included in the Geant4 decays of pions.               |
++-------------------------------------+-------------------------------------------------------+
 | geant4PhysicsMacroFileName          | The name of a text macro file with commands that are  |
 |                                     | suitable for the Geant4 interpreter that will be      |
 |                                     | executed after the physics list is constructed but    |
@@ -3179,6 +3401,17 @@ Physics Processes
 | g4PhysicsUseBDSIMRangeCuts          | If on, this will apply the BDSIM range cut lengths    |
 |                                     | to the Geant4 physics list used. This is off by       |
 |                                     | default.                                              |
++-------------------------------------+-------------------------------------------------------+
+| maximumPhotonsPerStep               | For the `cherenkov` modular physics list, this is the |
+|                                     | maximum integer number of photons produced in one     |
+|                                     | step of the generating particle. Not used if -1. The  |
+|                                     | default in Geant4 is 100 if not set here. 0 is        |
+|                                     | technically allowed.                                  |
++-------------------------------------+-------------------------------------------------------+
+| maximumBetaChangePerStep            | The maximum allowed change in Lorentz beta per step   |
+|                                     | for the `cherenkov` physics process when used in the  |
+|                                     | `cherenkov` modular physics list. A percentage, e.g.  |
+|                                     | 5.0 would be 5%. Default in Geant4 is 10%.            |
 +-------------------------------------+-------------------------------------------------------+
 | minimumKineticEnergy                | A particle below this energy will be killed and the   |
 |                                     | energy deposition recorded at that location. [GeV]    |
@@ -3247,6 +3480,9 @@ Physics Processes
 +-------------------------------------+-------------------------------------------------------+
 | tunnelIsInfiniteAbsorber            | Whether all particles entering the tunnel material    |
 |                                     | should be killed or not (default = false)             |
++-------------------------------------+-------------------------------------------------------+
+| turnOffMuonDecay                    | Makes both charge of muons artificially stable so     |
+|                                     | they won't decay.                                     |
 +-------------------------------------+-------------------------------------------------------+
 | turnOnCerenkov                      | Whether to produce Cherenkov radiation                |
 +-------------------------------------+-------------------------------------------------------+
@@ -3523,6 +3759,9 @@ with the following options.
 |                                    | the combination of all filters along with this is logical OR.      |
 +------------------------------------+--------------------------------------------------------------------+
 | storeTrajectories                  | An alias to `storeTrajectory`                                      |
++------------------------------------+--------------------------------------------------------------------+
+| storePerEventHistos                | Whether to store per event histograms. This should be switched off |
+|                                    | when there are large >1D scoring meshes. Default on                |
 +------------------------------------+--------------------------------------------------------------------+
 | writeSeedState                     | Writes the seed state of the last event start in a text file       |
 +------------------------------------+--------------------------------------------------------------------+
@@ -4278,8 +4517,10 @@ Examples: ::
 Sphere Shape
 ************
 
-There are two types of spherical sampler: a `sphere` and `sphereforward`. The later
-is orientated more conveniently so Cartesian `z` is by default aligned with `phi` = 0
+There are two types of spherical sampler: a `sphere` and `sphereforward`. `sphere`
+is orientated with the pole of the sphere aligned with the local `y` axis. `sphereforward`
+rotates this forward (rotated about local `x` axis) so that the pole is aligned with
+local `z`. This is provided so Cartesian `z` is by default aligned with `phi` = 0
 and `theta` = 0. In both cases, the default is to make a complete sphere. Optionally,
 parameters can be specified to reduce this to a fraction of that.
 
@@ -4733,7 +4974,10 @@ example parameter and value pairs. The following parameters may be specified.
 +-------------------------+---------------+------------------------------------------------+
 | zsize                   | Yes           | Full width in local z dimension (m)            |
 +-------------------------+---------------+------------------------------------------------+
-| rsize                   | Yes(*)        | Full width in local r dimension (m)            |
+| rInner                  | No(\*)        | Inner radius for cylindrical mesh (m)          |
+|                         |               | Default: 0.                                    |
++-------------------------+---------------+------------------------------------------------+
+| rOuter                  | Yes(\*)       | Outer radius for cylindrical mesh (m)          |
 +-------------------------+---------------+------------------------------------------------+
 | eScale                  | Yes(\*\*)     | Energy axis scoring type (linear, log, user)   |
 +-------------------------+---------------+------------------------------------------------+
@@ -4801,7 +5045,7 @@ Scoring Examples
 Example 1: ::
 
   neutronPopulation: scorer, type="population", particleName="neutron";
-	  
+
   meshAir: scorermesh, nx=40, ny=20, nz=20, xsize=40*cm, ysize=20*cm, zsize=20*cm,
                        scoreQuantity="neutronPopulation", z=20.75*m;
 
@@ -4814,13 +5058,13 @@ Example 2: ::
   neutronPopulation: scorer, type="population", particleName="neutron";
 
   protonAmbient: scorer, type="cellfluxscaledperparticle",
-	    	         particleName="proton",
-		         minimumKineticEnergy=20*MeV,
-		         maximumKineticEnergy=1*GeV,
-		         minimumTime=0*s,
-		         maximumTime=1*s,
-		         conversionFactorFile="h10protons.txt";
-	  
+                         particleName="proton",
+                         minimumKineticEnergy=20*MeV,
+                         maximumKineticEnergy=1*GeV,
+                         minimumTime=0*s,
+                         maximumTime=1*s,
+                         conversionFactorFile="h10protons.txt";
+
   meshAir: scorermesh, nx=40, ny=20, nz=20, xsize=40*cm, ysize=20*cm, zsize=20*cm,
                        scoreQuantity="neutronPopulation protonAmbient", z=20.75*m;
 
@@ -4834,24 +5078,29 @@ Example 3: ::
   neutron_flux_4D: scorer, type="cellflux4d",
                          particleName="neutron";
 
-  meshAir_4D_linear: scorermesh, nx=40, ny=20, nz=20, ne= 100, xsize=40*cm, ysize=20*cm, zsize=20*cm, eScale="linear",
+  meshAir_4D_linear: scorermesh, nx=40, ny=20, nz=20, ne= 100,
+                     xsize=40*cm, ysize=20*cm, zsize=20*cm, eScale="linear",
                      eLow=1e-12*GeV,eHigh=1*GeV,
                      scoreQuantity="neutron_flux_4D",
                      z=20.75*m;
 
-  meshAir_4D_log: scorermesh, nx=40, ny=20, nz=20, ne= 100, xsize=40*cm, ysize=20*cm, zsize=20*cm, eScale="log",
+  meshAir_4D_log: scorermesh, nx=40, ny=20, nz=20, ne= 100,
+                  xsize=40*cm, ysize=20*cm, zsize=20*cm, eScale="log",
                   eLow=1e-3*GeV,eHigh=1*GeV,
                   scoreQuantity="neutron_flux_4D",
                   z=20.75*m;
 
-  meshAir_4d_variable: scorermesh, nx=40, ny=20, nz=20, xsize=40*cm, ysize=20*cm, zsize=20*cm, eScale="user",
+  meshAir_4d_variable: scorermesh, nx=40, ny=20, nz=20, xsize=40*cm,
+                       ysize=20*cm, zsize=20*cm, eScale="user",
                        eBinsEdgesFilenamePath="./eBins.txt",
                        scoreQuantity="neutron_flux_4D",
                        z=20.75*m;
 
 
-In this example, three 4D meshes similar to the mesh of the Example 1 are used with each of them using a different scaling type for the energy axis.
-They respectively use the "linear", "log" and "user" type. The file "eBins.txt" is required by the "user" scaling type for the energy bin edges definition.
+In this example, three 4D meshes similar to the mesh of the Example 1 are used with each
+of them using a different scaling type for the energy axis. They respectively use the "linear",
+"log" and "user" type. The file "eBins.txt" is required by the "user" scaling type for the energy
+bin edges definition.
 
 Column of the eBins.txt file is:
 
@@ -4865,6 +5114,19 @@ Below is an example contents : ::
     0.5
     1.0
 
+
+Example 4: ::
+
+  edep: scorer, type="despoitedenergy";
+
+  core: scorermesh, geometryType="cylindrical", scoreQuantity="edep",
+                    nr=20, nphi=10, nz=30,
+                    rInner=10*cm, rOuter=20*cm, zsize=30*cm;
+
+In this example, a 3D cylindrical mesh is used that has 20 radial bins starting from a radius
+of 10 cm out to a radius of 20 cm (so 0.5 cm radial bins). There bins along z of 1 cm long and
+there are 10 bins around the axis over :math:`2 pi`.
+    
 
 Visualising a Scoring Mesh
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4900,16 +5162,16 @@ best way is to merge the histograms per-event into an average. This can be done 
   down menu should be set to "lego2" for example, then re-click on the 3D histogram as shown below.
 
 .. figure:: figures/scoring-root-file-view.png
-	    :width: 95%
-	    :align: center
+            :width: 95%
+            :align: center
 
-	    View of a ROOT TBrowser showing an average 3D histogram from a scoring mesh using
-	    the "lego2" visualisation option. This is based on 100 events from the example
-	    `scoring-filter-material-include.gmad`. Here a material filter is used to score only
-	    the coils of a quadrupole - the 8 coils can be seen lying in 8 clusters in an
-	    x,y plane with z (along the beam line) being vertically.
+            View of a ROOT TBrowser showing an average 3D histogram from a scoring mesh using
+            the "lego2" visualisation option. This is based on 100 events from the example
+            `scoring-filter-material-include.gmad`. Here a material filter is used to score only
+            the coils of a quadrupole - the 8 coils can be seen lying in 8 clusters in an
+            x,y plane with z (along the beam line) being vertically.
 
-	     
+
 .. _controlling-simulation-speed:
 
 Controlling Simulation Speed

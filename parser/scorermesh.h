@@ -19,8 +19,10 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SCORERMESH_H
 #define SCORERMESH_H
 
+#include <exception>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 #include "published.h"
@@ -50,7 +52,8 @@ namespace GMAD
     double xsize;       ///< X total width.
     double ysize;       ///< Y total width.
     double zsize;       ///< Z total width.
-    double rsize;       ///< R total length.
+    double rInner;      ///< Inner radius of cylindrical scoring mesh.
+    double rOuter;      ///< Outer radius of cylindrical scoring mesh.
     double eLow;        ///< E Low limit.
     double eHigh;       ///< E High limit.
     std::string eScale; ///< E scaling type.
@@ -85,7 +88,7 @@ namespace GMAD
     void print()const;
     /// set methods by property name and value
     template <typename T>
-    void set_value(std::string property, T value);
+    void set_value(std::string property, T value, bool bExit = true);
 
   private:
     /// publish members
@@ -93,7 +96,7 @@ namespace GMAD
   };
   
   template <typename T>
-  void ScorerMesh::set_value(std::string property, T value)
+  void ScorerMesh::set_value(std::string property, T value, bool bExit)
   {
 #ifdef BDSDEBUG
     std::cout << "scorermesh> Setting value " << std::setw(25) << std::left
@@ -104,9 +107,13 @@ namespace GMAD
       {set(this,property,value);}
     catch (const std::runtime_error&)
       {
-        std::cerr << "Error: scorermesh> unknown option \"" << property
-                  << "\" with value \"" << value << "\" in definition \"" << this->name << "\"" << std::endl;
-        exit(1);
+        std::stringstream ss;
+        ss << "Error: scorermesh> unknown property \"" << property
+           << "\" with value \"" << value << "\" in definition \"" << this->name << "\"";
+        if (bExit)
+          {exit(1);}
+        else
+          {throw std::invalid_argument(ss.str());}
       }
   }
 }

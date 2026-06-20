@@ -239,7 +239,7 @@ namespace GMAD
     ///@{ physics parameters
     double   scintYieldFactor;
     int      maximumPhotonsPerStep;
-    int      maximumBetaChangePerStep;
+    double   maximumBetaChangePerStep;
     long     maximumTracksPerEvent;
     double   minimumKineticEnergy;
     double   minimumKineticEnergyTunnel;
@@ -270,9 +270,12 @@ namespace GMAD
     bool     muonSplittingExcludeWeight1Particles;
     double   muonSplittingExclusionWeight;
     double   xrayAllSurfaceRoughness;
+    bool     extendPionDecayChannels;
+    bool     turnOffMuonDecay;
     ///@}
 
     // biasing options
+    double    scaleFactorLaser;
     std::string defaultBiasVacuum;
     std::string defaultBiasMaterial;
     std::string biasForWorldVolume;
@@ -392,6 +395,8 @@ namespace GMAD
     
     bool        storeModel;
 
+    bool        storePerEventHistos;
+
     int         samplersSplitLevel;
     int         modelSplitLevel;
     int         uprootCompatible;
@@ -421,6 +426,13 @@ namespace GMAD
     double emin;
     double emax;
     bool   useScoringMap;
+
+    // millicharge options
+    bool enableMillicharge;
+    std::string millichargeName;
+    double millichargeMass;
+    double millichargeCharge;
+    int millichargeID;
 
     /// print some properties
     void print() const;

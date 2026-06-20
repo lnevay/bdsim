@@ -1,14 +1,14 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
+Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway,
 University of London 2001 - 2024.
 
 This file is part of BDSIM.
 
-BDSIM is free software: you can redistribute it and/or modify 
-it under the terms of the GNU General Public License as published 
+BDSIM is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published
 by the Free Software Foundation version 3 of the License.
 
-BDSIM is distributed in the hope that it will be useful, but 
+BDSIM is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -111,7 +111,10 @@ solenoid { return SOLENOID; }
 rcol { return RCOL;}
 ecol { return ECOL; } 
 jcol { return JCOL; }
+bmcol { return BMCOL; }
 jcoltip { return JCOLTIP; }
+gascap { return GASCAP; }
+gasjet { return GASJET; }
 muonspoiler { return MUONSPOILER; }
 muspoiler { return MUONSPOILER; }
 shield {return SHIELD; }
@@ -120,7 +123,7 @@ screen { return SCREEN; }
 awakescreen { return AWAKESCREEN; }
 awakespectrometer { return AWAKESPECTROMETER; }
 transform3d { return TRANSFORM3D ; }
-laser { return LASER; }
+laser { return LASERWIREOLD; }
 degrader { return DEGRADER;}
 gap { return GAP;}
 thinrmatrix { return THINRMATRIX;}
@@ -134,7 +137,8 @@ dump { return DUMP; }
 muoncooler { return MUONCOOLER; }
 ct { return CT; }
 target { return TARGET; }
-
+gaborlens { return GABORLENS; }
+laserwire   { return LASERWIRE; }
 cavitymodel {return CAVITYMODEL; }
 cutsregion { return REGION; }
 newcolour { return NEWCOLOUR; }
@@ -142,6 +146,7 @@ coolingchannel { return COOLINGCHANNEL; }
 crystal { return CRYSTAL; }
 field { return FIELD; }
 placement { return PLACEMENT; }
+laserflux   {return LASER; }
 query { return QUERY; }
 samplerplacement { return SAMPLERPLACEMENT; }
 scorer { return SCORER; }

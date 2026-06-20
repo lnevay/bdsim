@@ -543,9 +543,12 @@ BDSBeamlineSet BDSDetectorConstruction::BuildBeamline(const GMAD::FastList<GMAD:
   
   if (BDSGlobalConstants::Instance()->Survey())
     {
-      G4String surveyFileName = BDSGlobalConstants::Instance()->SurveyFileName() + ".dat";
+      G4String fn = BDSGlobalConstants::Instance()->SurveyFileName();
+      if (BDS::EndsWith(fn, ".dat"))
+        {fn = fn.erase(fn.length()-4);}
+      G4String surveyFileName = fn + ".dat";
       if (isPlacementBeamline)
-        {surveyFileName = BDSGlobalConstants::Instance()->SurveyFileName() + "_" + name + ".dat";}
+        {surveyFileName = fn + "_" + name + ".dat";}
       BDSSurvey* survey = new BDSSurvey(surveyFileName);
       survey->Write(massWorld);
       delete survey;
@@ -1086,7 +1089,7 @@ BDSExtent BDSDetectorConstruction::CalculateExtentOfScorerMesh(const GMAD::Score
 BDSExtentGlobal BDSDetectorConstruction::CalculateExtentOfScorerMeshes(const BDSBeamline* beamLine) const
 {
   BDSExtentGlobal result;
-  std::vector<GMAD::ScorerMesh> scorerMeshes = BDSParser::Instance()->GetScorerMesh();
+  std::vector<GMAD::ScorerMesh> scorerMeshes = BDSParser::Instance()->GetScorerMeshes();
   for (const auto& mesh : scorerMeshes)
     {
       BDSExtent meshExtent = CalculateExtentOfScorerMesh(mesh);
@@ -1264,6 +1267,36 @@ void BDSDetectorConstruction::BuildPhysicsBias()
 		  egMaterial->AttachTo(lv);
 	    }
 	}
+
+      // Build material bias object for a specific LV based on material bias list in the component
+      auto nameAndMaterialLVBiasList = accCom->GetBiasMaterialLVList();
+      if (!nameAndMaterialLVBiasList.empty() || useDefaultBiasMaterial)
+      {
+        std::map<std::string, std::string> namesAndBiasesMap;
+        for (G4String lvbias : nameAndMaterialLVBiasList)
+        {
+          auto splitpos = lvbias.find(':');
+          auto lvname = lvbias.substr(0,splitpos);
+          auto biasname = lvbias.substr(splitpos+1);
+          namesAndBiasesMap[lvname] = biasname;
+        }
+        auto allLVs       = accCom->GetAcceleratorMaterialLogicalVolumes();
+        if (debug)
+        {G4cout << __METHOD_NAME__ << "# of logical volumes for biasing under 'materialLV': " << allLVs.size() << G4endl;}
+        for (auto lv : allLVs)
+        {// BDSAcceleratorComponent automatically removes 'vacuum' volumes from all so we don't need to check
+          if (debug)
+          {G4cout << __METHOD_NAME__ << "Biasing 'materialLV' logical volume: " << lv << " " << lv->GetName() << G4endl;}
+          for (const auto& nameAndBias : namesAndBiasesMap)
+          {
+            if (lv->GetName().find(nameAndBias.first) != std::string::npos)
+            {
+              auto egMaterialLV = BuildCrossSectionBias({nameAndBias.second}, defaultBiasMaterialList, accName);
+              egMaterialLV->AttachTo(lv);
+            }
+          }
+        }
+      }
     }
   
   if (useBiasForWorldContents)
@@ -1316,7 +1349,7 @@ void BDSDetectorConstruction::ConstructScoringMeshes()
   // needed for filtering
   G4LogicalVolume* worldLV = acceleratorModel->WorldLV();
 
-  std::vector<GMAD::ScorerMesh> scoringMeshes = BDSParser::Instance()->GetScorerMesh();
+  std::vector<GMAD::ScorerMesh> scoringMeshes = BDSParser::Instance()->GetScorerMeshes();
   std::vector<GMAD::Scorer> scorers = BDSParser::Instance()->GetScorers();
 
   if (scoringMeshes.empty())
@@ -1417,7 +1450,7 @@ void BDSDetectorConstruction::ConstructScoringMeshes()
 std::vector<BDSFieldQueryInfo*> BDSDetectorConstruction::PrepareFieldQueries(const BDSBeamline* mainBeamline)
 {
   std::vector<BDSFieldQueryInfo*> result;
-  const std::vector<GMAD::Query>& parserQueries = BDSParser::Instance()->GetQuery();
+  const std::vector<GMAD::Query>& parserQueries = BDSParser::Instance()->GetQueries();
   for (const auto& def : parserQueries)
     {
       G4bool assumeQueryMagnetic = false;

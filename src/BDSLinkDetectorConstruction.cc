@@ -95,7 +95,7 @@ G4VPhysicalVolume* BDSLinkDetectorConstruction::Construct()
 {
   BDSGlobalConstants* globalConstants = BDSGlobalConstants::Instance();
 
-  auto componentFactory = new BDSComponentFactory(nullptr, false);
+  auto componentFactory = std::unique_ptr<BDSComponentFactory>(new BDSComponentFactory(nullptr, false));
   auto beamline = BDSParser::Instance()->GetBeamline();
 
   std::vector<BDSLinkOpaqueBox*> opaqueBoxes = {};
@@ -117,12 +117,13 @@ G4VPhysicalVolume* BDSLinkDetectorConstruction::Construct()
       
       std::set<GMAD::ElementType> acceptedTypes = {GMAD::ElementType::_ECOL,
 						   GMAD::ElementType::_RCOL,
+                           GMAD::ElementType::_BMCOL,
 						   GMAD::ElementType::_JCOL,
 						   GMAD::ElementType::_CRYSTALCOL,
 						   GMAD::ElementType::_ELEMENT};
       auto search = acceptedTypes.find(eType);
       if (search == acceptedTypes.end())
-	{throw BDSException(G4String("Unsupported element type for link = " + GMAD::typestr(eType)));}
+        {throw BDSException(G4String("Unsupported element type for link = " + GMAD::typestr(eType)));}
 
       // Only need first argument, the rest pertain to beamlines.
       BDSAcceleratorComponent* component = componentFactory->CreateComponent(&element,
@@ -180,8 +181,6 @@ G4VPhysicalVolume* BDSLinkDetectorConstruction::Construct()
       nameToElementIndex[name] = linkID;
     }
 
-  delete componentFactory;
-
   return worldPV;
 }
 
@@ -201,7 +200,8 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorJaw(const std::string& colli
                                                         G4double crystalAngle,
                                                         G4bool   /*sampleIn*/)
 {
-  auto componentFactory = new BDSComponentFactory(nullptr, false);
+  auto componentFactory = std::unique_ptr<BDSComponentFactory>(new BDSComponentFactory(nullptr, false));
+
   if (!integral)
     {
       if (!designParticle)
@@ -224,7 +224,7 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorJaw(const std::string& colli
   G4bool isACrystal = searchC != collimatorToCrystal.end();
   if (!isACrystal && isACrystalIn)
     {throw BDSException("BDSLinkDetectorConstruction", "no matching crystal name found but it is flagged as a crystal in input");}
-  G4cout << "XYZ isACrystal " << isACrystal << G4endl;
+  //G4cout << "XYZ isACrystal " << isACrystal << G4endl;
   if (isACrystal)
     {G4cout << "crystal name " << searchC->first << " " << searchC->second << G4endl;}
 
@@ -293,7 +293,7 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorJaw(const std::string& colli
           el.crystalAngleYAxisRight = crystalAngle + 0.5 * ci->bendingAngleYAxis;
         }
       
-      G4cout << "XYZKEY Crystal angle " << crystalAngle << G4endl;
+      G4cout << "Crystal angle " << crystalAngle << G4endl;
       G4cout << "xsizeLeft     " << el.xsizeLeft << G4endl;
       G4cout << "xsizeRight    " << el.xsizeRight << G4endl;
       G4cout << "l crystal angle " << el.crystalAngleYAxisLeft << G4endl;
@@ -343,13 +343,14 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorJaw(const std::string& colli
 
   // update crystal biasing
   BuildPhysicsBias();
-  
+
   return linkID;
 }
 
 G4int BDSLinkDetectorConstruction::AddLinkCollimatorTipJaw(const std::string& collimatorName,
                                                           const std::string& materialName,
                                                           const std::string& tipMaterialName,
+                                                          G4double tipThickness,
                                                           G4double length,
                                                           G4double halfApertureLeft,
                                                           G4double halfApertureRight,
@@ -358,11 +359,11 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorTipJaw(const std::string& co
                                                           G4double yOffset,
                                                           G4double jawTiltLeft,
                                                           G4double jawTiltRight,
-                                                          G4double tipThickness,
                                                           G4bool   buildLeftJaw,
                                                           G4bool   buildRightJaw)
 {
-    auto componentFactory = new BDSComponentFactory(nullptr, false);
+    auto componentFactory = std::unique_ptr<BDSComponentFactory>(new BDSComponentFactory(nullptr, false));
+
     if (!integral)
     {
         if (!designParticle)
@@ -384,7 +385,7 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorTipJaw(const std::string& co
     el.l        = length / CLHEP::m;
     el.xsizeLeft  = halfApertureLeft / CLHEP::m;
     el.xsizeRight = halfApertureRight / CLHEP::m;
-    el.ysize    = 0.2; // half height
+    el.ysize    = 0.006; // half height
     el.tilt     = rotation / CLHEP::rad;
     el.offsetX  = xOffset / CLHEP::m;
     el.offsetY  = yOffset / CLHEP::m;
@@ -438,8 +439,58 @@ G4int BDSLinkDetectorConstruction::AddLinkCollimatorTipJaw(const std::string& co
     G4int linkID = PlaceOneComponent(linkBeamline->back(), collimatorName);
     nameToElementIndex[collimatorName] = linkID;
     linkIDToBeamlineIndex[linkID] = (G4int)linkBeamline->size() - 1;
-    
+
     return linkID;
+}
+
+G4int BDSLinkDetectorConstruction::AddLinkElement(GMAD::Element el) {
+  auto componentFactory = std::unique_ptr<BDSComponentFactory>(new BDSComponentFactory(nullptr, false));
+
+  if (!integral)
+  {
+    if (!designParticle)
+    {
+      throw BDSException(__METHOD_NAME__, "designParticle must be set first");
+    }
+    integral = new BDSBeamlineIntegral(*designParticle);
+  }
+
+  // Create the component
+  BDSAcceleratorComponent* component = nullptr;
+  try
+  {
+    component = componentFactory->CreateComponent(&el, nullptr, nullptr, *integral);
+  }
+  catch (const BDSException& e)
+  {
+    G4cout << e.what() << G4endl;
+    G4cout << "Replacing component " << el.name << " with drift" << G4endl;
+    el.type = GMAD::ElementType::_DRIFT;
+    el.apertureType = "circularvacuum";
+    component = componentFactory->CreateComponent(&el, nullptr, nullptr, *integral);
+  }
+
+  // Wrap in box
+  BDSTiltOffset* to = new BDSTiltOffset(el.offsetX * CLHEP::m, el.offsetY * CLHEP::m, el.tilt * CLHEP::rad);
+  auto extentTiltOffset = component->GetExtent().TiltOffset(to);
+  G4double encompassingRadius = extentTiltOffset.TransverseBoundingRadius();
+  BDSLinkOpaqueBox* opaqueBox = new BDSLinkOpaqueBox(component, to, encompassingRadius);
+
+  // Add to beamline
+  BDSLinkComponent* comp = new BDSLinkComponent(opaqueBox->GetName(), opaqueBox, opaqueBox->GetExtent().DZ());
+  BDSAcceleratorModel::Instance()->RegisterLinkComponent(comp);
+  BDSSamplerInfo* samplerInfo = new BDSSamplerInfo(comp->GetName() + "_out", BDSSamplerType::plane);
+  linkBeamline->AddComponent(comp, nullptr, samplerInfo);
+
+  // Update world extents and solid
+  UpdateWorldSolid();
+
+  // Place the new component
+  G4int linkID = PlaceOneComponent(linkBeamline->back(), el.name);
+  nameToElementIndex[el.name] = linkID;
+  linkIDToBeamlineIndex[linkID] = (G4int)linkBeamline->size() - 1;
+
+  return linkID;
 }
 
 void BDSLinkDetectorConstruction::UpdateWorldSolid()

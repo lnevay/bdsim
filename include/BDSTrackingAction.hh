@@ -22,9 +22,11 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSTrajectoryOptions.hh"
 
 #include "G4Types.hh"
+#include "globals.hh" // geant4 types / globals
 #include "G4UserTrackingAction.hh"
 
 class BDSEventAction;
+class BDSPolarizationState;
 class G4Track;
 
 /**
@@ -35,15 +37,16 @@ class BDSTrackingAction: public G4UserTrackingAction
 {
 public:
   BDSTrackingAction(G4bool batchMode,
-		    G4bool storeTrajectoryIn,
-		    const BDS::TrajectoryOptions& storeTrajectoryOptionsIn,
-		    BDSEventAction* eventActionIn,
-		    G4int  verboseSteppingEventStartIn,
-		    G4int  verboseSteppingEventStopIn,
-		    G4bool verboseSteppingPrimaryOnlyIn,
-		    G4int  verboseSteppingLevelIn);
+                    G4bool storeTrajectoryIn,
+                    const BDS::TrajectoryOptions& storeTrajectoryOptionsIn,
+                    BDSEventAction* eventActionIn,
+                    G4int  verboseSteppingEventStartIn,
+                    G4int  verboseSteppingEventStopIn,
+                    G4bool verboseSteppingPrimaryOnlyIn,
+                    G4int  verboseSteppingLevelIn,
+                    BDSPolarizationState* defaultPolarisationIn = nullptr);
   
-  virtual ~BDSTrackingAction(){;}
+  virtual ~BDSTrackingAction();
 
   /// Used to decide whether or not to store trajectories.
   virtual void PreUserTrackingAction(const G4Track* track);
@@ -58,7 +61,7 @@ private:
   /// Whether we're using the visualiser - in which case always store
   /// trajectories for visualisation.
   const G4bool interactive;
-  
+
   const G4bool storeTrajectory; /// Cache of flag from global constants to control storing all trajectories.
   const BDS::TrajectoryOptions storeTrajectoryOptions; /// Cache of trajectory options.
 
@@ -69,6 +72,7 @@ private:
   G4int  verboseSteppingEventStop;
   G4bool verboseSteppingPrimaryOnly;
   G4int  verboseSteppingLevel;
+  BDSPolarizationState* defaultPolarisation;
 };
 
 #endif

@@ -17,13 +17,13 @@ jobs:
     container: bdsim/${{ matrix.container }}:latest
      
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        container: [ubuntu20-g4.10.7, ubuntu20-g4.11.0, ubuntu20-g4.11.1, ubuntu20-g4.11.2,
-                    ubuntu22-g4.10.7, ubuntu22-g4.11.0, ubuntu22-g4.11.1, ubuntu22-g4.11.2,
-                    ubuntu24-g4.10.7, ubuntu24-g4.11.0, ubuntu24-g4.11.1, ubuntu24-g4.11.2,
-                    centos8-g4.10.7, centos8-g4.11.0, centos8-g4.11.1, centos8-g4.11.2,
-                    alma9-g4.10.7, alma9-g4.11.0, alma9-g4.11.1, alma9-g4.11.2]
+        container: [ubuntu20-g4.10.7, ubuntu20-g4.11.0, ubuntu20-g4.11.1, ubuntu20-g4.11.2, ubuntu20-g4.11.3,
+                    ubuntu22-g4.10.7, ubuntu22-g4.11.0, ubuntu22-g4.11.1, ubuntu22-g4.11.2, ubuntu22-g4.11.3,
+                    ubuntu24-g4.10.7, ubuntu24-g4.11.0, ubuntu24-g4.11.1, ubuntu24-g4.11.2, ubuntu24-g4.11.3,
+                    centos8-g4.10.7, centos8-g4.11.0, centos8-g4.11.1, centos8-g4.11.2, centos8-g4.11.3,
+                    alma9-g4.10.7, alma9-g4.11.0, alma9-g4.11.1, alma9-g4.11.2, alma9-g4.11.3]
 #        container: [ubuntu20-g4.11.0]
     steps:
       - name: Checkout bdsim
@@ -34,6 +34,10 @@ jobs:
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
 
+      - name: Echo number of cores
+        shell: bash
+        run: echo "Number of cores ${{ steps.cpu-cores.outputs.count }}"
+
       - name: Working dir
         run: |
           pwd
@@ -43,18 +47,40 @@ jobs:
         run: |
           #
           rm -rfv /usr/local/lib/Geant4-10.7.4/Geant4PackageCache.cmake
+          rm -rfv /usr/local/lib/Geant4-11.0.4/Geant4PackageCache.cmake
+          rm -rfv /usr/local/lib64/Geant4-10.7.4/Geant4PackageCache.cmake
+          rm -rfv /usr/local/lib64/Geant4-11.0.4/Geant4PackageCache.cmake
 
           # ROOT 
-          source /tmp/root/bin/thisroot.sh
+          source /bdsim/root/bin/thisroot.sh
 
           # git trusted dir 
           git config --global --add safe.directory $GITHUB_WORKSPACE
 
+          if [[ "${{ matrix.container }}" == "ubuntu24"* ]]; then
+            PYBIND_CMAKE_PATH=$(/bdsim/venv-bdsim/bin/python -m pybind11 --cmakedir)
+          elif [[ "${{ matrix.container }}" == "alma9"* ]]; then
+            PYBIND_CMAKE_PATH=$(python3.13 -m pybind11 --cmakedir)
+          else 
+            PYBIND_CMAKE_PATH=$(python3 -m pybind11 --cmakedir)
+          fi
+          
           # build
           mkdir /tmp/bdsim-build
           mkdir /tmp/bdsim-install
           cd /tmp/bdsim-build
-          cmake -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install $GITHUB_WORKSPACE
+          if [[ "${{ matrix.container }}" == "centos8-g4.10.7" ]]; then
+            cmake -DCMAKE_CXX_STANDARD=17 \
+                  -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install \
+                  $GITHUB_WORKSPACE
+          else 
+            cmake -DCMAKE_CXX_STANDARD=17 \
+                  -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install \
+                  -DUSE_PYTHON_BINDINGS=ON \
+                  -DCMAKE_PREFIX_PATH=$PYBIND_CMAKE_PATH \
+                  $GITHUB_WORKSPACE          
+          fi
+          
           make -j${{ steps.cpu-cores.outputs.count }} install
 
       - name: Test bdsim
@@ -73,12 +99,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        geant4-version: ["v10.7.4", "v11.0.4", "v11.1.3", "v11.2.2"]
-        os: [macOS-13, macOS-14]
-#        geant4-version: ["v10.7.4","v11.1.3"]
-#        os: [macOS-13]
+        geant4-version: ["v10.7.4", "v11.0.4", "v11.1.3", "v11.2.2", "v11.3.2"]
+        os: [macOS-14, macOS-15, macOS-15-intel]
+#        geant4-version: ["v11.3.2"]
+#        os: [macOS-15, macOS-15-intel]
 
     steps:
       - uses: actions/checkout@v4
@@ -87,6 +113,10 @@ jobs:
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
 
+      - name: Echo number of cores
+        shell: bash
+        run: echo "Number of cores ${{ steps.cpu-cores.outputs.count }}"
+
       - name: Install brew dependencies on MacOS
         run: .github/bin/install-deps-macos.sh
 
@@ -94,18 +124,19 @@ jobs:
         shell: bash      
         run: |
           # Switch bison depending on macOS
-          if [[ "${{ matrix.os }}" == "macOS-13" ]]; then
-            echo "BISON_PATH=/usr/local/opt/bison/bin/bison" >> $GITHUB_ENV
-          elif [[ "${{ matrix.os }}" == "macOS-14" ]]; then
+          if [[ "${{ matrix.os }}" == "macOS-14" ]]; then
             echo "BISON_PATH=/opt/homebrew/opt/bison/bin/bison" >> $GITHUB_ENV
+          elif [[ "${{ matrix.os }}" == "macOS-15" ]]; then
+            echo "BISON_PATH=/opt/homebrew/opt/bison/bin/bison" >> $GITHUB_ENV
+          elif [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
+            echo "BISON_PATH=/usr/local/opt/bison/bin/bison" >> $GITHUB_ENV
           fi
-
 
       - name: Get Geant4
         shell: bash
         run: |
           # download geant4 build
-          wget -q https://github.com/bdsim-collaboration/mac_geant4/releases/download/v0.0.22/geant4-${{ matrix.os}}-${{ matrix.geant4-version }}.tgz
+          wget -q https://github.com/bdsim-collaboration/mac_geant4/releases/download/v0.0.26/geant4-${{ matrix.os}}-${{ matrix.geant4-version }}.tgz
           # unpack geant4
           tar zxf geant4-${{ matrix.os }}-${{ matrix.geant4-version }}.tgz -C /tmp/
 
@@ -113,24 +144,30 @@ jobs:
       - name: Build bdsim
         shell: bash
         run: |
-          rm -rfv /tmp/geant4-v11.0.4/lib/Geant4-11.0.4/Geant4PackageCache.cmake
           rm -rfv /tmp/geant4-v10.7.4/lib/Geant4-10.7.4/Geant4PackageCache.cmake
+          rm -rfv /tmp/geant4-v11.0.4/lib/Geant4-11.0.4/Geant4PackageCache.cmake
 
           # source geant4 setup
           source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
 
           # Set up root, geant4 and bdsim
-          if [[ "${{ matrix.os }}" == "macOS-13" ]]; then
-            source /usr/local/bin/thisroot.sh
-          elif [[ "${{ matrix.os }}" == "macOS-14" ]]; then
+          if [[ "${{ matrix.os }}" == "macOS-14" ]]; then
             source /opt/homebrew/bin/thisroot.sh  
+          elif [[ "${{ matrix.so }}" == "macOS-15" ]]; then
+            source /opt/homebrew/bin/thisroot.sh
+          elif [[ "${{ matrix.so }}" == "macOS-15-intel" ]]; then
+            source /usr/homebrew/bin/thisroot.sh
           fi 
           
           # build
           mkdir /tmp/bdsim-build
           mkdir /tmp/bdsim-install
           cd /tmp/bdsim-build
-          cmake -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install -DBISON_EXECUTABLE=$BISON_PATH $GITHUB_WORKSPACE
+          cmake -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install \
+                -DBISON_EXECUTABLE=$BISON_PATH \
+                -DUSE_PYTHON_BINDINGS=ON \
+                -DCMAKE_PREFIX_PATH="$(python3 -m pybind11 --cmakedir)" \
+                $GITHUB_WORKSPACE
           make -j${{ steps.cpu-cores.outputs.count }} install
 
       - name: Test bdsim
@@ -170,4 +207,4 @@ jobs:
 
           # run tests          
           cd /tmp/bdsim-build
-          ctest -j1
+          ctest -j1 --output-on-failure

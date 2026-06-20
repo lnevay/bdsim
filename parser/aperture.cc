@@ -59,7 +59,7 @@ void Aperture::PublishMembers()
   publish("nPoints",       &Aperture::nPoints);
 }
 
-void Aperture::print()const
+void Aperture::print() const
 {
   std::cout << "Aperture: "
 	    << "name "          << name          << std::endl

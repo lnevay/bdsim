@@ -53,10 +53,10 @@ namespace GMAD
     /// Reset.
     void clear();
     /// Print some properties
-    void print()const;
+    void print() const;
     /// Set methods by property name and value
     template<typename T>
-    void set_value(std::string name, T value);
+    void set_value(std::string name, T value, bool bExit = true);
     
   private:
     /// publish members
@@ -64,11 +64,11 @@ namespace GMAD
   };
 
   template<typename T>
-  void Aperture::set_value(std::string property, T value)
+  void Aperture::set_value(std::string property, T value, bool bExit)
   {
 #ifdef BDSDEBUG
     std::cout << "aperture> setting value " << std::setw(25) << std::left
-	      << property << value << std::endl;
+              << property << value << std::endl;
 #endif
     // member method can throw runtime_error, catch and exit gracefully
     try
@@ -76,8 +76,11 @@ namespace GMAD
     catch (const std::runtime_error&)
       {
         std::cerr << "Error: aperture> unknown option \"" << property
-		  << "\" with value \"" << value << "\"" << std::endl;
-        exit(1);
+                  << "\" with value \"" << value << "\"" << std::endl;
+        if (bExit)
+          {exit(1);}
+        else
+          {std::rethrow_exception(std::current_exception());}
       }
   }
 }

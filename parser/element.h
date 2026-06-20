@@ -19,11 +19,16 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELEMENT_H
 #define ELEMENT_H
 
+#include <exception>
 #include <iomanip>
 #include <iostream>
 #include <list>
 #include <map>
+#include <sstream>
 #include <string>
+#if __cplusplus >= 201703L
+#include <variant>
+#endif
 
 #include "published.h"
 
@@ -77,6 +82,7 @@ namespace GMAD
     double phase;     ///< phase of rf cavity (rad)
     double tOffset;   ///< time offset used for phase calculation (ns)
     std::string fieldModulator;
+    double kg; ///< gabor lens
 
     ///@{ rmatrix elements, only 4x4
     double kick1;
@@ -130,6 +136,12 @@ namespace GMAD
     double offsetX; ///< offset X
     double offsetY; ///< offset Y
 
+    // PWFA
+    double xsize2, ysize2; ///< size of the beam mask second aperture
+    double offsetX2, offsetY2; ///< offset of the beam mask second aperture
+    double tilt2; ///< tilt of the beam mask second aperture
+    std::string outerShape; ///< 'rectangular' or 'circular'. used in gascap and bmcol
+
     // screen parameters
     double tscint; ///<thickness of scintillating part of screen
     double twindow; ///<thickness of window
@@ -158,7 +170,7 @@ namespace GMAD
     double ydir;
     double zdir;
     ///@}
-    double waveLength; ///< for laser wire and 3d transforms
+    double wavelength; ///< for laser wire and 3d transforms
     double phi, theta, psi; ///< for 3d transforms
     double axisX, axisY, axisZ;
     bool   axisAngle;
@@ -171,7 +183,16 @@ namespace GMAD
     double degraderOffset;
     ///@}
 
-    ///@{ for wirescanner
+    ///@{ for laserwire
+    std::string laserBeam;
+    double laserOffsetTheta;
+    double laserOffsetPhi;
+    double laserOffsetX;
+    double laserOffsetY;
+    double laserOffsetZ;
+    ///@}
+
+    ///@[ for wirescanner
     double wireDiameter;
     double wireLength;
     double wireOffsetX;
@@ -186,20 +207,33 @@ namespace GMAD
     double undulatorMagnetHeight;
     ///@}
 
+    ///@{ for gabor lens
+    double anodeLength;
+    double anodeRadius;
+    double anodeThickness;
+    double electrodeLength;
+    double electrodeRadius;
+    double electrodeThickness;
+    ///@}
+
+
     ///@{ for jaw collimator with tip
     double tipThickness; ///< tip thickness
     std::string tipMaterial; ///< tip material
     ///@}
-  
+
     ///@{ temporary string for bias setting
     std::string bias;
     std::string biasMaterial;
     std::string biasVacuum;
+    std::string biasMaterialLV;
     ///@}
     /// physics biasing list for the material
     std::list<std::string> biasMaterialList;
     /// physics biasing list for the vacuum
     std::list<std::string> biasVacuumList;
+    /// physics biasing list for specific LVs
+    std::list<std::string> biasMaterialLVList;
 
     /// minimum kinetic energy for user limits - respected on element by element basis
     double minimumKineticEnergy;
@@ -210,7 +244,7 @@ namespace GMAD
     /// ID to a map for a set of which partIDs to store for a sampler. We use an integer
     /// to a map we keep in the parser to save memory, so we don't copy a set to every
     /// beam line element.
-    int    samplerParticleSetID;  
+    int    samplerParticleSetID;
     
     std::string region;      ///< region with range cuts
     std::string fieldOuter;  ///< Outer field.
@@ -241,15 +275,15 @@ namespace GMAD
     std::string crystalBoth;
     double      crystalAngleYAxisLeft;
     double      crystalAngleYAxisRight;
-    
+
     /// For muon cooler
     std::string coolingDefinition;
-  
+
     /// Whether the angle was set. Unique as we may technically have 0 angle but a finite
     /// field. This allows us to distinguish later on.
     /// NOTE: this is not used in Params.
     bool   angleSet;
-    
+
     bool   scalingFieldOuterSet;
 
     /// in case the element is a list itself (line)
@@ -279,8 +313,13 @@ namespace GMAD
     ///@}
     /// Set methods by property name and value
     template <typename T>
-    void set_value(std::string property, T value);
- 
+    void set_value(std::string property, T value, bool exceptionSafe = true);
+    /// Set method for lists
+    void set_value_array(const std::string& property, Array* value, bool bExit = true); // TODO keep separate as template calling order
+    /// Get method for lists
+#if __cplusplus >= 201703L
+    std::list<std::variant<bool, int, double, std::string>> get_value_array(const std::string &);
+#endif
     /// constructor
     Element();
 
@@ -290,26 +329,36 @@ namespace GMAD
     /// map that translates between alternative parser names for members, could be made static
     std::map<std::string,std::string> alternativeNames;
 
+
   protected:
     /// returns 'official' member name for property
     std::string getPublishedName(const std::string& name) const;
+
+    std::map<std::string, std::list<int>*> attribute_map_list_int;
+    std::map<std::string, std::list<double>*> attribute_map_list_double;
+    std::map<std::string, std::list<std::string>*> attribute_map_list_string;
   };
 
   template <typename T>
-  void Element::set_value(std::string property, T value)
-    {
+  void Element::set_value(std::string property, T value, bool exceptionSafe)
+  {
 #ifdef BDSDEBUG
-      std::cout << "element> Setting value " << std::setw(25) << std::left << property << value << std::endl;
+    std::cout << "element> Setting value " << std::setw(25) << std::left << property << value << std::endl;
 #endif
-      // member method can throw runtime_error, catch and exit gracefully
-      try
-	{Published<Element>::set(this,property,value);}
-      catch(const std::runtime_error&)
-	{
-	  std::cerr << "Error: element> unknown property \"" << property << "\" with value \"" << value << "\"" << std::endl;
-	  exit(1);
-	}
-    }
+    // member method can throw runtime_error, catch and exit gracefully
+    try
+      {Published<Element>::set(this, property, value);}
+    catch(const std::runtime_error&)
+      {
+        std::stringstream ss;
+        ss << "Error: element> unknown property \"" << property
+           << "\" with value \"" << value << "\" in definition \"" << this->name << "\"";
+        if (!exceptionSafe)
+          {throw std::invalid_argument(ss.str());}
+        else
+          {std::cerr << ss.str() << std::endl;}
+      }
+  }
 }
- 
+
 #endif

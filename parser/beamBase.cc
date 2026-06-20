@@ -114,6 +114,8 @@ BeamBase::BeamBase()
 
   Rmin = 0.0;
   Rmax = 0.0;
+  Rpmin = 0.0;
+  Rpmax = 0.0;
 
   haloNSigmaXInner      = 0.0;
   haloNSigmaXOuter      = 1e9;
@@ -153,4 +155,13 @@ BeamBase::BeamBase()
   eventGeneratorMaxEK = 1e50;
   eventGeneratorParticles = "";
   eventGeneratorWarnSkippedParticles = true;
+
+  dTStart = 0;
+  dTStop = 0;
+  dPStart = 0;
+  dPStop = 0;
+
+  polarization1 = 0;
+  polarization2 = 0;
+  polarization3 = 0;
 }

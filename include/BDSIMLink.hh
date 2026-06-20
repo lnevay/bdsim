@@ -38,6 +38,9 @@ class BDSParticleExternal;
 class G4RunManager;
 class G4VModularPhysicsList;
 
+#include "parser/element.h"
+#include "parser/elementtype.h"
+
 /** 
  * @brief Interface class to use BDSIM with trackers.
  *
@@ -59,17 +62,18 @@ class BDSIMLink
 public:
   /// Construct an instance but don't initialise. Requires initialisation with
   /// arguments argc and arv
-  explicit BDSIMLink(BDSBunch* bunchIn);
+  explicit BDSIMLink(BDSBunch* bunchIn = nullptr,
+                     BDSParser* parserIn = nullptr);
 
   /// Initialise everything given these arguments. The minimumKinetic energy should be in GeV.
   int Initialise(int argc,
                  char** argv,
                  bool   usualPrintOut        = true,
                  double minimumKineticEnergy = 0,
-                 bool   protonsAndIonsOnly   = true);
+                 bool   protonsAndIonsOnly   = false);
 
   /// Construct and initialise BDSIM.
-  BDSIMLink(int argc, char** argv, bool usualPrintOut=true);
+  BDSIMLink(int argc, char** argv, bool usualPrintOut=true, BDSParser *parserIn = nullptr);
 
   /// The destructor opens the geometry in Geant4 and deletes everything.
   ~BDSIMLink();
@@ -103,7 +107,24 @@ public:
                            bool   buildRightJaw = true,
                            bool   isACrystal    = false,
                            double crystalAngle  = 0,
-			   bool   sampleIn      = false);
+                           bool   sampleIn      = false);
+
+  int AddLinkCollimatorTipJaw(const std::string& collimatorName,
+                              const std::string& materialName,
+                              const std::string& tipMaterialName,
+                              double tipThickness,
+                              double length,
+                              double halfApertureLeft,
+                              double halfApertureRight,
+                              double rotation,
+                              double xOffset,
+                              double yOffset,
+                              double jawTiltLeft = 0.0,
+                              double jawTiltRight = 0.0,
+                              bool   buildLeftJaw  = true,
+                              bool   buildRightJaw = true);
+
+  int AddLinkElement(GMAD::Element &el);
 
   BDSHitsCollectionSamplerLink* SamplerHits() const;
   void ClearSamplerHits() {runAction->ClearSamplerHits();}
@@ -125,6 +146,8 @@ public:
   double GetArcLengthOfLinkElement(const std::string& elementName);
   /// @}
 
+  BDSBunch* GetBunch() const;
+
   /// Provide a physics list that will be used inplace of the BDSIM generate one.
   void RegisterUserPhysicsList(G4VModularPhysicsList* userPhysicsListIn) {userPhysicsList = userPhysicsListIn;}
   G4VModularPhysicsList* UserPhysicsList() const {return userPhysicsList;} ///< Access user physics list.
@@ -132,7 +155,7 @@ public:
 private:
   /// The main function where everything is constructed.
   int Initialise(double minimumKineticEnergy = 0,
-                 bool   protonsAndIonsOnly   = true);
+                 bool   protonsAndIonsOnly   = false);
   
   bool   ignoreSIGINT;         ///< For cmake testing.
   bool   usualPrintOut;        ///< Whether to allow the usual cout output.
@@ -145,6 +168,7 @@ private:
   BDSParser*    parser;
   BDSOutput*    bdsOutput;
   BDSBunch*     bdsBunch;
+  bool          internalBdsBunch;
   G4RunManager* runManager;
   BDSLinkDetectorConstruction* construction;
   BDSLinkRunAction*  runAction;

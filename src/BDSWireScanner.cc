@@ -39,24 +39,26 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 
-BDSWireScanner::BDSWireScanner(const G4String&   nameIn,
-			       G4double          lengthIn,
-			       BDSBeamPipeInfo2* beamPipeInfoIn,
-			       G4Material*       wireMaterialIn,
-			       G4double          wireDiameterIn,
-			       G4double          wireLengthIn,
-			       G4double          wireAngleIn,
-			       G4ThreeVector     wireOffsetIn):
+BDSWireScanner::BDSWireScanner(const G4String&      nameIn,
+                               G4double             lengthIn,
+                               BDSBeamPipeInfo2*    beamPipeInfoIn,
+                               G4Material*          wireMaterialIn,
+                               G4double             wireDiameterIn,
+                               G4double             wireLengthIn,
+                               G4double             wireAngleIn,
+                               const G4ThreeVector& wireOffsetIn,
+                               G4Colour*            wireColourIn):
   BDSAcceleratorComponent(nameIn, lengthIn, 0, "wirescanner", beamPipeInfoIn),
   wireMaterial(wireMaterialIn),
   wireDiameter(wireDiameterIn),
   wireLength(wireLengthIn),
   wireAngle(wireAngleIn),
-  wireOffset(wireOffsetIn)
+  wireOffset(wireOffsetIn),
+  wireColour(wireColourIn)
 {
   if (wireDiameter <= 0)
     {throw BDSException(__METHOD_NAME__, "Error: wireDiameter for \"" + name + "\" is not defined or must be greater than 0");}
-  
+
   if (wireLength <= 0)
     {throw BDSException(__METHOD_NAME__, "Error: wire for \"" + name + "\" must be > 0.");}
 
@@ -72,6 +74,8 @@ BDSWireScanner::BDSWireScanner(const G4String&   nameIn,
   G4double innerRadius = beamPipeInfo->Extent().MaximumAbsTransverse();
   if (tipTop.mag() > innerRadius || tipBot.mag() > innerRadius)
     {throw BDSException(__METHOD_NAME__, "wire for \"" + name + "\" is too big to fit in beam pipe give offsets.");}
+  if (!wireColour)
+    {wireColour = BDSColours::Instance()->GetColour("wirescanner");}
 }
 
 void BDSWireScanner::BuildContainerLogicalVolume()
@@ -101,18 +105,8 @@ void BDSWireScanner::Build()
 {
   BDSAcceleratorComponent::Build();
   
-  G4Tubs* wire = new G4Tubs(name + "_wire_solid", // name
-			    0,                    // inner radius
-			    wireDiameter*0.5,     // outer radius
-			    wireLength*0.5,       // half length
-			    0, CLHEP::twopi);     // start and finish angle 
-  RegisterSolid(wire);
-
-  G4LogicalVolume* wireLV = new G4LogicalVolume(wire,                // solid
-						wireMaterial,        // material
-						name + "_wire_lv");  // name
-  RegisterLogicalVolume(wireLV);
-  RegisterSensitiveVolume(wireLV, BDSSDType::wirecomplete);
+  G4VSolid*        wire   = BuildWireSolid();
+  G4LogicalVolume* wireLV = BuildWireLV(wire);
   
   // placement rotation
   G4RotationMatrix* wireRot = new G4RotationMatrix();
@@ -122,7 +116,7 @@ void BDSWireScanner::Build()
   RegisterRotationMatrix(wireRot);
   
   // visualisation attributes
-  G4VisAttributes* wireVisAttr = new G4VisAttributes(*BDSColours::Instance()->GetColour("wirescanner"));
+  G4VisAttributes* wireVisAttr = new G4VisAttributes(*wireColour);
   wireLV->SetVisAttributes(wireVisAttr);
   RegisterVisAttributes(wireVisAttr);
   
@@ -137,4 +131,24 @@ void BDSWireScanner::Build()
 					    0,                      // copy number
 					    checkOverlaps);
   RegisterPhysicalVolume(wirePV);
+}
+
+G4VSolid* BDSWireScanner::BuildWireSolid()
+{
+  G4Tubs* wire = new G4Tubs(name + "_wire_solid", // name
+			    0,                    // inner radius
+			    wireDiameter*0.5,     // outer radius
+			    wireLength*0.5,       // half length
+			    0, CLHEP::twopi);     // start and finish angle
+  RegisterSolid(wire);
+  return wire;
+}
+
+G4LogicalVolume* BDSWireScanner::BuildWireLV(G4VSolid* solid)
+{
+  G4LogicalVolume* wireLV = new G4LogicalVolume(solid,
+						wireMaterial,
+						name + "_wire_lv");
+  RegisterLogicalVolume(wireLV);
+  return wireLV;
 }

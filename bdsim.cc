@@ -24,14 +24,13 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
  * Reference: Computer Physics Communications, 252, 107200 (2020)
  *            https://doi.org/10.1016/j.cpc.2020.107200
  *            https://arxiv.org/abs/1808.10745
- * Website:   http://www.pp.rhul.ac.uk/bdsim
+ * Website:   https://bdsim-collaboration.github.io/web/
  *
  * version @BDSIM_VERSION@
  */
 
 #include "BDSIMClass.hh"
 #include "BDSException.hh"
-
 #include <iostream>
 
 int main(int argc, char** argv)
@@ -43,7 +42,7 @@ int main(int argc, char** argv)
       if (!bds->Initialised())
 	{
 	  if (bds->InitialisationResult() == 1)
-	    {std::cout << "Intialisation failed" << std::endl; return 1;}
+	    {std::cout << "Initialisation failed" << std::endl; return 1;}
 	}
       else
 	{bds->BeamOn();}

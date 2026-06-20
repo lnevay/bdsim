@@ -442,7 +442,7 @@ in the field definition in either :code:`magneticReflection` or :code:`electricR
 * (\*) See pictorial representation below
 
 For :code:`reflectxydipole`, :math:`x \mapsto |x|` and :math:`y \mapsto |y|`
-for the array look up. Then the value found at that location if changed as follows:
+for the array look up. Then the value found at that location is changed as follows:
 
 * if :math:`x < 0 \wedge y \geqslant 0`, :math:`B_x \mapsto -B_x`
 * if :math:`x \geqslant 0 \wedge y < 0`, :math:`B_x \mapsto -B_x`
@@ -451,20 +451,20 @@ for the array look up. Then the value found at that location if changed as follo
 
 
 For :code:`reflectxzdipole`, :math:`y \mapsto |y|` for the array look up. Then
-the value found at that location if changed as follows:
+the value found at that location is changed as follows:
 
 * if :math:`y < 0`, :math:`B_x \mapsto -B_x`
 
 
 For :code:`reflectxzsolenoid`, :math:`z \mapsto |z|` for the array look up. Then
-the value found at that location if changed as follows:
+the value found at that location is changed as follows:
 
 * if :math:`z < 0`, :math:`B_x \mapsto -B_x`
 * if :math:`z < 0`, :math:`B_y \mapsto -B_y`
 
 
 For :code:`reflectxyquadrupole`, :math:`x \mapsto |x|` and :math:`y \mapsto |y|`
-for the array look up. Then the value found at that location if changed as follows:
+for the array look up. Then the value found at that location is changed as follows:
 
 * if :math:`x < 0`, :math:`B_y \mapsto -B_y`
 * if :math:`y < 0`, :math:`B_x \mapsto -B_x`
@@ -532,6 +532,7 @@ The function is described by the :code:`type` parameter which can be one of the 
 * :code:`sint` - sinusoid as a function of (local) time
 * :code:`singlobal` - sinusoid as a function of (global) time with no synchronous offset in time
 * :code:`tophatt` - a top hat function as a function of time
+* :code:`lineart` - similar to top hat but function depends linearly on time
 
 Each is described below.
 
@@ -594,6 +595,31 @@ It is described by the equation:
 | `T1`               | Global time for 'off'                    | Yes           | 0            | s          |
 +--------------------+------------------------------------------+---------------+--------------+------------+
 | `amplitudeScale`   | Multiplier of scale                      | No            | 1            | None       |
++--------------------+------------------------------------------+---------------+--------------+------------+
+
+
+**lineart**
+
+A function that depends linearly on time inside a time window and is 0 everywhere else in time.
+It is described by the equation:
+
+.. math::
+
+    factor &= \textrm{amplitudeScale} * t + \textrm{amplitudeOffset} \quad \textrm{if} \quad T0 <= T <= T1 \\
+    factor &= 0 \quad \textrm{otherwise} \\
+
+
+
++--------------------+------------------------------------------+---------------+--------------+------------+
+| **Parameter**      | **Description**                          | **Required**  | **Default**  | **Units**  |
++====================+==========================================+===============+==============+============+
+| `T0`               | Global starting time for 'on'            | Yes           | 0            | s          |
++--------------------+------------------------------------------+---------------+--------------+------------+
+| `T1`               | Global time for 'off'                    | Yes           | 0            | s          |
++--------------------+------------------------------------------+---------------+--------------+------------+
+| `amplitudeScale`   | Multiplier of scale                      | No            | 0            | 1/s        |
++--------------------+------------------------------------------+---------------+--------------+------------+
+| `amplitudeOffset`  | Offset of numerical factor               | No            | 1            | None       |
 +--------------------+------------------------------------------+---------------+--------------+------------+
 
 
@@ -700,7 +726,7 @@ is automatically chosen based on the number of dimensions in the field map type.
 File Formats
 ^^^^^^^^^^^^
 
-.. note:: BDSIM field maps by default have units :math:`cm,s` and :math:`T` for magnetic
+.. note:: BDSIM field maps by default have units :math:`cm, s` and :math:`T` for magnetic
           field and :math:`V/m` for electric field.
 
 .. tabularcolumns:: |p{3cm}|p{6cm}|
@@ -708,13 +734,13 @@ File Formats
 +------------------+-----------------------------------------------------+
 | **Format**       | **Description**                                     |
 +==================+=====================================================+
-| bdsim1d          | 1D BDSIM format file  (Units :math:`cm, s, T, V\m`) |
+| bdsim1d          | 1D BDSIM format file (Units :math:`cm, s, T, V/m`)  |
 +------------------+-----------------------------------------------------+
-| bdsim2d          | 2D BDSIM format file  (Units :math:`cm, s, T, V\m`) |
+| bdsim2d          | 2D BDSIM format file (Units :math:`cm, s, T, V/m`)  |
 +------------------+-----------------------------------------------------+
-| bdsim3d          | 3D BDSIM format file  (Units :math:`cm, s, T, V\m`) |
+| bdsim3d          | 3D BDSIM format file (Units :math:`cm, s, T, V/m`)  |
 +------------------+-----------------------------------------------------+
-| bdsim4d          | 4D BDSIM format file  (Units :math:`cm, s, T, V\m`) |
+| bdsim4d          | 4D BDSIM format file (Units :math:`cm, s, T, V/m`)  |
 +------------------+-----------------------------------------------------+
 | poisson2d        | 2D Poisson Superfish SF7 file                       |
 +------------------+-----------------------------------------------------+
@@ -1397,6 +1423,20 @@ with the following fractions:
 
 It is a gas with density of 1.20479 mg/cm3.
 
+Ideal gases
+^^^^^^^^^^^
+
+When a new material is added with the parameter :code:`state=gas`, BDSIM check if the ideal gas law is respected between
+the density, pressure and temperature. It is assumed that the density is correct as it is the parameter Geant4 cares
+about. If the ideal gas law isn't respected, the temperature is defaulted to :code:`T=300` and the pressure is calculated from
+the density.
+
+.. note:: This check does not apply to :ref:`predefined-materials` and other materials defined above.
+
+.. note:: Molar mass calculations can't distinguish between single atom elements and elements with multiple of the same
+    atom (oxygen and dioxygen for example). This ideal gas calculation is intended for the former case like with
+    noble gases.
+
 .. _aperture-parameters:
 
 Aperture Parameters
@@ -1557,7 +1597,7 @@ lhc
     :width: 40%
     :align: left
 
-The LHC aperture shapre is defined by three parameters. It is the intersection (i.e. only
+The LHC aperture shape is defined by three parameters. It is the intersection (i.e. only
 where both exist) of a circle and a rectangle centred on each other. :code:`aper1` is the
 horizontal half-width of the rectangle. :code:`aper2` is the vertical half-height of the
 rectangle. :code:`aper3` is the radius of the circle. Depending on these parameters, a similar

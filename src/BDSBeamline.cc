@@ -570,7 +570,7 @@ void BDSBeamline::ApplyTransform3D(BDSTransform3D* component)
   
   // if not the first element in the beamline, get information from
   // the end of the last element in the beamline
-  if (!empty())
+  if (!empty() && !transformHasJustBeenApplied)
     {
       BDSBeamlineElement* last = back();
       previousReferenceRotationEnd = last->GetReferenceRotationEnd();
@@ -580,7 +580,7 @@ void BDSBeamline::ApplyTransform3D(BDSTransform3D* component)
   // apply position
   // transform the local dx,dy,dz displacement into the global frame then apply
   G4ThreeVector delta = G4ThreeVector(dx, dy, dz).transform(*previousReferenceRotationEnd);
-  previousReferencePositionEnd = previousReferencePositionEnd + G4ThreeVector(dx, dy, dz);
+  previousReferencePositionEnd = previousReferencePositionEnd + delta;
   
   // apply rotation
   G4RotationMatrix trRotInverse = component->rotationMatrix.inverse();
@@ -978,6 +978,6 @@ std::vector<G4int> BDSBeamline::GetIndicesOfElementsOfType(const std::set<G4Stri
 
 std::vector<G4int> BDSBeamline::GetIndicesOfCollimators() const
 {
-  std::set<G4String> collimatorTypes = {"ecol", "rcol", "jcol", "crystalcol", "element-collimator"};
+  std::set<G4String> collimatorTypes = {"ecol", "rcol", "jcol", "jcoltip", "crystalcol", "element-collimator"};
   return GetIndicesOfElementsOfType(collimatorTypes);
 }

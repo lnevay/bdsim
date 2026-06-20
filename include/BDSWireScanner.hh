@@ -26,7 +26,10 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4ThreeVector.hh"
 
 class BDSBeamPipeInfo2;
+class G4Colour;
+class G4LogicalVolume;
 class G4Material;
+class G4VSolid;
 
 /**
  * @brief Single cylindrical wire inside beam pipe.
@@ -37,39 +40,40 @@ class G4Material;
 class BDSWireScanner: public BDSAcceleratorComponent
 {
 public:
-  BDSWireScanner(const G4String&   nameIn,
-		 G4double          lengthIn,
-		 BDSBeamPipeInfo2* beamPipeInfoIn,
-		 G4Material*       wireMaterialIn,
-		 G4double          wireDiameterIn,
-		 G4double          wireLengthIn,
-		 G4double          wireAngleIn  = 0,
-		 G4ThreeVector     wireOffsetIn = G4ThreeVector());
-
+  BDSWireScanner(const G4String&      nameIn,
+                 G4double             lengthIn,
+                 BDSBeamPipeInfo2*    beamPipeInfoIn,
+                 G4Material*          wireMaterialIn,
+                 G4double             wireDiameterIn,
+                 G4double             wireLengthIn,
+                 G4double             wireAngleIn  = 0,
+                 const G4ThreeVector& wireOffsetIn = G4ThreeVector(),
+                 G4Colour*            wireColourIn = nullptr);
+  BDSWireScanner() = delete;
+  /// @{ Assignment and copy constructor not implemented nor used
+  BDSWireScanner& operator=(const BDSWireScanner&) = delete;
+  BDSWireScanner(BDSWireScanner&) = delete;
+  ///@}
   virtual ~BDSWireScanner(){;}
-
+  
   /// Return the name of a material - in this case the wire is the most relevant.
   virtual G4String Material() const {return wireMaterial->GetName();}
   
 protected:
-  virtual void Build();
-  
+  virtual void Build();  
   virtual void BuildContainerLogicalVolume();
+
+  /// @{ Allow overriding of certain bits of construction.
+  virtual G4VSolid*        BuildWireSolid();
+  virtual G4LogicalVolume* BuildWireLV(G4VSolid* solid);
+  /// @}
 
   G4Material*   wireMaterial;
   G4double      wireDiameter;
   G4double      wireLength;
   G4double      wireAngle;
   G4ThreeVector wireOffset;
-  
-private:
-  /// Private default constructor to force the use of the supplied one.
-  BDSWireScanner() = delete;
-
-  /// @{ Assignment and copy constructor not implemented nor used
-  BDSWireScanner& operator=(const BDSWireScanner&) = delete;
-  BDSWireScanner(BDSWireScanner&) = delete;
-  ///@}
+  G4Colour*     wireColour;
 };
 
 #endif

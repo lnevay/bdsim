@@ -66,6 +66,7 @@ Parameters::Parameters()
   setMap["phase"]     = false;
   setMap["tOffset"]   = false;
   setMap["fieldModulator"] = false;
+  setMap["kg"]        = false;
 
   setMap["kick1"]     = false;
   setMap["kick2"]     = false;
@@ -114,7 +115,13 @@ Parameters::Parameters()
   setMap["xsizeRight"]         = false;
   setMap["offsetX"]            = false;
   setMap["offsetY"]            = false;
-  
+  setMap["xsize2"]             = false;
+  setMap["ysize2"]             = false;
+  setMap["offsetX2"]           = false;
+  setMap["offsetY2"]           = false;
+  setMap["tilt2"]              = false;
+  setMap["outerShape"]         = false;
+
   setMap["tscint"]             = false;
   setMap["twindow"]            = false;
   setMap["tmount"]             = false;
@@ -136,8 +143,9 @@ Parameters::Parameters()
   
   setMap["xdir"]               = false;
   setMap["ydir"]               = false;
-  setMap["zdir"]               = false; 
-  setMap["waveLength"]         = false;
+  setMap["zdir"]               = false;
+  setMap["wavelength"]         = false;
+  setMap["gradient"]           = false;
   setMap["phi"]                = false;
   setMap["theta"]              = false;
   setMap["psi"]                = false;
@@ -152,6 +160,13 @@ Parameters::Parameters()
   setMap["materialThickness"] = false;
   setMap["degraderOffset"]    = false;
 
+  setMap["laserBeam"]         = false;
+  setMap["laserOffsetTheta"]  = false;
+  setMap["laserOffsetPhi"]    = false;
+  setMap["laserOffsetX"]      = false;
+  setMap["laserOffsetY"]      = false;
+  setMap["laserOffsetZ"]      = false;
+
   setMap["wireDiameter"]      = false;
   setMap["wireLength"]        = false;
   setMap["wireOffsetX"]       = false;
@@ -163,10 +178,18 @@ Parameters::Parameters()
   setMap["undulatorGap"]          = false;
   setMap["undulatorMagnetHeight"] = false;
 
+  setMap["anodeLength"]          = false;
+  setMap["anodeRadius"]          = false;
+  setMap["anodeThickness"]       = false;
+  setMap["electrodeLength"]      = false;
+  setMap["electrodeRadius"]      = false;
+  setMap["electrodeThickness"]   = false;
+
   setMap["bias"]                 = false;
   setMap["biasMaterial"]         = false;
   setMap["biasVacuum"]           = false;
-  
+  setMap["biasMaterialLV"]         = false;
+
   setMap["minimumKineticEnergy"] = false;
   
   setMap["samplerName"]          = false;
@@ -239,4 +262,40 @@ void Parameters::inherit_properties(const Element& e)
 	  i.second = true;
 	}
     }
+}
+
+void Parameters::set_value_array(const std::string& property, Array* value, bool bExit)
+{
+  auto search1 = attribute_map_list_int.find(property);
+  if (search1 != attribute_map_list_int.end())
+  {
+    value->set_vector(*search1->second);
+    std::string publishedName = getPublishedName(property);
+    setMap.at(publishedName) = true;
+    return;
+  }
+
+  auto search2 = attribute_map_list_double.find(property);
+  if (search2 != attribute_map_list_double.end())
+  {
+    value->set_vector(*search2->second);
+    std::string publishedName = getPublishedName(property);
+    setMap.at(publishedName) = true;
+    return;
+  }
+
+  auto search3 = attribute_map_list_string.find(property);
+  if (search3 != attribute_map_list_string.end()) {
+    value->set_vector(*search3->second);
+    std::string publishedName = getPublishedName(property);
+    setMap.at(publishedName) = true;
+    return;
+  }
+
+  std::cerr << "Error: parser> unknown element option \"" << property << "\", or doesn't expect vector type" << std::endl;
+  if(bExit)
+  {exit(1);}
+  else
+  {std::rethrow_exception(std::current_exception());}
+
 }

@@ -60,10 +60,67 @@ BDSBeamPipeFactoryBase* BDSBeamPipeFactory::GetAppropriateFactory(BDSBeamPipeTyp
     case BDSBeamPipeType::lhcdetailed:
       {result = lhcdetailed; break;}
     default:
-      {
-	throw BDSException(__METHOD_NAME__, "unimplemented beam pipe type.");
-	break;
-      }
+#ifdef BDSDEBUG
+      G4cout << __METHOD_NAME__ << "unknown type \"" << type << "\" - circular beampipe factory by default" << G4endl;
+#endif
+      return circular;
+      break;
+    }
+}
+
+BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipeForVacuumIntersection(const G4String&  name,
+								     G4double         length,
+								     BDSBeamPipeInfo* bpi)
+{
+  BDSBeamPipeInfo copy = BDSBeamPipeInfo(*bpi);
+  copy.ShrinkBy(BDSGlobalConstants::Instance()->LengthSafetyLarge());
+  return CreateBeamPipe(BDSBeamPipeType::circularvacuum,
+			name,
+			length,
+			bpi->aper1,
+			bpi->aper2,
+			bpi->aper3,
+			bpi->aper4,
+			bpi->vacuumMaterial,
+			bpi->beamPipeThickness,
+			bpi->beamPipeMaterial);
+}
+
+BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipe(const G4String&  name,
+						G4double         length,
+						BDSBeamPipeInfo* bpi)
+{
+  if ((bpi->inputFaceNormal.z() > -1) || (bpi->outputFaceNormal.z() < 1))
+    {
+      return CreateBeamPipe(bpi->beamPipeType,
+			    name,
+			    length,
+			    bpi->inputFaceNormal,
+			    bpi->outputFaceNormal,
+			    bpi->aper1,
+			    bpi->aper2,
+			    bpi->aper3,
+			    bpi->aper4,
+			    bpi->vacuumMaterial,
+			    bpi->beamPipeThickness,
+			    bpi->beamPipeMaterial,
+			    bpi->pointsFileName,
+			    bpi->pointsUnit);
+    }
+  else
+    {
+      return CreateBeamPipe(bpi->beamPipeType,
+			    name,
+			    length,
+			    bpi->aper1,
+			    bpi->aper2,
+			    bpi->aper3,
+			    bpi->aper4,
+			    bpi->vacuumMaterial,
+			    bpi->beamPipeThickness,
+			    bpi->beamPipeMaterial,
+			    bpi->pointsFileName,
+			    bpi->pointsUnit);
     }
   return result;
 }

@@ -38,6 +38,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSFieldEMRFCavity.hh"
 #include "BDSFieldEMZero.hh"
 #include "BDSFieldFactory.hh"
+#include "BDSFieldGaborLens.hh"
 #include "BDSFieldInfo.hh"
 #include "BDSFieldInfoExtra.hh"
 #include "BDSFieldLoader.hh"
@@ -93,6 +94,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSMagnetType.hh"
 #include "BDSModulator.hh"
 #include "BDSModulatorInfo.hh"
+#include "BDSModulatorLinearT.hh"
 #include "BDSModulatorSinT.hh"
 #include "BDSModulatorTopHatT.hh"
 #include "BDSModulatorType.hh"
@@ -409,10 +411,11 @@ void BDSFieldFactory::PrepareModulatorDefinitions(const std::vector<GMAD::Modula
       BDSModulatorInfo* info = new BDSModulatorInfo(modulatorType,
                                                     frequency,
                                                     phase,
+                                                    definition.tOffset * CLHEP::s,
                                                     definition.amplitudeScale,
                                                     definition.amplitudeOffset,
-                                                    definition.T0,
-                                                    definition.T1);
+                                                    definition.T0 * CLHEP::s,
+                                                    definition.T1 * CLHEP::s);
       info->nameOfParserDefinition = definition.name;
       parserModulatorDefinitions[G4String(definition.name)] = info;
     }
@@ -775,7 +778,7 @@ BDSFieldMag* BDSFieldFactory::CreateFieldMagRaw(const BDSFieldInfo&      info,
         else
           {
             field = new BDSFieldMagMultipoleOuterDual(1, poleTipRadius, innerField, positiveField2, brho, dx,
-                                                      info.SecondFieldOnLeft(), GetOuterScaling(strength));
+                                                      info.SecondFieldOnLeft(), true, GetOuterScaling(strength));
           }
         delete innerField; // no longer required
         break;
@@ -793,7 +796,7 @@ BDSFieldMag* BDSFieldFactory::CreateFieldMagRaw(const BDSFieldInfo&      info,
         else
           {
             field = new BDSFieldMagMultipoleOuterDual(2, poleTipRadius, innerField, positiveField, brho, dx,
-                                                      info.SecondFieldOnLeft(), GetOuterScaling(strength));
+                                                      info.SecondFieldOnLeft(), false, GetOuterScaling(strength));
           }
         delete innerField; // no longer required
         break;
@@ -811,7 +814,7 @@ BDSFieldMag* BDSFieldFactory::CreateFieldMagRaw(const BDSFieldInfo&      info,
         else
           {
             field = new BDSFieldMagMultipoleOuterDual(3, poleTipRadius, innerField, positiveField, dx, brho,
-                                                      info.SecondFieldOnLeft(), GetOuterScaling(strength));
+                                                      info.SecondFieldOnLeft(), true, GetOuterScaling(strength));
           }
         delete innerField; // no longer required
         break;
@@ -890,6 +893,8 @@ BDSFieldObjects* BDSFieldFactory::CreateFieldEM(const BDSFieldInfo& info)
       }
     case BDSFieldType::ebfieldzero:
       {field = new BDSFieldEMZero(); break;}
+    case BDSFieldType::gaborlens:
+      {field = new BDSFieldGaborLens(info.MagnetStrength()); break;}
     case BDSFieldType::muoncooler:
       {field = CreateMuonCoolerField(info, brho); break;}
     default:
@@ -1299,7 +1304,7 @@ BDSFieldEM* BDSFieldFactory::CreateMuonCoolerField(const BDSFieldInfo& info,
   BDSFieldInfoExtraMuonCooler* mcExtraInfo = dynamic_cast<BDSFieldInfoExtraMuonCooler*>(extraInfo);
   if (!mcExtraInfo) // shouldn't happen, but just for safety
     {throw BDSException(__METHOD_NAME__, "no muon cooler extra definitions for field definition: " + info.NameOfParserDefinition());}
-  
+
   BDSFieldEM* result = new BDSFieldEMMuonCooler(mcExtraInfo, brho);
   return result;
 }
@@ -1313,6 +1318,14 @@ BDSModulator* BDSFieldFactory::CreateModulator(const BDSModulatorInfo* modulator
     {
       switch (modulatorRecipe->modulatorType.underlying())
         {
+        case BDSModulatorType::lineart:
+          {
+            result = new BDSModulatorLinearT(modulatorRecipe->T0,
+                                             modulatorRecipe->T1,
+                                             modulatorRecipe->scale,
+                                             modulatorRecipe->amplitudeOffset);
+            break;
+          }
         case BDSModulatorType::sint:
           {
             result = new BDSModulatorSinT(modulatorRecipe->frequency,

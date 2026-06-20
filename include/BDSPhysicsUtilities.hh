@@ -53,7 +53,7 @@ namespace BDS
   G4bool IsIon(const G4ParticleDefinition* particle);
 
   /// Calls IsIon above but also a proton with any bound electrons is considered an ion.
-  G4bool IsIon(const G4DynamicParticle* paritlce);
+  G4bool IsIon(const G4DynamicParticle* particle);
   
   /// Detect whether we're using a Geant4 provided physics list or whether we'll use the
   /// BDSIM modular physics and construct it.
@@ -89,7 +89,7 @@ namespace BDS
                                                      G4double totalEnergyIn,
                                                      G4double kineticEnergyIn,
                                                      G4double momentumIn,
-						     G4double ffact = 1);
+                                                     G4double ffact = 1);
 
   /// Ensure required beam particle has been constructed for Geant4 purposes. Expects
   /// lowercase letters, not the Geant4 exact string.
@@ -115,6 +115,12 @@ namespace BDS
 
   /// Build muon splitting biasing and wrap the various processes in the physics list.
   void BuildMuonBiasing(G4VModularPhysicsList* physicsList);
+
+  /// Extend the default pi+- decay channels in Geant4.
+  void ExtendPionDecayChannels(G4VModularPhysicsList* physicsList);
+
+  /// Set mu+- as stable so they won't decay.
+  void TurnOffMuonDecay();
 
 #if G4VERSION_NUMBER > 1039
   /// Build the physics required for channelling to work correctly.

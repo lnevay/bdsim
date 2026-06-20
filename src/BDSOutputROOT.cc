@@ -133,7 +133,8 @@ void BDSOutputROOT::NewFile()
     {theEventOutputTree->Branch("Trajectory.", "BDSOutputROOTEventTrajectory", traj, 4000,  2);}
 
   // Build event histograms
-  theEventOutputTree->Branch("Histos.",     "BDSOutputROOTEventHistograms", evtHistos, 32000, 1);
+  if (storePerEventHistos)
+    {theEventOutputTree->Branch("Histos.",     "BDSOutputROOTEventHistograms", evtHistos, 32000, 1);}
 
   // build sampler structures
   for (G4int i = 0; i < (G4int)samplerTrees.size(); ++i)

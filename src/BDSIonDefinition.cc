@@ -87,7 +87,7 @@ std::ostream& operator<< (std::ostream& out, BDSIonDefinition const& io)
 void BDSIonDefinition::Parse(const G4String& definition)
 {
   std::regex wspace("\\s+"); // any whitespace
-  
+
   // A Z Q E
   G4int counter = 0;
   std::vector<G4int*> vals = {&a, &z};
@@ -114,7 +114,7 @@ void BDSIonDefinition::Parse(const G4String& definition)
 	  else
 	    {// A and Z are integers
 	      // check for decimal point -> should not be a floating point number
-	      if (word.find(".") != std::string::npos)
+	      if (word.find('.') != std::string::npos)
 		{throw BDSException(__METHOD_NAME__, "value in beam ion definition \"" + word + "\" must be an integer");}
 	      (*vals[counter-1]) = std::stoi(word);
 	      if (counter == 2) // by default copy Z as value of Q
@@ -127,7 +127,7 @@ void BDSIonDefinition::Parse(const G4String& definition)
 
   if (z != charge)
     {
-      nElectrons = z - charge;
+      nElectrons = z - (G4int)charge;
       G4cout << __METHOD_NAME__ << nElectrons << " bound electrons to ion inferred from charge, A and Z." << G4endl;
     }
   if (charge > z)

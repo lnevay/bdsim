@@ -24,15 +24,20 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSBunchEShell.hh"
 #include "BDSBunchEventGenerator.hh"
 #include "BDSBunchFactory.hh"
+#include "BDSBunchGauss.hh"
+#include "BDSBunchGaussMatrix.hh"
+#include "BDSBunchGaussMatrixSlowExt.hh"
+#include "BDSBunchGaussSlowExt.hh"
+#include "BDSBunchGaussTwiss.hh"
+#include "BDSBunchGaussTwissSlowExt.hh"
 #include "BDSBunchHalo.hh"
 #include "BDSBunchHaloFlatSigma.hh"
 #include "BDSBunchPtc.hh"
 #include "BDSBunchRing.hh"
+#include "BDSBunchSlowExt.hh"
 #include "BDSBunchSphere.hh"
-#include "BDSBunchSigmaMatrix.hh"
 #include "BDSBunchSixTrack.hh"
 #include "BDSBunchSquare.hh"
-#include "BDSBunchTwiss.hh"
 #include "BDSBunchType.hh"
 #include "BDSBunchUserFile.hh"
 #include "BDSDebug.hh"
@@ -45,6 +50,10 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef USE_GZSTREAM
 #include "src-external/gzstream/gzstream.h"
+#endif
+
+#ifdef USE_PLASMA_HDF5
+#include "modules/PLASMA_HDF5/include/BDSBunchHDF5.hh"
 #endif
 
 BDSBunch* BDSBunchFactory::CreateBunch(const BDSParticleDefinition* beamParticle,
@@ -83,11 +92,18 @@ BDSBunch* BDSBunchFactory::CreateBunch(const BDSParticleDefinition* beamParticle
     {
     case BDSBunchType::reference:
       {bdsBunch = new BDSBunch(); break;}
-    case BDSBunchType::gaussmatrix:
     case BDSBunchType::gauss:
-      {bdsBunch = new BDSBunchSigmaMatrix(); break;}
+      {bdsBunch = new BDSBunchGauss(); break;}
+    case BDSBunchType::gaussmatrix:
+      {bdsBunch = new BDSBunchGaussMatrix(); break;}
     case BDSBunchType::gausstwiss:
-      {bdsBunch = new BDSBunchTwiss(); break;}
+      {bdsBunch = new BDSBunchGaussTwiss(); break;}
+    case BDSBunchType::gaussslowext:
+      {bdsBunch = new BDSBunchGaussSlowExt(); break;}
+    case BDSBunchType::gaussmatrixslowext:
+      {bdsBunch = new BDSBunchGaussMatrixSlowExt(); break;}
+    case BDSBunchType::gausstwissslowext:
+      {bdsBunch = new BDSBunchGaussTwissSlowExt(); break;}
     case BDSBunchType::circle:
       {bdsBunch = new BDSBunchCircle(); break;}
     case BDSBunchType::square:
@@ -125,6 +141,8 @@ BDSBunch* BDSBunchFactory::CreateBunch(const BDSParticleDefinition* beamParticle
       {bdsBunch = new BDSBunchPtc(); break;}
     case BDSBunchType::sixtrack:
       {bdsBunch = new BDSBunchSixTrack(); break;}
+    case BDSBunchType::slowext:
+      {bdsBunch = new BDSBunchSlowExt(); break;}
     case BDSBunchType::sphere:
       {bdsBunch = new BDSBunchSphere(); break;}
     case BDSBunchType::eventgeneratorfile:
@@ -134,6 +152,16 @@ BDSBunch* BDSBunchFactory::CreateBunch(const BDSParticleDefinition* beamParticle
       {bdsBunch = new BDSBunchBox(); break;}
     case BDSBunchType::halosigma:
       {bdsBunch = new BDSBunchHaloFlatSigma(); break;}
+#ifdef USE_PLASMA_HDF5
+    case BDSBunchType::hdf5:
+      {bdsBunch = new BDSBunchHDF5(); break;}
+#else
+    case BDSBunchType::hdf5:
+      {
+        G4String message = "BDSIM is not compiled with HDF5 support.";
+        throw BDSException(__METHOD_NAME__, message);
+      }
+#endif
     default:
       {bdsBunch = new BDSBunch(); break;}
     }

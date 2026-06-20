@@ -11,10 +11,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  btlinux:
+  build-manual:
     name: build manual
     runs-on: ubuntu-latest
-    container: bdsim/alma9-g4.11.2:latest
+    container: bdsim/ubuntu24-g4.11.2:latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout bdsim
@@ -32,17 +34,27 @@ jobs:
           rm -rfv /usr/local/lib/Geant4-10.7.4/Geant4PackageCache.cmake
   
           # ROOT
-          source /tmp/root/bin/thisroot.sh
+          source /bdsim/root/bin/thisroot.sh
   
           # git trusted dir
           git config --global --add safe.directory $GITHUB_WORKSPACE
   
-          # install sphinx and rtd theme 
-          pip3 install sphinx sphinx-rtd-theme
+          # install sphinx and rtd theme
+          python3 -m venv /tmp/venv/python3
+          source /tmp/venv/python3/bin/activate
+          pip3 install sphinx sphinx-rtd-theme 
           
-          # build
+          # build sphinx manual
           mkdir /tmp/bdsim-build
           mkdir /tmp/bdsim-install
           cd /tmp/bdsim-build
           cmake -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install $GITHUB_WORKSPACE
           make manual
+
+          # install doxygen
+          apt install -y doxygen graphviz
+
+          # build doxygen
+          cd /tmp/bdsim-build
+          cmake -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install $GITHUB_WORKSPACE
+          make doc

@@ -12,7 +12,7 @@ if you'd like to give us feedback or help in the development.  See :ref:`support
 * Any aperture shape can be used for both the inside and the outside of a collimator.
 
 
-v1.8.0 - 2025 / XX / XX
+v1.8.0 - 2026 / XX / XX
 =======================
 
 The BDSIM source code has moved to Github and is available here: https://github.com/bdsim-collaboration/bdsim
@@ -24,15 +24,30 @@ to maintain the expected high quality of the code.
 
 * For models with acceleration, the rigidity and synchronous time are now calculated
   along the beamline and pre-calculated **scaling factors are no longer needed**.
-
+* For any linked code, using the BDSIMLink interface, all particles are now accepted
+  into the simulation and all particles are sent back. The :code:`protonsAndIonsOnly`
+  Boolean flag still works, but by default is false. Any linked tracking code must now
+  filter the particles they can handle themselves.
 
 New Features
 ------------
+* New Gabor lens beam line component. Constructed with a radial electric field that would be generated
+  with a confined plasma in a Penning-Malmberg trap configuration. The electric and magnetic confinement
+  fields are not constructed.
 
 **Analysis**
 
 * New :code:`CreateEmptyBdskimFile` in the :code:`DataDummyClass` to give this function in pybdsim
   for easy customised skimming in Python.
+
+**Bunch Distributions**
+
+* New :code:`slowext` (slow extraction) distribution for a linear sweep in momentum with time. Also,
+  other distributions with each type of Gaussian have been added: :code:`gauss-slow-ext`,
+  :code:`gauss-slow-ext`, :code:`gauss-twiss-slow-ext` where the Gaussian part is first generated
+  and the slow extraction sweep added on top.
+* The :code:`ring` distribution can now make a circular ring also in `rp` (i.e. in `xp`, `yp`). By
+  default the old behaviour is retained and no angle is produced.
 
 **Fields**
 
@@ -42,7 +57,8 @@ New Features
 * The option :code:`cavityFieldType` may be used to set the default field model for all `rf`
   elements.
 * The "rfcavity" field is now "rfpillbox".
-
+* Fix a reference particle perfectly on axis in a muon sweeper field that would cause Nans
+  and crashes in tracking.
 
 **General**
 
@@ -55,7 +71,11 @@ New Features
 
 * New :code:`ionisation` modular physics list for only the ionisation process for the most
   common particles.
-
+* New :code:`ftf_bic` modular physics list.
+* New :code:`dna_chemistry`, :code:`dna_chemistry_1`, :code:`dna_chemistry_2`, :code:`dna_chemistry_3`
+  physics lists.
+* New ability to turn off muon decays with :code:`option, turnOffMuonDecay=1;`
+* New option :code:`extendPionDecays` to add extra decay channels to charged pions.
 
 
 New Options
@@ -78,13 +98,16 @@ New Options
 General Updates
 ---------------
 
+* Bunch distributions now accepts hyphenated versions of the names, e.g. :code:`gausstwiss` and
+  :code:`gauss-twiss` are both accepted.
+* Build configuration now requires CMake 3.7 or greater.
 * The interface for custom components has changed due to the new beamline integral class and object.
   The example has been updated accordingly.
 * Internally, beamline elements are now cached based on both their name (basic reuse of components)
   but also the nominal rigidity at that point in the beamline. This is because if, say, a quadrupole
   is used later in the beamline after acceleration with the same `k1`, the actual field gradient
   is different and so the component must be uniquely constructed to have a different field.
-* The time coordinate is now loaded and applied to each particle when loading a bdsim output
+* The time coordinate is now loaded and applied to each particle when loading a BDSIM output
   sampler as a distribution.
 * An exception will now be thrown if a field map is loaded containing NAN or +-INF values. In
   the past, these would be simply loaded and propagated through to tracking resulting in a stuck
@@ -94,6 +117,10 @@ General Updates
 Bug Fixes
 ---------
 
+* Fix :code:`transform3d` component applying offsets in a rotate frame that is not
+  axis-aligned. It applied the offsets (dx, dy, dz) in the global axis and not the
+  local ones.
+* Fix repeated transforms in a sequence. Previously, only the first one would be applied.
 * Fix rebdsim's Spectra command preparing the wrong variables when used on a cylindrical
   or spherical sampler where the variable is "totalEnergy" and not "energy".
 * Fix a bug where rebdsim would crash if a Spectra command was used on a cylindrical or
@@ -104,6 +131,31 @@ Bug Fixes
   location. Noticeable if executing BDSIM from a different directory from the main input file.
 * Fixed the loading of samplers with DataLoader (used when using :code:`pybdsim.Data.Load`) when
   no model tree was stored. The samplers would not be identified in the past.
+* Fix the :code:`Event.Trajectory.pxpypz` variable in the output. It was implemented
+  incorrectly in code and was not the correct data. It is now components of the momentum
+  vector (absolute) in GeV/c in a frame local to that element as it should be.
+* Fixed the DNA variant modular physcis lists that would always default to the original variant.
+  i.e. :code:`dna_3` would always default to :code:`dna`. This has been fixed for all variants.
+* The weight of the :code:`composite` and :code:`compositesde` beam distributions is now the
+  product of the x, y, z weights, whereas before it was always only the x dimension weight that was taken.
+* The :code:`userfile` bunch distribution was fixed for different particle species at sub-relativistic
+  energies. The mass of the nominal design beam particle was used instead leading to a wrong total energy
+  even for the correctly specified momentum in the distribution file.
+* Fix loading of a BDSIM output sampler bunch distribution or a HEPMC file loading when
+  recreating a file and the chosen event offset requires looping the file. It would loop
+  and advance to the same place proplery.
+* The cylindrical scoring mesh now takes :code:`rInner` and :code:`rOuter` as the two radial parameters.
+  :code:`rsize` is still accepted and used as :code:`rOuter`. The default for :code:`rInner` is 0.
+  Previously, the mesh was always half the desired size in geometry but with the correct output
+  coordinates in the histogram that mismatched what was simulated.
+* Fixed a bug where BDSIM would complain about duplicate materials if a crystal collimator was used
+  at the same time as a GDML file loaded elsewhere in the model.
+* Fixed many component examples in the manual that had wrongly described parameters.
+* Fixed empty column for 'type' in text survey output.
+* Fixed possibly duplicated file extensions for text survey output.
+* Document the options :code:`maximumPhotonsPerStep` and :code:`maximumBetaChangePerStep` as well
+  as fix their number type internally.
+* Fix a crash when using :code:`jcoltip` with collimator-specific output options.
 
 
 Output Changes
@@ -126,7 +178,7 @@ Output Class Versions
 +===================================+=============+=================+=================+
 | BDSOutputROOTEventAperture        | N           | 1               | 1               |
 +-----------------------------------+-------------+-----------------+-----------------+
-| BDSOutputROOTEventBeam            | N           | 6               | 6               |
+| BDSOutputROOTEventBeam            | N           | 6               | 7               |
 +-----------------------------------+-------------+-----------------+-----------------+
 | BDSOutputROOTEventCavityInfo      | N           | 1               | 1               |
 +-----------------------------------+-------------+-----------------+-----------------+
@@ -177,7 +229,7 @@ of writing, the corresponding versions of each utility are:
 * pymad8 v2.0.1
 * pytransport v2.0.1
 
-  
+
 V1.7.7 - 2024 / 01 / 29
 =======================
 
@@ -226,11 +278,11 @@ General Updates
 * Improved error messages for bad scorer mesh definition.
 * Improved description in manual of physics list recommendation.
 * Reduced printout for the visualisation.
-  
-  
+
+
 Bug Fixes
 ---------
-  
+
 Hot-fix for issue #377. A tracking issue appeared in thin elements due to a too small maximum value for the
 relative error, epsilonStep, resulting in incorrect kicks being applied. This occurred only when BDSIM is compiled
 against versions of Geant4 11.0 onwards. The maximum value is now set separately for thick and thin volumes.
@@ -326,7 +378,7 @@ in that run. And for every subsequent event.
 * It is not required to set :code:`beam, distrFileLoop=1` if :code:`beam, distrFileLoopNTimes` is set
   to a value greater than 1 for any file-based input distributions.
 
-  
+
 v1.7.5 - 2023 / 10 / 03
 =======================
 
@@ -352,7 +404,7 @@ Bug Fixes
   as Geant4's string for this is a little inconsistent.
 * :code:`BDSOutputROOTEventTrajectory` copy constructor did not copy the `mass` variable.
 
-  
+
 
 V1.7.4 - 2023 / 08 / 25
 =======================
@@ -385,7 +437,7 @@ V1.7.3 - 2023 / 08 / 11
 
 * Hotfix - undo recent optimisation for histograms as it accidentally affected the mean
   in non-simple (i.e. per-entry average) histograms.
-  
+
 
 V1.7.2 - 2023 / 08 / 11
 =======================
@@ -417,7 +469,7 @@ Bug Fixes
 
 * `shield` component now obeys `colour` property correctly.
 
-  
+
 V1.7.1 - 2023 / 07 / 20
 =======================
 
@@ -521,7 +573,7 @@ New Features
 * New ability to arbitrarily scale the yoke fields.
 * New `modulator` object to modulate RF components (see :ref:`field-modulators`).
 * `reflectxydipole` added flip in Fz for y < 0.
-  
+
 **General**
 
 * New :code:`--versionGit` executable option to get the git SHA1 code as well as the version number.
@@ -607,7 +659,7 @@ New Features
   world contents (in case of an externally provided world volume) without storing all the individual
   hits that would use a lot of disk space.
 * :code:`storeSamplerKineticEnergy` is now on by default.
-  
+
 
 General Updates
 ---------------
@@ -710,7 +762,7 @@ Bug Fixes
 * Fixed "kaon0L" as a beam particle. Also allow "kaon0S" and "kaon0".
 * Fixed beam offset with S when using negative `beamlineS` option for generally offsetting the
   S coordinate (as a variable in all data).
-  
+
 **Biasing**
 
 * Fixed huge amount of print out for bias objects attached to a whole beam line. Now, bias
@@ -834,7 +886,7 @@ Bug Fixes
   reminder, any material without a specific colour will default to a shade of grey according to
   its density. The auto-colouring is also fixed when preprocessing is used (the default).
 * Fix visualisation of loaded GDML container volume.
-  
+
 **General**
 
 * Fix double deletion bug for particle definition when using the Link version of BDSIM.
@@ -1315,7 +1367,7 @@ New Features
 * New options:
 
 .. tabularcolumns:: |p{0.30\textwidth}|p{0.70\textwidth}|
-  
+
 +------------------------------------+--------------------------------------------------------------------+
 | **Option**                         | **Description**                                                    |
 +====================================+====================================================================+
@@ -1430,7 +1482,7 @@ Bug Fixes
   that were taller than they were wide and with extremely strong bending angles or pole faces
   this could have produced geometry Geant4 would complain about. Fixed in
   :code:`BDSMagnetOuter::MinimumIntersectionRadius()`.
-  
+
 Output Changes
 --------------
 
@@ -1602,7 +1654,7 @@ New Features
 * New options:
 
 .. tabularcolumns:: |p{0.30\textwidth}|p{0.70\textwidth}|
-  
+
 +------------------------------------+--------------------------------------------------------------------+
 | **Option**                         | **Description**                                                    |
 +====================================+====================================================================+
@@ -1756,7 +1808,7 @@ General
   and the length of the element.
 * Degrader wedges are no longer connected with geometry to prevent overlaps. Degrader can now be fully open
   when using the element parameter :code:`degraderOffset`.
-  
+
 Bug Fixes
 ---------
 
@@ -2310,7 +2362,7 @@ Developer Changes
 * BDSBeamline can now return indices of beam line elements of a certain type.
 * All sensitive detector classes have been renamed as have the accessor functions in BDSSDManager.
   This is to make the naming more consistent.
-  
+
 Bug Fixes
 ---------
 
@@ -2359,7 +2411,7 @@ Bug Fixes
   Info method of TObject. Now renamed to Summary.
 * Fixed catching the construction of dipoles with too large an angle. Limit rbends and unsplit
   sbends to a maximum angle of pi/2, limit the maximum angle of all other dipoles to 2 pi.
-  
+
 Output Changes
 --------------
 

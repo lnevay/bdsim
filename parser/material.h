@@ -22,7 +22,9 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <iostream>
 #include <string>
-
+#if __cplusplus >= 201703L
+#include <variant>
+#endif
 #include "published.h"
 
 namespace GMAD
@@ -58,31 +60,37 @@ namespace GMAD
     void print()const;
     /// set methods by property name and value
     template <typename T>
-    void set_value(const std::string& property, T value);
+    void set_value(const std::string& property, T value, bool bExit = true);
     // Template overloading for Array pointers
     /// Set method for lists
-    void set_value(const std::string& property, Array* value);
-
+    void set_value(const std::string& property, Array* value, bool bExit = true);
+    /// Get method for lists
+#if __cplusplus >= 201703L
+    std::list<std::variant<bool, int, double, std::string>> get_value_array(const std::string &);
+#endif
   private:
     /// publish members so these can be looked up from parser
     void PublishMembers();
   };
 
   template <typename T>
-  void Material::set_value(const std::string& property, T value)
-    {
+  void Material::set_value(const std::string& property, T value, bool bExit)
+  {
 #ifdef BDSDEBUG
-      std::cout << "parser> Setting value " << std::setw(25) << std::left << property << value << std::endl;
+    std::cout << "parser> Setting value " << std::setw(25) << std::left << property << value << std::endl;
 #endif
-      // member method can throw runtime_error, catch and exit gracefully
-      try
-        {set(this,property,value);}
-      catch (const std::runtime_error&)
-	{
-	  std::cerr << "Error: parser> unknown material option \"" << property << "\" with value \"" << value << "\"" << std::endl;
-	  exit(1);
-	}
-    }
+    // member method can throw runtime_error, catch and exit gracefully
+    try
+      {set(this,property,value);}
+    catch (const std::runtime_error&)
+      {
+        std::cerr << "Error: parser> unknown material option \"" << property << "\" with value \"" << value << "\"" << std::endl;
+        if (bExit)
+          {exit(1);}
+        else
+          {std::rethrow_exception(std::current_exception());} // to be caught by python
+      }
+  }
 }
 
 #endif
