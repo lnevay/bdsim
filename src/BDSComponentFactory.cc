@@ -2733,48 +2733,6 @@ void BDSComponentFactory::PrepareCavityModels()
     }
 }
 
-void BDSComponentFactory::PrepareLasers()
-{
-  for (const auto& laser : BDSParser::Instance()->GetLasers())
-    {
-      G4double sigma0 = 0;
-      if (BDS::IsFinite(laser.w0))
-        {sigma0 = 0.5 * laser.w0;}
-      else if (BDS::IsFinite(laser.sigma0))
-        {sigma0 = laser.sigma0;}
-      else
-        {throw BDSException(__METHOD_NAME__, "Neither \"w0\" or \"sigma0\" are defined  \"" + laser.name + "\"");}
-      sigma0 *= CLHEP::m;
-      G4ThreeVector polarization(laser.laserPolarization1,laser.laserPolarization2,laser.laserPolarization3);
-      BDSLaser* las = new BDSLaser(laser.wavelength*CLHEP::m,
-                                   laser.m2,
-                                   laser.pulseDuration*CLHEP::s,
-                                   laser.pulseEnergy*CLHEP::joule,
-                                   sigma0,
-                                   laser.laserArrivalTime*CLHEP::s,
-                                   0,
-                                   polarization,
-                                   laser.ignoreRayleighRange);
-      lasers[laser.name] = las;
-    }
-}
-
-BDSLaser* BDSComponentFactory::PrepareLaser(GMAD::Element const* el) const
-{
-
-  G4String laserBeam = G4String(el->laserBeam);
-  auto result = lasers.find(laserBeam);
-  if (result == lasers.end())
-    {
-      G4cout << "Unknown laser \"" << laserBeam << "\" - please define it" << G4endl;
-      exit(1);
-    }
-
-  // prepare a copy so the component can own that recipe
-  BDSLaser* laser = new BDSLaser(*(result->second));
-  return laser;
-}
-
 void BDSComponentFactory::PrepareColours()
 {
   if (!coloursInitialised)
@@ -2833,6 +2791,48 @@ BDSCrystalInfo* BDSComponentFactory::PrepareCrystalInfo(const G4String& crystalN
   // prepare a copy so the component can own that recipe
   BDSCrystalInfo* info = new BDSCrystalInfo(*(result->second));
   return info;
+}
+
+void BDSComponentFactory::PrepareLasers()
+{
+  for (const auto& laser : BDSParser::Instance()->GetLasers())
+    {
+      G4double sigma0 = 0;
+      if (BDS::IsFinite(laser.w0))
+        {sigma0 = 0.5 * laser.w0;}
+      else if (BDS::IsFinite(laser.sigma0))
+        {sigma0 = laser.sigma0;}
+      else
+        {throw BDSException(__METHOD_NAME__, "Neither \"w0\" or \"sigma0\" are defined  \"" + laser.name + "\"");}
+      sigma0 *= CLHEP::m;
+      G4ThreeVector polarization(laser.laserPolarization1,laser.laserPolarization2,laser.laserPolarization3);
+      BDSLaser* las = new BDSLaser(laser.wavelength*CLHEP::m,
+                                   laser.m2,
+                                   laser.pulseDuration*CLHEP::s,
+                                   laser.pulseEnergy*CLHEP::joule,
+                                   sigma0,
+                                   laser.laserArrivalTime*CLHEP::s,
+                                   0,
+                                   polarization,
+                                   laser.ignoreRayleighRange);
+      lasers[laser.name] = las;
+    }
+}
+
+BDSLaser* BDSComponentFactory::PrepareLaser(GMAD::Element const* el) const
+{
+
+  G4String laserBeam = G4String(el->laserBeam);
+  auto result = lasers.find(laserBeam);
+  if (result == lasers.end())
+    {
+      G4cout << "Unknown laser \"" << laserBeam << "\" - please define it" << G4endl;
+      exit(1);
+    }
+
+  // prepare a copy so the component can own that recipe
+  BDSLaser* laser = new BDSLaser(*(result->second));
+  return laser;
 }
 
 BDSCavityInfo* BDSComponentFactory::PrepareCavityModelInfo(Element const* el,
