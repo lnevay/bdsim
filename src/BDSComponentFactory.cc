@@ -144,6 +144,7 @@ BDSComponentFactory::BDSComponentFactory(BDSComponentFactoryUser* userComponentF
     {G4cout << __METHOD_NAME__ << "using \"" << integratorSetType << "\" set of integrators" << G4endl;}
 
   PrepareColours();      // prepare colour definitions from parser
+  PrepareApertures();
   PrepareCavityModels(); // prepare rf cavity model info from parser
   PrepareCrystals();     // prepare crystal model info from parser
   PrepareLasers();
@@ -154,6 +155,8 @@ BDSComponentFactory::BDSComponentFactory(BDSComponentFactoryUser* userComponentF
 
 BDSComponentFactory::~BDSComponentFactory()
 {
+  for (const auto& info : apertures)
+    {delete info.second;}
   for (const auto& info : cavityInfos)
     {delete info.second;}
   for (const auto&  info : crystalInfos)
@@ -2703,6 +2706,16 @@ void BDSComponentFactory::CheckBendLengthAngleWidthCombo(G4double arcLength,
       G4cerr << "Error: the combination of length, angle and horizontalWidth in element named \"" << name
 	     << "\" will result in overlapping faces!" << G4endl << "Please reduce the horizontalWidth" << G4endl;
       throw BDSException(__METHOD_NAME__, "");
+    }
+}
+
+void BDSComponentFactory::PrepareApertures()
+{
+  BDSApertureFactory fac;
+  for (const GMAD::Aperture& a : BDSParser::Instance()->GetApertures())
+    {
+      BDSAperture* ap = fac.CreateAperture(a);
+      apertures[a.name] = ap;
     }
 }
 

@@ -346,6 +346,9 @@ private:
 
   /// Prepare the vacuum material from the element or resort to default in options.
   G4Material* PrepareVacuumMaterial(GMAD::Element const* el) const;
+
+  /// Prepare all aperture definitions from the parser.
+  void PrepareApertures();
   
   /// Prepare all RF cavity models in the component factory. Kept here and copies delivered.
   /// This class deletes them upon destruction.
@@ -402,14 +405,12 @@ private:
   /// Prepare magnet strength for rmatrix
   BDSMagnetStrength* PrepareMagnetStrengthForRMatrix(GMAD::Element const* el) const;
 
-  /// Map of cavity model info instances by name
+  /// @{ Map of prepared objects by name
+  std::map<G4String, BDSAperture*> apertures;
   std::map<G4String, BDSCavityInfo*> cavityInfos;
-
-  /// Maps of crystal info instances by name.
   std::map<G4String, BDSCrystalInfo*> crystalInfos;
-
-  /// Map of laser instances by name. Owned by this class.
   std::map<G4String, BDSLaser*> lasers;
+  /// @}
 
   /// Local copy of reference to integrator set to use.
   const BDSIntegratorSet* integratorSet;
