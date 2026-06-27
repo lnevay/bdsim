@@ -34,6 +34,9 @@ namespace BDS
   /// Map one type to another. No safety checks as at compile time we ensure there
   /// is an entry for every possible type of BDSBeamPipeType.
   BDSApertureType ApertureTypeFromBeamPipeType(BDSBeamPipeType at);
+  
+  /// And the other way around.
+  BDSBeamPipeType BeamPipeTypeFromApertureType(BDSApertureType apt);
 }
 
 #endif

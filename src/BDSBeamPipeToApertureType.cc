@@ -35,7 +35,25 @@ static const std::map<BDSBeamPipeType, BDSApertureType> beamPipeToApertureTypes 
     {BDSBeamPipeType::clicpcl, BDSApertureType::clicpcl}
   };
 
+static const std::map<BDSApertureType, BDSBeamPipeType> apertureTypeToBeamPipe =
+  {
+    {BDSApertureType::circle, BDSBeamPipeType::circular},
+    {BDSApertureType::rectangle, BDSBeamPipeType::rectangular},
+    {BDSApertureType::ellipse, BDSBeamPipeType::elliptical},
+    {BDSApertureType::rectcircle, BDSBeamPipeType::lhc},
+    {BDSApertureType::racetrack, BDSBeamPipeType::racetrack},
+    {BDSApertureType::octagon, BDSBeamPipeType::octagonal},
+    {BDSApertureType::clicpcl, BDSBeamPipeType::clicpcl},
+    {BDSApertureType::rhombus, BDSBeamPipeType::rhombus},
+    {BDSApertureType::points, BDSBeamPipeType::pointsfile}
+  };
+
 BDSApertureType BDS::ApertureTypeFromBeamPipeType(BDSBeamPipeType bpt)
 {
   return beamPipeToApertureTypes.at(bpt);
+}
+
+BDSBeamPipeType BDS::BeamPipeTypeFromApertureType(BDSApertureType apt)
+{
+  return apertureTypeToBeamPipe.at(apt);
 }
