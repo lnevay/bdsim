@@ -2587,8 +2587,7 @@ BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
   BDSApertureFactory apFac;
   const BDSBeamPipeInfo2* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2();
   BDSBeamPipeInfo2* result;
-  G4bool useLocalAperture = !BDSGlobalConstants::Instance()->IgnoreLocalAperture() || !overrideBeamPipeType.empty();
-  if (useLocalAperture)
+  if (!BDSGlobalConstants::Instance()->IgnoreLocalAperture())
     {
       BDSAperture* ap = nullptr;
       BDSBeamPipeType bpt;
@@ -2616,10 +2615,23 @@ BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
         }
       else
         {
-          bpt = el->apertureType.empty() ? defaultModel->beamPipeType : BDS::DetermineBeamPipeType(el->apertureType);
-          G4bool useElementVars = BDS::IsFinite(el->aper1);
-          BDSApertureFactory fac;
-          ap = fac.CreateAperture(bpt, *el, useElementVars);
+          G4bool atMissing = el->apertureType.empty();
+          G4bool elVarsMissing = !BDS::IsFinite(el->aper1);
+          G4bool elListMissing = el->aperture.empty();
+          if (atMissing && (elVarsMissing || elListMissing))
+            {
+              ap = defaultModel->aperture->Clone();
+              bpt = defaultModel->beamPipeType;
+            }
+          else if (!atMissing && (elVarsMissing && elListMissing))
+            {throw BDSException(__METHOD_NAME__, "apertureType specified in element definition but no aperture parameters given");}
+          else
+            {
+              bpt = el->apertureType.empty() ? defaultModel->beamPipeType : BDS::DetermineBeamPipeType(el->apertureType);
+              G4bool useElementVars = BDS::IsFinite(el->aper1);
+              BDSApertureFactory fac;
+              ap = fac.CreateAperture(bpt, *el, useElementVars);
+            }
         }
       
       G4double thickness = BDS::IsFinite(el->beampipeThickness) ? el->beampipeThickness*CLHEP::m : defaultModel->beamPipeThickness;
@@ -2875,15 +2887,15 @@ BDSCavityInfo* BDSComponentFactory::PrepareCavityModelInfoForElement(Element con
 								     G4double frequency) const
 {
   /// prepare aperture information for this element to base default cavity on.
-  BDSBeamPipeInfo* aperture = PrepareBeamPipeInfo(el);
+  BDSBeamPipeInfo2* bpi = PrepareBeamPipeInfo2(el);
 
-  G4double aper1     = aperture->aper1;
+  G4double aper1 = bpi->aperture->RadiusToEncompass();
   G4double horizontalWidth = PrepareHorizontalWidth(el);
 
   G4double defaultHorizontalWidth = 20*CLHEP::cm;
   if (aper1 < defaultHorizontalWidth) // only do if the aperture will fit
     {horizontalWidth = std::min(defaultHorizontalWidth, horizontalWidth);} // better default
-  G4double thickness = aperture->beamPipeThickness;
+  G4double thickness = bpi->beamPipeThickness;
   G4double equatorRadius = horizontalWidth - thickness;
   if (equatorRadius <= 0)
     {
