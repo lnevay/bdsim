@@ -131,6 +131,7 @@ void Element::PublishMembers()
   publish("apertureType",        &Element::apertureType);
   publish("beampipeMaterial",    &Element::beampipeMaterial);
   publish("vacuumMaterial",      &Element::vacuumMaterial);
+  publish("apertureModel",       &Element::apertureModel);
 
   // magnet geometry
   publish("magnetGeometryType",  &Element::magnetGeometryType);
@@ -568,6 +569,7 @@ void Element::flush()
 
   // new aperture model
   beampipeThickness = 0;
+  aperture.clear();
   aper1 = 0;
   aper2 = 0;
   aper3 = 0;
@@ -575,6 +577,7 @@ void Element::flush()
   apertureType = "";
   beampipeMaterial = "";
   vacuumMaterial = "";
+  apertureModel = "";
 
   // magnet geometry
   magnetGeometryType  = "";

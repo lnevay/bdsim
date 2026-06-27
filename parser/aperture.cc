@@ -37,6 +37,7 @@ void Aperture::clear()
   tilt         = 0;
   offsetX      = 0;
   offsetY      = 0;
+  nPoints      = 0;
 }
 
 void Aperture::PublishMembers()
