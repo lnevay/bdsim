@@ -19,6 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BDSAPERTUREFACTORY_H
 #define BDSAPERTUREFACTORY_H
 #include "BDSApertureType.hh"
+#include "BDSBeamPipeType.hh"
 
 #include "G4String.hh"
 #include "G4ThreeVector.hh"
@@ -49,9 +50,18 @@ public:
   BDSApertureFactory();
   ~BDSApertureFactory();
 
-  BDSAperture* CreateAperture(const GMAD::Element& el) const;
+  /// Create an aperture from a parser element definition but fall back to a default model.
+  BDSAperture* CreateAperture(BDSBeamPipeType bpt,
+                              const GMAD::Element& el,
+                              G4bool useElementVariables) const;
+
+  /// Create it from a complete parser object.
   BDSAperture* CreateAperture(const GMAD::Aperture& ap) const;
+
+  /// From a sampler definition.
   BDSAperture* CreateAperture(const GMAD::SamplerPlacement& sp) const;
+
+  /// Full explicit constructor that is used by many of the above.
   BDSAperture* CreateAperture(BDSApertureType at,
 			      G4double        a1,
 			      G4double        a2,

@@ -85,17 +85,33 @@ BDSApertureFactory::BDSApertureFactory():
 BDSApertureFactory::~BDSApertureFactory()
 {;}
 
-BDSAperture* BDSApertureFactory::CreateAperture(const GMAD::Element& el) const
+BDSAperture* BDSApertureFactory::CreateAperture(BDSBeamPipeType bpt,
+                                                const GMAD::Element& el,
+                                                G4bool useElementVariables) const
 {
-  BDSBeamPipeType bpt = BDS::DetermineBeamPipeType(el.apertureType);
   BDSApertureType apt = BDS::ApertureTypeFromBeamPipeType(bpt);
-  return CreateAperture(apt,
-			el.aper1 * CLHEP::m,
-			el.aper2 * CLHEP::m,
-			el.aper3 * CLHEP::m,
-			el.aper4 * CLHEP::m,
-			0, 0, 0, 0,
-			el.apertureType);
+  if (useElementVariables)
+    {
+      return CreateAperture(apt,
+                            el.aper1 * CLHEP::m,
+                            el.aper2 * CLHEP::m,
+                            el.aper3 * CLHEP::m,
+                            el.aper4 * CLHEP::m,
+                            0, 0, 0, 0,
+                            el.apertureType);
+    }
+  else
+    {
+      G4double m = CLHEP::m;
+      std::vector<G4double> values = {0, 0, 0, 0, 0, 0, 0, 0};
+      std::vector<G4double> apertures = {el.aperture.begin(), el.aperture.end()};
+      std::vector<G4double> units = {m, m, m, m, CLHEP::rad, m, m, 1};
+      for (G4int i = 0; i < (G4int)apertures.size(); i++)
+        {values[i] = apertures[i] * units[i];}
+      
+      return CreateAperture(apt, values[0], values[1], values[2], values[3],
+                            values[4], values[5], values[6], values[7]);
+    }
 }
 
 BDSAperture* BDSApertureFactory::CreateAperture(const GMAD::Aperture& ap) const
