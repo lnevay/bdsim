@@ -127,7 +127,6 @@ BDSAperture* BDSApertureCircle::Clone() const
 
 std::array<G4double,7> BDSApertureCircle::ApertureNumbers() const
 {
-  G4cout << "RA" << G4endl;
   return {radius,0,0,0,tiltOffset.OffsetX(),tiltOffset.OffsetY(),tiltOffset.Tilt()};
 }
 
