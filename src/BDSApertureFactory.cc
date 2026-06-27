@@ -71,8 +71,8 @@ BDSApertureFactory::BDSApertureFactory():
   angledFaces(false)
 {
   specialisations = {
-		     {MakePair(BDSApertureType::circle, BDSApertureType::circle),
-		      &BDSApertureFactory::CreateDifferentEndsCircleToCircle}
+                     {MakePair(BDSApertureType::circle, BDSApertureType::circle),
+                      &BDSApertureFactory::CreateDifferentEndsCircleToCircle}
   };
   
   hollowSpecialisations = {
@@ -118,42 +118,42 @@ BDSAperture* BDSApertureFactory::CreateAperture(const GMAD::Aperture& ap) const
 {
   CheckNPoints(ap.nPoints, "aperture", ap.name);
   return CreateAperture(BDS::DetermineApertureType(ap.apertureType),
-			ap.aper1 * CLHEP::m,
-			ap.aper2 * CLHEP::m,
-			ap.aper3 * CLHEP::m,
-			ap.aper4 * CLHEP::m,
-			ap.tilt  * CLHEP::rad,
-			ap.offsetX * CLHEP::m,
-			ap.offsetY * CLHEP::m,
-			(unsigned int)ap.nPoints,
-			ap.apertureType);
+                        ap.aper1 * CLHEP::m,
+                        ap.aper2 * CLHEP::m,
+                        ap.aper3 * CLHEP::m,
+                        ap.aper4 * CLHEP::m,
+                        ap.tilt  * CLHEP::rad,
+                        ap.offsetX * CLHEP::m,
+                        ap.offsetY * CLHEP::m,
+                        (unsigned int)ap.nPoints,
+                        ap.apertureType);
 }
 
 BDSAperture* BDSApertureFactory::CreateAperture(const GMAD::SamplerPlacement& sp) const
 {
   CheckNPoints(sp.nPoints, "samplerplacement", sp.name);
   return CreateAperture(BDS::DetermineApertureType(sp.shape),
-			sp.aper1 * CLHEP::m,
-			sp.aper2 * CLHEP::m,
-			sp.aper3 * CLHEP::m,
-			sp.aper4 * CLHEP::m,
-			sp.tilt  * CLHEP::rad,
-			0,
-			0,
-			(unsigned int)sp.nPoints,
-			sp.shape);
+                        sp.aper1 * CLHEP::m,
+                        sp.aper2 * CLHEP::m,
+                        sp.aper3 * CLHEP::m,
+                        sp.aper4 * CLHEP::m,
+                        sp.tilt  * CLHEP::rad,
+                        0,
+                        0,
+                        (unsigned int)sp.nPoints,
+                        sp.shape);
 }
 
 BDSAperture* BDSApertureFactory::CreateAperture(BDSApertureType at,
-						G4double        a1,
-						G4double        a2,
-						G4double        a3,
-						G4double        a4,
-						G4double        tilt,
-						G4double        offsetX,
-						G4double        offsetY,
-						unsigned int    nPoints,
-						const G4String& pointsFileString) const
+                                                G4double        a1,
+                                                G4double        a2,
+                                                G4double        a3,
+                                                G4double        a4,
+                                                G4double        tilt,
+                                                G4double        offsetX,
+                                                G4double        offsetY,
+                                                unsigned int    nPoints,
+                                                const G4String& pointsFileString) const
 {
   BDSAperture* result = nullptr;
   switch (at.underlying())
@@ -178,11 +178,11 @@ BDSAperture* BDSApertureFactory::CreateAperture(BDSApertureType at,
       {result = new BDSApertureRhombus(a1, a2, a4);     break;}
     case BDSApertureType::points:
       {
-	G4String pointsFile;
-	G4String unitsStr;
-	ParsePointsFileAndUnits(pointsFileString, pointsFile, unitsStr);
-	result = new BDSAperturePoints(pointsFile, unitsStr);
-	break;
+        G4String pointsFile;
+        G4String unitsStr;
+        ParsePointsFileAndUnits(pointsFileString, pointsFile, unitsStr);
+        result = new BDSAperturePoints(pointsFile, unitsStr);
+        break;
       }
     default:
       {break;}
@@ -196,16 +196,16 @@ BDSAperture* BDSApertureFactory::CreateAperture(BDSApertureType at,
 }
 
 void BDSApertureFactory::CheckNPoints(int nPoints,
-				      const G4String& typeName,
-				      const G4String& objectName) const
+                                      const G4String& typeName,
+                                      const G4String& objectName) const
 {
   if (nPoints < 0)
     {throw BDSException(__METHOD_NAME__, "negative \"nPoints\" in " + typeName +" definition \"" + objectName + "\"");}
 }
 
 void BDSApertureFactory::ParsePointsFileAndUnits(const G4String& beamPipeType,
-						G4String& pointsFileName,
-						G4String& pointsUnit) const
+                                                G4String& pointsFileName,
+                                                G4String& pointsUnit) const
 {
   auto typeAndFileName = BDS::SplitOnColon(beamPipeType); // find first colon
   G4String fname = typeAndFileName.second;
@@ -346,23 +346,23 @@ G4VSolid* BDSApertureFactory::CreateCircle() const
   if (!angledFaces)
     {
       G4VSolid* product = new G4Tubs(productName,
-				     0,
-				     ap->radius,
-				     0.5 * productLength + productLengthExtra,
-				     0,
-				     CLHEP::twopi);
+                                     0,
+                                     ap->radius,
+                                     0.5 * productLength + productLengthExtra,
+                                     0,
+                                     CLHEP::twopi);
       return product;
     }
   else
     {
       G4VSolid* product = new G4CutTubs(productName,
-					0,
-					ap->radius,
-					0.5 * productLength + productLengthExtra,
-					0,
-					CLHEP::twopi,
-					productNormalIn,
-					productNormalOut);
+                                        0,
+                                        ap->radius,
+                                        0.5 * productLength + productLengthExtra,
+                                        0,
+                                        CLHEP::twopi,
+                                        productNormalIn,
+                                        productNormalOut);
       return product;
     }
 }
@@ -375,17 +375,17 @@ G4VSolid* BDSApertureFactory::CreateRectangle() const
   if (!angledFaces)
     {
       G4VSolid* product = new G4Box(productName,
-				                    ap->a,
-				                    ap->b,
-				                    0.5 * productLength + productLengthExtra);
+                                                    ap->a,
+                                                    ap->b,
+                                                    0.5 * productLength + productLengthExtra);
       return product;
     }
   else
     {
       G4VSolid* box = new G4Box(productName + "_square",
-				ap->a,
-				ap->b,
-				productLength + productLengthExtra); // factor 2 here
+                                ap->a,
+                                ap->b,
+                                productLength + productLengthExtra); // factor 2 here
       G4double maxRadius = ap->RadiusToEncompass();
       G4VSolid* cut = CutSolid(productName + "_angled", maxRadius);
       G4VSolid* product = new G4IntersectionSolid(productName, box, cut);
