@@ -48,7 +48,7 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
   BDSAperture* apContIn     = apVacIn->Plus(containerThickness);
   BDSAperture* apContOut    = variedAperture ? apVacOut->Plus(containerThickness) : apContIn;
   BDSAperture* apContSubIn  = apVacIn->Plus(containerThickness + lengthSafety);
-  BDSAperture* apContSubOut = variedAperture ? apVacOut->Plus(containerThickness + lengthSafety) : apVacIn;
+  BDSAperture* apContSubOut = variedAperture ? apVacOut->Plus(containerThickness + lengthSafety) : apContSubIn;
   
   BDSApertureFactory fac;
   vacuumSolid = fac.CreateSolid(name+"_vacuum",

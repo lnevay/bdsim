@@ -398,8 +398,7 @@ G4VSolid* BDSApertureFactory::CutSolid(const G4String& name,
 {
   G4double intersectionRadius = intersectionRadiusRatio * radiusToEncompass;
   G4VSolid* cut;
-  if ( ( productNormalIn.x() == 0.0) && ( productNormalIn.y() == 0.0)
-    && ( productNormalOut.x() == 0.0) && (productNormalOut.y() == 0.0) )
+  if (!angledFaces)
     {
       cut = new G4Tubs(name,
                        0,
