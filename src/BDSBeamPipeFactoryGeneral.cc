@@ -51,7 +51,7 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
   BDSAperture* apContSubOut = variedAperture ? apVacOut->Plus(containerThickness + lengthSafety) : apContSubIn;
   
   BDSApertureFactory fac;
-  vacuumSolid = fac.CreateSolid(name+"_vacuum",
+  vacuumSolid = fac.CreateSolid(name+"_vac",
                                 length - lengthSafety,
                                 apVacIn,
                                 apVacOut,
@@ -61,7 +61,7 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
   
   if (!bpi->vacuumOnly)
     {
-      beamPipeSolid = fac.CreateSolidWithInner(name,
+      beamPipeSolid = fac.CreateSolidWithInner(name+"_bp",
                                                length,
                                                apBpInnerIn,
                                                apBpInnerOut,
@@ -73,14 +73,14 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
     {delete apBpInnerOut;}
   delete apBpInnerIn;
   
-  containerSolid = fac.CreateSolid(name + "_container_solid",
+  containerSolid = fac.CreateSolid(name + "_cont_so",
 				   length,
 				   apContIn,
 				   apContOut,
 				   bpi->inputFaceNormal,
 				   bpi->outputFaceNormal);
   
-  containerSubtractionSolid = fac.CreateSolid(name+"_container_sub",
+  containerSubtractionSolid = fac.CreateSolid(name+"_cont_sub_so",
                                               length,
                                               apContSubIn,
                                               apContSubOut,
@@ -91,7 +91,7 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
   if (variedAperture)
     {delete apContSubOut;}
   
-  BDSBeamPipeFactoryBase::CommonConstruction(name, bpi->vacuumMaterial, bpi->beamPipeMaterial, length);
+  CommonConstruction(name, bpi->vacuumMaterial, bpi->beamPipeMaterial, length);
   
   BDSExtent ext = std::max(apContIn->Extent(), apContOut->Extent());
   delete apContIn;
@@ -99,5 +99,5 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
     {delete apContOut;}
 
   // true for containerIsGeneral - true for this factory
-  return BDSBeamPipeFactoryBase::BuildBeamPipeAndRegisterVolumes(ext, /*TBC*/containerThickness, true);
+  return BuildBeamPipeAndRegisterVolumes(ext, /*TBC*/containerThickness, true);
 }

@@ -93,20 +93,20 @@ void BDSBeamPipeFactoryBase::BuildLogicalVolumes(const G4String& nameIn,
   // build the logical volumes
   vacuumLV = new G4LogicalVolume(vacuumSolid,
                                  vacuumMaterialIn,
-                                 nameIn + "_vacuum_lv");
+                                 nameIn + "_vac_lv");
   allLogicalVolumes.insert(vacuumLV);
   
   if (beamPipeSolid)
     {
       beamPipeLV = new G4LogicalVolume(beamPipeSolid,
                                        beamPipeMaterialIn,
-                                       nameIn + "_beampipe_lv");
+                                       nameIn + "_bp_lv");
       allLogicalVolumes.insert(beamPipeLV);
     }
   G4Material* emptyMaterial = BDSMaterials::Instance()->GetMaterial(BDSGlobalConstants::Instance()->EmptyMaterial());
   containerLV = new G4LogicalVolume(containerSolid,
                                     emptyMaterial,
-                                    nameIn + "_container_lv");
+                                    nameIn + "_cont_lv");
 }
 
 void BDSBeamPipeFactoryBase::SetVisAttributes(G4Material* beamPipeMaterialIn,
@@ -165,7 +165,7 @@ void BDSBeamPipeFactoryBase::PlaceComponents(const G4String& nameIn)
   vacuumPV = new G4PVPlacement(nullptr,                  // no rotation
                                G4ThreeVector(),          // position
                                vacuumLV,                 // lv to be placed
-                               nameIn + "_vacuum_pv",    // name
+                               nameIn + "_vac_pv",       // name
                                containerLV,              // mother lv to be placed in
                                false,                    // no boolean operation
                                0,                        // copy number
@@ -177,7 +177,7 @@ void BDSBeamPipeFactoryBase::PlaceComponents(const G4String& nameIn)
       beamPipePV = new G4PVPlacement(nullptr,                      // no rotation
                                      G4ThreeVector(),              // position
                                      beamPipeLV,                   // lv to be placed
-                                     nameIn + "_beampipe_pipe_pv", // name
+                                     nameIn + "_bp_pv",            // name
                                      containerLV,                  // mother lv to be placed in
                                      false,                        // no boolean operation
                                      0,                            // copy number
