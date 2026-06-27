@@ -63,25 +63,25 @@ public:
 
   /// Full explicit constructor that is used by many of the above.
   BDSAperture* CreateAperture(BDSApertureType at,
-			      G4double        a1,
-			      G4double        a2,
-			      G4double        a3,
-			      G4double        a4,
-			      G4double        tilt,
-			      G4double        offsetX,
-			      G4double        offsetY,
-			      unsigned int    nPoints,
-			      const G4String& pointsFileAndString = "") const;
+                              G4double        a1,
+                              G4double        a2,
+                              G4double        a3,
+                              G4double        a4,
+                              G4double        tilt,
+                              G4double        offsetX,
+                              G4double        offsetY,
+                              unsigned int    nPoints,
+                              const G4String& pointsFileAndString = "") const;
   
   /// Create any aperture shape with flat ends. The apertureOut is optionally
   /// for defining the possibly different aperture shape at the output end.
   G4VSolid* CreateSolid(const G4String&    name,
-			G4double           length,
-			const BDSAperture* apertureIn,
-			const BDSAperture* apertureOut = nullptr,
-			const G4ThreeVector* normalIn  = nullptr,
-			const G4ThreeVector* normalOut = nullptr,
-			G4double           lengthExtraForBoolean = 0);
+                        G4double           length,
+                        const BDSAperture* apertureIn,
+                        const BDSAperture* apertureOut = nullptr,
+                        const G4ThreeVector* normalIn  = nullptr,
+                        const G4ThreeVector* normalOut = nullptr,
+                        G4double           lengthExtraForBoolean = 0);
   
   /// Create a solid according to an aperture entrance ('in') and exit ('out') with
   /// a constant thickness. The aperture defines the interior edge of the solid. In
@@ -170,7 +170,7 @@ private:
   /// Create a pair where the two values are in order. We do this so we can access
   /// a map of unique pairs.
   std::pair<BDSApertureType, BDSApertureType> MakePair(BDSApertureType a1,
-						       BDSApertureType a2) const;
+                                                       BDSApertureType a2) const;
 
   /// Typedef for function pointers to simplify syntax.
   typedef G4VSolid*(BDSApertureFactory::*Constructor)(void) const;
