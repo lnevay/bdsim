@@ -63,12 +63,14 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 // general
 #include "BDSAcceleratorComponentRegistry.hh"
 #include "BDSAperture.hh"
+#include "BDSApertureCircle.hh"
 #include "BDSApertureFactory.hh"
 #include "BDSBeamlineIntegral.hh"
 #include "BDSBeamPipeFactory.hh"
 #include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeInfo2.hh"
 #include "BDSBeamPipeType.hh"
+#include "BDSBeamPipeToApertureType.hh"
 #include "BDSBendBuilder.hh"
 #include "BDSLine.hh"
 #include "BDSCavityInfo.hh"
@@ -2129,12 +2131,10 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateThinRMatrix(G4double        
 								G4double                 beamPipeRadius,
 								BDSModulatorInfo*        fieldModulator)
 {
-  BDSBeamPipeInfo2* beamPipeInfo = PrepareBeamPipeInfo2(element, angleIn, -angleIn);
-  beamPipeInfo->beamPipeType = BDSBeamPipeType::circularvacuum;
-
-  // override beampipe radius if supplied - must be set to be iris size for cavity model fringes.
-  //if (BDS::IsFinite(beamPipeRadius)) TODO
-	//  {beamPipeInfo->aperture->aper1 = beamPipeRadius;}
+  BDSBeamPipeInfo2* beamPipeInfo = PrepareBeamPipeInfo2(element, angleIn, -angleIn, "circularvacuum");
+  BDSApertureCircle* apCircle = dynamic_cast<BDSApertureCircle*>(beamPipeInfo->aperture);
+  if (apCircle)
+    {apCircle->radius = beamPipeRadius;}
 
   BDSMagnetOuterInfo* magnetOuterInfo = PrepareMagnetOuterInfo(name, element, -angleIn, angleIn, beamPipeInfo);
   magnetOuterInfo->geometryType = BDSMagnetGeometryType::none;
@@ -2184,8 +2184,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateGaborLens()
   if (!HasSufficientMinimumLength(element))
     {return nullptr;}
   // force circular vacuum volume
-  BDSBeamPipeInfo* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel(); // TODO
-  BDSBeamPipeInfo2* bpInfo =  PrepareBeamPipeInfo2(element);
+  BDSBeamPipeInfo2* bpInfo = PrepareBeamPipeInfo2Straight(element, "circularvacuum");
 
   const BDSFieldType gaborLensField = BDSFieldType::gaborlens;
   BDSIntegratorType intType = integratorSet->Integrator(gaborLensField);
@@ -2554,15 +2553,15 @@ BDSMagnetOuterInfo* BDSComponentFactory::PrepareMagnetOuterInfo(const G4String& 
 }
 
 G4double BDSComponentFactory::PrepareHorizontalWidth(Element const* el,
-						     G4double defaultHorizontalWidth)
+                                                     G4double defaultHorizontalWidth)
 {
   G4double horizontalWidth = el->horizontalWidth*CLHEP::m;
   if (horizontalWidth < 1e-6)
     {//horizontalWidth not set - use either global or specified default
       if (defaultHorizontalWidth > 0)
-	{horizontalWidth = defaultHorizontalWidth;}
+        {horizontalWidth = defaultHorizontalWidth;}
       else
-	{horizontalWidth = BDSGlobalConstants::Instance()->HorizontalWidth();}
+        {horizontalWidth = BDSGlobalConstants::Instance()->HorizontalWidth();}
     }
   return horizontalWidth;
 }
@@ -2577,48 +2576,77 @@ G4Material* BDSComponentFactory::PrepareVacuumMaterial(Element const* el) const
   return result;
 }
 
+BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2Straight(Element const* el,
+                                                                    const G4String& overrideBeamPipeType) const
+{
+  return PrepareBeamPipeInfo2(el, {0, 0, -1}, {0, 0, 1}, overrideBeamPipeType);
+}
+
 BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
                                                             const G4ThreeVector& inputFaceNormalIn,
-                                                            const G4ThreeVector& outputFaceNormalIn)
+                                                            const G4ThreeVector& outputFaceNormalIn,
+                                                            const G4String& overrideBeamPipeType) const
 {
   BDSApertureFactory apFac;
-  BDSBeamPipeInfo2* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2();
+  const BDSBeamPipeInfo2* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2();
   BDSBeamPipeInfo2* result;
-  if (!BDSGlobalConstants::Instance()->IgnoreLocalAperture())
+  G4bool useLocalAperture = !BDSGlobalConstants::Instance()->IgnoreLocalAperture() || !overrideBeamPipeType.empty();
+  if (useLocalAperture)
     {
-      try
-	{
-	  result = new BDSBeamPipeInfo2(BDS::DetermineBeamPipeType(el->apertureType),
-					apFac.CreateAperture(*el),
-					BDSMaterials::Instance()->GetMaterial(el->vacuumMaterial),
-					el->beampipeThickness * CLHEP::m,
-					BDSMaterials::Instance()->GetMaterial(el->beampipeMaterial));
-	}
-      catch (BDSException& e)
-	{
-	  G4String msg = "\nProblem in element: \"" + el->name + "\"";
-	  e.AppendToMessage(msg);
-	  throw e;
-	}
+      BDSAperture* ap = nullptr;
+      BDSBeamPipeType bpt;
+      
+      // if a parser aperture object is specified by name, use that - and it must be complete
+      if (!(el->apertureModel.empty()) && !(el->apertureType.empty()))
+        {throw BDSException(__METHOD_NAME__, "both \"apertureModel\" and \"apertureType\" are set but are exclusive.");}
+      if (!overrideBeamPipeType.empty())
+        {
+          bpt = BDS::DetermineBeamPipeType(overrideBeamPipeType);
+          BDSApertureFactory fac;
+          G4bool useElementVars = BDS::IsFinite(el->aper1);
+          ap = fac.CreateAperture(bpt, *el, useElementVars);
+        }
+      else if (!(el->apertureModel.empty()))
+        {
+          auto search = apertures.find(el->apertureModel);
+          if (search != apertures.end())
+            {
+              ap = search->second->Clone();
+              bpt = BDS::BeamPipeTypeFromApertureType(ap->apertureType);
+            }
+          else
+            {throw BDSException(__METHOD_NAME__, "apertureModel \"" + el->apertureModel + "\" is not defined.");}
+        }
+      else
+        {
+          bpt = el->apertureType.empty() ? defaultModel->beamPipeType : BDS::DetermineBeamPipeType(el->apertureType);
+          G4bool useElementVars = BDS::IsFinite(el->aper1);
+          BDSApertureFactory fac;
+          ap = fac.CreateAperture(bpt, *el, useElementVars);
+        }
+      
+      G4double thickness = BDS::IsFinite(el->beampipeThickness) ? el->beampipeThickness*CLHEP::m : defaultModel->beamPipeThickness;
+      G4Material* bpm = el->beampipeMaterial.empty() ? defaultModel->beamPipeMaterial : BDSMaterials::Instance()->GetMaterial(el->beampipeMaterial);
+      result = new BDSBeamPipeInfo2(bpt, ap, PrepareVacuumMaterial(el), thickness, bpm);
     }
   else
     {// ignore the aperture model from the element and use the global one
-      result = new BDSBeamPipeInfo2(*defaultModel); // ok as only pointers to materials
-      result->inputFaceNormal  = new G4ThreeVector(inputFaceNormalIn);
-      result->outputFaceNormal = new G4ThreeVector(outputFaceNormalIn);
+      result = new BDSBeamPipeInfo2(*defaultModel);
     }
+  result->inputFaceNormal  = new G4ThreeVector(inputFaceNormalIn);
+  result->outputFaceNormal = new G4ThreeVector(outputFaceNormalIn);
   return result;
 }
 
 BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
                                                             G4double angleIn,
-                                                            G4double angleOut)
+                                                            G4double angleOut,
+                                                            const G4String& overrideBeamPipeType) const
 {
   auto faces = BDS::CalculateFaces(angleIn, angleOut);
-  BDSBeamPipeInfo2* info = PrepareBeamPipeInfo2(el, faces.first, faces.second);
+  BDSBeamPipeInfo2* info = PrepareBeamPipeInfo2(el, faces.first, faces.second, overrideBeamPipeType);
   return info;
 }
-
 
 BDSBeamPipeInfo* BDSComponentFactory::PrepareBeamPipeInfo(Element const* el,
                                                           const G4ThreeVector& inputFaceNormalIn,
