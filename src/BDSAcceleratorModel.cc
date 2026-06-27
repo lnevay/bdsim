@@ -145,7 +145,7 @@ void BDSAcceleratorModel::RegisterApertures(const std::map<G4String, BDSAperture
   apertures.insert(aperturesIn.begin(), aperturesIn.end());
 }
 
-BDSAperture* BDSAcceleratorModel::Aperture(G4String name) const
+BDSAperture* BDSAcceleratorModel::Aperture(const G4String& name) const
 {
   auto result = apertures.find(name);
   if (result != apertures.end())

@@ -79,7 +79,7 @@ BDSApertureFactory::BDSApertureFactory():
     {MakePair(BDSApertureType::circle, BDSApertureType::circle), &BDSApertureFactory::HollowCircleToCircle}
   };
 
-  // TBC other specialisations possible given combination of available shapes
+  // TBC other specialisations possible given combination of available solids in Geant4
 }
 
 BDSApertureFactory::~BDSApertureFactory()

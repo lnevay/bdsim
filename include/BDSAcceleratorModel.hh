@@ -127,9 +127,9 @@ public:
   /// Access an aperture definition. Will throw an exception if not found. Note,
   /// we use pointers as we purposively don't provide a default constructor for BDSAperture
   /// as required by an std::map.
-  BDSAperture*  Aperture(G4String name) const;
+  BDSAperture* Aperture(const G4String& name) const;
 
-  /// Access region information. Will exit if not found.
+  /// Access region information. Will throw an exception if not found.
   G4Region* Region(const G4String& name) const;
 
   /// Returns pointer to a set of logical volumes. If no set by that name exits, create it.
