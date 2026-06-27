@@ -113,6 +113,9 @@ private:
   void CheckNPoints(int nPoints,
 		    const G4String& typeName,
 		    const G4String& objectName) const;
+
+
+  G4bool AngledFaces(const G4ThreeVector& v1, const G4ThreeVector& v2);
   
   void ParsePointsFileAndUnits(const G4String& beamPipeType,
                                G4String& pointsFileName,
@@ -146,7 +149,7 @@ private:
   G4VSolid* CreateDifferentEndsCircleToCircle() const;
   /// @}
   /// @{ Specialisation for particular solids for hollow solid.
-  G4VSolid* HollowCircleToCircle() const;
+  G4VSolid* HollowCircleToCircle(G4double thickness) const;
   /// @}
 
   /// Ratio of radii used for an intersection solid - greater than 1 and
@@ -174,8 +177,12 @@ private:
 
   /// Map of unique aperture type pairs to member function pointers.
   std::map<std::pair<BDSApertureType, BDSApertureType>, Constructor> specialisations;
-  
-  std::map<std::pair<BDSApertureType, BDSApertureType>, Constructor> hollowSpecialisations;
+
+  /// Typedef for function pointers to simplify syntax.
+  typedef G4VSolid*(BDSApertureFactory::*HollowConstructor)(G4double) const;
+
+  /// Map of unique aperture type pairs to member function pointers for hollow constructors.
+  std::map<std::pair<BDSApertureType, BDSApertureType>, HollowConstructor> hollowSpecialisations;
 };
 
 
