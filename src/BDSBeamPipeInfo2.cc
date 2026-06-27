@@ -26,14 +26,14 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 
 BDSBeamPipeInfo2::BDSBeamPipeInfo2(BDSBeamPipeType beamPipeTypeIn,
-				   BDSAperture*    apertureIn,
-				   G4Material*     vacuumMaterialIn,
-				   G4double        beamPipeThicknessIn,
-				   G4Material*     beamPipeMaterialIn,
-				   G4bool          vacuumOnlyIn,
-				   BDSAperture*    apertureOutIn,
-				   G4ThreeVector*  inputFaceNormalIn,
-				   G4ThreeVector*  outputFaceNormalIn):
+                                   BDSAperture*    apertureIn,
+                                   G4Material*     vacuumMaterialIn,
+                                   G4double        beamPipeThicknessIn,
+                                   G4Material*     beamPipeMaterialIn,
+                                   G4bool          vacuumOnlyIn,
+                                   BDSAperture*    apertureOutIn,
+                                   G4ThreeVector*  inputFaceNormalIn,
+                                   G4ThreeVector*  outputFaceNormalIn):
   beamPipeType(beamPipeTypeIn),
   aperture(apertureIn),
   vacuumMaterial(vacuumMaterialIn),
@@ -47,13 +47,21 @@ BDSBeamPipeInfo2::BDSBeamPipeInfo2(BDSBeamPipeType beamPipeTypeIn,
 
 BDSBeamPipeInfo2::BDSBeamPipeInfo2(const BDSBeamPipeInfo2& other):
   beamPipeType(other.beamPipeType),
+  aperture(nullptr),
   vacuumMaterial(other.vacuumMaterial),
   beamPipeThickness(other.beamPipeThickness),
   beamPipeMaterial(other.beamPipeMaterial),
-  vacuumOnly(other.vacuumOnly)
+  vacuumOnly(other.vacuumOnly),
+  apertureOut(nullptr),
+  inputFaceNormal(nullptr),
+  outputFaceNormal(nullptr)
 {
-  //if (other.aperture)
-  //  {aperture = other.aperture->Clone();}
+  if (other.aperture)
+    {aperture = other.aperture->Clone();}
+  if (other.aperture == other.apertureOut)
+    {apertureOut = aperture;}
+  else if (other.apertureOut)
+    {apertureOut = other.apertureOut->Clone();}
 }
 
 BDSBeamPipeInfo2::~BDSBeamPipeInfo2()
