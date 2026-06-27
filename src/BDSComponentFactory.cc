@@ -67,7 +67,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSApertureFactory.hh"
 #include "BDSBeamlineIntegral.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeInfo2.hh"
 #include "BDSBeamPipeType.hh"
 #include "BDSBeamPipeToApertureType.hh"
@@ -562,7 +561,6 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateDrift(G4double angleIn, G4do
 
   const G4double length = element->l*CLHEP::m;
 
-  // Beampipeinfo needed here to get aper1 for check.
   BDSBeamPipeInfo2* beamPipeInfo = PrepareBeamPipeInfo2(element, inputFaceNormal, outputFaceNormal);
 
   const BDSExtent extent = beamPipeInfo->Extent();
@@ -1115,7 +1113,6 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateKicker(KickerType type)
     {vacuumField->SetFieldAsThin();}
 
   G4bool yokeOnLeft = YokeOnLeft(element, st);
-  //auto bpInf = PrepareBeamPipeInfo2(element); // TBC
   auto bpInf = PrepareBeamPipeInfo2(element);
   
   // Decide on a default horizontalWidth for the kicker - try 0.3x ie smaller kicker
@@ -1693,7 +1690,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateMuonCooler()
     {return nullptr;}
 
   GMAD::CoolingChannel def = BDSParser::Instance()->GetCoolingChannel(element->coolingDefinition);
-  auto beamPipeInfo = PrepareBeamPipeInfo(element);
+  auto beamPipeInfo = PrepareBeamPipeInfo2(element);
   auto result = BDS::BuildMuonCooler(elementName,
                                      element->l * CLHEP::m,
                                      element->horizontalWidth * CLHEP::m,
@@ -1754,8 +1751,8 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateDegrader()
 
   // include base thickness in each wedge so it covers the whole beam aperture when set to the thickest
   // possible amount of material, otherwise a fraction of the beam wouldn't pass through the wedges.
-  auto bpi = PrepareBeamPipeInfo(element);
-  G4double baseWidth = bpi->aper1;
+  auto bpi = PrepareBeamPipeInfo2(element);
+  G4double baseWidth = bpi->aperture->RadiusToEncompass();
   delete bpi;
   auto material = PrepareMaterial(element);
   return (new BDSDegrader(elementName,
@@ -2648,53 +2645,6 @@ BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
   return info;
 }
 
-BDSBeamPipeInfo* BDSComponentFactory::PrepareBeamPipeInfo(Element const* el,
-                                                          const G4ThreeVector& inputFaceNormalIn,
-                                                          const G4ThreeVector& outputFaceNormalIn)
-{
-  BDSBeamPipeInfo* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel();
-  BDSBeamPipeInfo* result; 
-  if (!BDSGlobalConstants::Instance()->IgnoreLocalAperture())
-    {
-      try
-	{
-	  result = new BDSBeamPipeInfo(defaultModel,
-				       el->apertureType,
-				       el->aper1 * CLHEP::m,
-				       el->aper2 * CLHEP::m,
-				       el->aper3 * CLHEP::m,
-				       el->aper4 * CLHEP::m,
-				       el->vacuumMaterial,
-				       el->beampipeThickness * CLHEP::m,
-				       el->beampipeMaterial,
-				       inputFaceNormalIn,
-				       outputFaceNormalIn);
-	}
-      catch (BDSException& e)
-	{
-	  G4String msg = "\nProblem in element: \"" + el->name + "\"";
-	  e.AppendToMessage(msg);
-	  throw e;
-	}
-    }
-  else
-    {// ignore the aperture model from the element and use the global one
-      result = new BDSBeamPipeInfo(*defaultModel); // ok as only pointers to materials
-      result->inputFaceNormal  = inputFaceNormalIn;
-      result->outputFaceNormal = outputFaceNormalIn;
-    }
-  return result;
-}
-
-BDSBeamPipeInfo* BDSComponentFactory::PrepareBeamPipeInfo(Element const* el,
-							  const G4double angleIn,
-							  const G4double angleOut)
-{
-  auto faces = BDS::CalculateFaces(angleIn, angleOut);
-  BDSBeamPipeInfo* info = PrepareBeamPipeInfo(el, faces.first, faces.second);
-  return info;
-}
-
 BDSTiltOffset* BDSComponentFactory::CreateTiltOffset(Element const* el)
 {
 #ifdef BDSDEBUG
@@ -2963,12 +2913,11 @@ BDSCavityInfo* BDSComponentFactory::PrepareCavityModelInfoForElement(Element con
   
   BDSCavityInfo* defaultCI = new BDSCavityInfo(BDSCavityType::pillbox,
 					       BDSMaterials::Instance()->GetMaterial("Copper"),
-					       aperture->aper1,
+					       aper1,
 					       thickness,
 					       equatorRadius,
 					       cellLength*0.5);
-
-  delete aperture;
+  delete bpi;
   return defaultCI;
 }
 

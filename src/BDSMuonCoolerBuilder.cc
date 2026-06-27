@@ -51,7 +51,7 @@ BDSMuonCooler* BDS::BuildMuonCooler(const G4String& elementName,
                                     G4double chordLength,
                                     G4double horizontalWidth,
                                     const GMAD::CoolingChannel& definition,
-                                    BDSBeamPipeInfo* beamPipeInfo,
+                                    BDSBeamPipeInfo2* beamPipeInfo,
                                     G4double designRigidity)
 {
   G4double elementRadius = horizontalWidth * 0.5;

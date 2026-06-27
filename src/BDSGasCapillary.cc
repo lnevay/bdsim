@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAcceleratorModel.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo.hh"
+#include "BDSBeamPipeInfo2.hh"
 #include "BDSGasCapillary.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"

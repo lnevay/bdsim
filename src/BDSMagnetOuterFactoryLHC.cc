@@ -21,7 +21,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSApertureType.hh"
 #include "BDSAppropriateTubs.hh"
 #include "BDSBeamPipe.hh"
-#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeInfo2.hh"
 #include "BDSBeamPipeType.hh"
 #include "BDSBeamPipeFactory.hh"
@@ -901,7 +900,7 @@ BDSMagnetOuter* BDSMagnetOuterFactoryLHC::CreateLHCDipole(const G4String&    nam
 			     checkOverlaps);
   allPhysicalVolumes.insert(yokePV);
 
-  BDSBeamPipeInfo* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel();
+  BDSBeamPipeInfo2* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2();
   G4Material* vacuumMaterial   = defaultModel->vacuumMaterial;
   
   //use beampipe factories to create another beampipe (note no magnetic field for now...)
@@ -1506,7 +1505,7 @@ BDSMagnetOuter* BDSMagnetOuterFactoryLHC::CreateQuadrupole(G4String      name,
 			     checkOverlaps);
   allPhysicalVolumes.insert(yokePV);
 
-  BDSBeamPipeInfo* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel();
+  BDSBeamPipeInfo2* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2();
   G4Material* vacuumMaterial   = defaultModel->vacuumMaterial;
   
   //use beampipe factories to create another beampipe (note no magnetic field for now...)

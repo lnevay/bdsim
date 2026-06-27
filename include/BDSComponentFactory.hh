@@ -45,7 +45,6 @@ namespace GMAD
   struct Element;
 }
 class BDSAcceleratorComponent;
-class BDSBeamPipeInfo;
 class BDSBeamPipeInfo2;
 class BDSCavityInfo;
 class BDSComponentFactoryUser;
@@ -126,18 +125,6 @@ public:
                                          G4double angleIn,
                                          G4double angleOut,
                                          const G4String& overrideBeamPipeType = "") const;
-  
-  /// Prepare the recipe for a piece of beam pipe. Static and public so it can be used by
-  /// SBendBuilder.
-  static BDSBeamPipeInfo* PrepareBeamPipeInfo(GMAD::Element const* el,
-					      const G4ThreeVector& inputFaceNormal  = G4ThreeVector(0,0,-1),
-					      const G4ThreeVector& outputFaceNormal = G4ThreeVector(0,0,1));
-
-  /// Interface to other PrepareBeamPipeInfo() for convenience to avoid preparing
-  /// face normal vectors repeatedly.
-  static BDSBeamPipeInfo* PrepareBeamPipeInfo(GMAD::Element const* el,
-					      G4double angleIn,
-					      G4double angleOut);
 
   /// Determine which side the yoke of an asymmetric bend should go on based on the angle
   /// of the bend and the overriding setting in the element.

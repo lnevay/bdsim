@@ -19,7 +19,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "globals.hh" // geant4 globals / types
 
 #include "BDSAcceleratorComponent.hh"
-#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeInfo2.hh"
 #include "BDSBendBuilder.hh"
 #include "BDSComponentFactory.hh"

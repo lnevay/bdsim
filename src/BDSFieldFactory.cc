@@ -16,8 +16,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "BDSAperture.hh"
 #include "BDSArrayReflectionType.hh"
-#include "BDSBeamPipeInfo.hh"
+#include "BDSBeamPipeInfo2.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
 #include "BDSPTCOneTurnMap.hh"
@@ -323,7 +324,7 @@ void BDSFieldFactory::PrepareFieldDefinitions(const std::vector<GMAD::Field>& de
         }
       
       BDSMagnetStrength* st = new BDSMagnetStrength();
-      G4double poleTipRadius = BDSGlobalConstants::Instance()->DefaultBeamPipeModel()->aper1;
+      G4double poleTipRadius = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2()->aperture->RadiusToEncompass();
       if (!definition.fieldParameters.empty())
         {PrepareFieldStrengthFromParameters(st, definition.fieldParameters, poleTipRadius);}
       

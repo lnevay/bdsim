@@ -44,7 +44,6 @@ class G4UserLimits;
 class G4VisAttributes;
 
 class BDSAperture;
-class BDSBeamPipeInfo;
 class BDSBeamPipeInfo2;
 class BDSTunnelInfo;
 
@@ -380,7 +379,6 @@ public:
   inline G4double              SamplerDiameter()         const {return samplerDiameter;}
   inline G4double              CurvilinearDiameter()     const {return curvilinearDiameter;}
   inline G4bool                CurvilinearDiameterShrunkForBends() const {return curvilinearDiameterShrunkForBends;}
-  inline BDSBeamPipeInfo*      DefaultBeamPipeModel()    const {return defaultBeamPipeModel;}
   inline BDSBeamPipeInfo2*     DefaultBeamPipeModel2()   const {return defaultBeamPipeModel2;}
   inline BDSAperture*          DefaultAperture()         const {return defaultAperture;}
   inline BDSMagnetGeometryType MagnetGeometryType()      const {return magnetGeometryType;}
@@ -429,7 +427,6 @@ private:
   ///@}
 
   /// Default beam pipe model information
-  BDSBeamPipeInfo* defaultBeamPipeModel;
   BDSBeamPipeInfo2* defaultBeamPipeModel2;
   BDSAperture*      defaultAperture;
   

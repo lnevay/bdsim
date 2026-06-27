@@ -16,7 +16,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "BDSBeamPipeInfo.hh"
+#include "BDSAperture.hh"
+#include "BDSBeamPipeInfo2.hh"
 #include "BDSGlobalConstants.hh" 
 #include "BDSLaserWire.hh"
 #include "BDSMaterials.hh"
@@ -39,7 +40,7 @@ BDSLaserWire::~BDSLaserWire()
 
 void BDSLaserWire::BuildContainerLogicalVolume()
 {
-  G4double beamPipeRadius = BDSGlobalConstants::Instance()->DefaultBeamPipeModel()->aper1;
+  G4double beamPipeRadius = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2()->aperture->RadiusToEncompass();
   containerSolid = new G4Box(name +"_container_solid",
 			     beamPipeRadius,
 			     beamPipeRadius,

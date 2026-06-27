@@ -22,7 +22,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSApertureInfo.hh"
 #include "BDSBeamline.hh"
 #include "BDSBeamlineElement.hh"
-#include "BDSBeamPipeInfo.hh"
+#include "BDSBeamPipeInfo2.hh"
 #include "BDSDebug.hh"
 #include "BDSDetectorConstruction.hh"
 #include "BDSExtent.hh"

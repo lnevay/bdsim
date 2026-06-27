@@ -18,7 +18,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSAperture.hh"
 #include "BDSApertureFactory.hh"
-#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeInfo2.hh"
 #include "BDSBeamPipeToApertureType.hh"
 #include "BDSDebug.hh"
@@ -98,16 +97,6 @@ BDSGlobalConstants::BDSGlobalConstants(const GMAD::Options& opt):
                                          0,0,0,0);
 
   // beam pipe
-  defaultBeamPipeModel = new BDSBeamPipeInfo(options.apertureType,
-                                             options.aper1 * CLHEP::m,
-                                             options.aper2 * CLHEP::m,
-                                             options.aper3 * CLHEP::m,
-                                             options.aper4 * CLHEP::m,
-                                             options.vacMaterial,
-                                             options.beampipeThickness * CLHEP::m,
-                                             options.beampipeMaterial);
-  
-  
   defaultBeamPipeModel2 = new BDSBeamPipeInfo2(bpt,
                                                defaultAperture,
                                                BDSMaterials::Instance()->GetMaterial(options.vacMaterial),
@@ -119,8 +108,8 @@ BDSGlobalConstants::BDSGlobalConstants(const GMAD::Options& opt):
   if (horizontalWidth < 2*defaultBeamPipeModel2->Extent().MaximumAbsTransverse())
     {
       G4cerr << __METHOD_NAME__ << "Error: option \"horizontalWidth\" " << horizontalWidth
-             << " must be greater than 2x (\"aper1\" + \"beamPipeThickness\") ("
-             << defaultBeamPipeModel->aper1 << " + " << defaultBeamPipeModel->beamPipeThickness << ")" << G4endl;
+             << " must be greater than 2x (\"aper1\" + \"beampipeThickness\") ("
+             << options.aper1<< " + " << options.beampipeThickness << ")" << G4endl;
       throw BDSException(__METHOD_NAME__,"error in beam pipe defaults");
     }
   magnetGeometryType = BDS::DetermineMagnetGeometryType(options.magnetGeometryType);
@@ -350,8 +339,7 @@ G4int BDSGlobalConstants::PrintModuloTurns() const
 }
 
 BDSGlobalConstants::~BDSGlobalConstants()
-{  
-  delete defaultBeamPipeModel;
+{
   delete tunnelInfo;
   delete defaultUserLimits;
   delete defaultUserLimitsTunnel;
