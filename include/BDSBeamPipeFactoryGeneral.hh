@@ -37,8 +37,8 @@ public:
   virtual ~BDSBeamPipeFactoryGeneral(){;}
 
   BDSBeamPipe* CreateBeamPipe(const G4String&   name,
-			      G4double          length,
-			      BDSBeamPipeInfo2* bpi) override;
+                              G4double          length,
+                              const BDSBeamPipeInfo2* bpi) override;
 };
   
 #endif

@@ -37,8 +37,8 @@ public:
   virtual ~BDSBeamPipeFactoryLHCDetailed(){;}
   
   BDSBeamPipe* CreateBeamPipe(const G4String&   name,
-                                      G4double          length,
-                                      BDSBeamPipeInfo2* bpi) override {return nullptr;}
+                              G4double          length,
+                              const BDSBeamPipeInfo2* bpi) override {return nullptr;}
 
   /// Access cooling pipe information from factory for parameter tests
   G4double GetFullWidthOfCoolingPipe();
