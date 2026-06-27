@@ -57,9 +57,7 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
                                 apVacOut,
                                 bpi->inputFaceNormal,
                                 bpi->outputFaceNormal);
-  delete apVacIn;
-  if (variedAperture)
-    {delete apVacOut;}
+  // do not delete apVac as it belongs to the beampipe info
   
   if (!bpi->vacuumOnly)
     {
@@ -71,6 +69,9 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
                                                bpi->inputFaceNormal,
                                                bpi->outputFaceNormal);
     }
+  if (apBpInnerOut != apBpInnerIn)
+    {delete apBpInnerOut;}
+  delete apBpInnerIn;
   
   containerSolid = fac.CreateSolid(name + "_container_solid",
 				   length,
