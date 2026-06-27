@@ -109,10 +109,14 @@ public:
                                                   G4double           lengthExtraForBoolean = 0);
 
 private:
+  /// Calculate the length on one side of a solid that is required for the
+  /// Boolean operation for a given angle from the perpendicular.
+  G4double RequiredLengthForBoolean(G4double angle, G4double radius) const;
+
   /// Check N points > 0 and throw an exception if not.
   void CheckNPoints(int nPoints,
-		    const G4String& typeName,
-		    const G4String& objectName) const;
+                    const G4String& typeName,
+                    const G4String& objectName) const;
 
 
   G4bool AngledFaces(const G4ThreeVector& v1, const G4ThreeVector& v2);
@@ -150,6 +154,7 @@ private:
   /// @}
   /// @{ Specialisation for particular solids for hollow solid.
   G4VSolid* HollowCircleToCircle(G4double thickness) const;
+  G4VSolid* HollowRectangleToRectangle(G4double thickness) const;
   /// @}
 
   /// Ratio of radii used for an intersection solid - greater than 1 and

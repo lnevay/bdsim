@@ -48,6 +48,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4ExtrudedSolid.hh"
 #include "G4IntersectionSolid.hh"
 #include "G4String.hh"
+#include "G4SubtractionSolid.hh"
 #include "G4ThreeVector.hh"
 #include "G4Tubs.hh"
 #include "G4TwoVector.hh"
@@ -57,9 +58,9 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include <algorithm>
+#include <cmath>
 #include <map>
 #include <utility>
-
 
 BDSApertureFactory::BDSApertureFactory():
   intersectionRadiusRatio(1.3),
@@ -71,12 +72,12 @@ BDSApertureFactory::BDSApertureFactory():
   angledFaces(false)
 {
   specialisations = {
-                     {MakePair(BDSApertureType::circle, BDSApertureType::circle),
-                      &BDSApertureFactory::CreateDifferentEndsCircleToCircle}
+    {MakePair(BDSApertureType::circle, BDSApertureType::circle), &BDSApertureFactory::CreateDifferentEndsCircleToCircle}
   };
   
   hollowSpecialisations = {
-    {MakePair(BDSApertureType::circle, BDSApertureType::circle), &BDSApertureFactory::HollowCircleToCircle}
+    {MakePair(BDSApertureType::circle, BDSApertureType::circle), &BDSApertureFactory::HollowCircleToCircle},
+    {MakePair(BDSApertureType::rectangle, BDSApertureType::rectangle), &BDSApertureFactory::HollowRectangleToRectangle}
   };
 
   // TBC other specialisations possible given combination of available solids in Geant4
@@ -108,9 +109,8 @@ BDSAperture* BDSApertureFactory::CreateAperture(BDSBeamPipeType bpt,
       std::vector<G4double> units = {m, m, m, m, CLHEP::rad, m, m, 1};
       for (G4int i = 0; i < (G4int)apertures.size(); i++)
         {values[i] = apertures[i] * units[i];}
-      
       return CreateAperture(apt, values[0], values[1], values[2], values[3],
-                            values[4], values[5], values[6], values[7]);
+                            values[4], values[5], values[6], (G4int)values[7]);
     }
 }
 
@@ -193,6 +193,14 @@ BDSAperture* BDSApertureFactory::CreateAperture(BDSApertureType at,
       result->SetTiltOffset(BDSTiltOffset(tilt, offsetX, offsetY));
     }
   return result;
+}
+
+G4double BDSApertureFactory::RequiredLengthForBoolean(G4double angle,
+                                                      G4double radius) const
+{
+  // use the absolute as for either positive or negative angle the solid must be extended
+  G4double rl = radius*std::tan(std::abs(angle));
+  return rl*1.1; // 10% margin
 }
 
 void BDSApertureFactory::CheckNPoints(int nPoints,
@@ -303,6 +311,17 @@ G4VSolid* BDSApertureFactory::CreateSolidWithInner(const G4String&      name,
   productLength      = length;
   productApertureIn  = apertureInInside;
   productApertureOut = variedAperture ? apertureOutInside : apertureInInside;
+
+  if (!BDS::IsFinite(lengthExtraForBoolean))
+    {
+      G4double a1 = productNormalIn.theta();
+      G4double a2 = productNormalOut.theta();
+      G4double angle = std::max(std::abs(a1), std::abs(a2));
+      G4double r1 = productApertureIn->RadiusToEncompass();
+      G4double r2 = productApertureOut->RadiusToEncompass();
+      G4double radius = std::max(std::abs(r1), std::abs(r2));
+      lengthExtraForBoolean = RequiredLengthForBoolean(angle, radius);
+    }
   productLengthExtra = lengthExtraForBoolean;
   
   // check specialisations
@@ -313,8 +332,21 @@ G4VSolid* BDSApertureFactory::CreateSolidWithInner(const G4String&      name,
       auto mem = search->second;
       return (this->*mem)(thickness);
     }
-  else // no specialisation, so use high number polygons
-    {return CreateTubeByPoints();}
+  else // no specialisation -> use polygons
+    {
+      G4VSolid* inner = CreateTubeByPoints();
+      productLengthExtra = 0;
+      BDSAperture* apInOutside = apertureInInside->Plus(thickness);
+      BDSAperture* apOutOutside = variedAperture ? apertureOutInside->Plus(thickness) : apInOutside;
+      productApertureIn = apInOutside; // assign to members for factory action
+      productApertureOut = apOutOutside;
+      G4VSolid* outer = CreateTubeByPoints();
+      G4VSolid* product = new G4SubtractionSolid(productName, outer, inner);
+      delete apInOutside;
+      if (variedAperture)
+        {delete apOutOutside;}
+      return product;
+    }
 }
 
 G4VSolid* BDSApertureFactory::CreateSolidWithInnerVariableThickness(const G4String&      name,
@@ -375,9 +407,9 @@ G4VSolid* BDSApertureFactory::CreateRectangle() const
   if (!angledFaces)
     {
       G4VSolid* product = new G4Box(productName,
-                                                    ap->a,
-                                                    ap->b,
-                                                    0.5 * productLength + productLengthExtra);
+                                    ap->a,
+                                    ap->b,
+                                    0.5 * productLength + productLengthExtra);
       return product;
     }
   else
@@ -656,6 +688,41 @@ G4VSolid* BDSApertureFactory::HollowCircleToCircle(G4double thickness) const
                                         0, CLHEP::twopi,
                                         productNormalIn,
                                         productNormalOut);
+      return product;
+    }
+}
+
+G4VSolid* BDSApertureFactory::HollowRectangleToRectangle(G4double thickness) const
+{
+  const auto* ap = dynamic_cast<const BDSApertureRectangle*>(productApertureIn);
+  if (!ap)
+    {return nullptr;}
+  if (!angledFaces)
+    {
+      G4VSolid* inner = new G4Box(productName+"_inner_so",
+                                  ap->a, ap->b,
+                                  0.5*productLength + productLengthExtra);
+      G4VSolid* outer = new G4Box(productName+"_outer_so",
+                                  ap->a + thickness,
+                                  ap->b + thickness,
+                                  0.5*productLength);
+      G4VSolid* product = new G4SubtractionSolid(productName+"_so", outer, inner);
+      return product;
+    }
+  else
+    {
+      G4VSolid* inner = new G4Box(productName+"_inner_so",
+                                  ap->a, ap->b,
+                                  0.5*productLength + 1.1*productLengthExtra);
+      G4VSolid* outer = new G4Box(productName+"_outer_so",
+                                  ap->a + thickness,
+                                  ap->b + thickness,
+                                  0.5*productLength + productLengthExtra);
+      G4VSolid* part1 = new G4SubtractionSolid(productName+"_straight_so", outer, inner);
+      
+      G4double maxRadius = ap->RadiusToEncompass();
+      G4VSolid* cut = CutSolid(productName + "_angled", maxRadius);
+      G4VSolid* product = new G4IntersectionSolid(productName+"_so", part1, cut);
       return product;
     }
 }
