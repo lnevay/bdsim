@@ -113,14 +113,19 @@ public:
   /// Create a transform for the field for a given element to account for the difference
   /// from the curvilinear coordinates for the tilt and offset of the magnet.
   static G4Transform3D CreateFieldTransform(GMAD::Element const* el);
+
+  BDSBeamPipeInfo2* PrepareBeamPipeInfo2Straight(GMAD::Element const* el,
+                                                 const G4String& overrideBeamPipeType = "") const;
+
+  BDSBeamPipeInfo2* PrepareBeamPipeInfo2(GMAD::Element const* el,
+                                         const G4ThreeVector& inputFaceNormalIn  = G4ThreeVector(0,0,-1),
+                                         const G4ThreeVector& outputFaceNormalIn = G4ThreeVector(0,0,1),
+                                         const G4String& overrideBeamPipeType = "") const;
   
-  static BDSBeamPipeInfo2* PrepareBeamPipeInfo2(GMAD::Element const* el,
-                                                                    const G4ThreeVector& inputFaceNormalIn  = G4ThreeVector(0,0,-1),
-                                                                    const G4ThreeVector& outputFaceNormalIn = G4ThreeVector(0,0,1));
-  
-  static BDSBeamPipeInfo2* PrepareBeamPipeInfo2(GMAD::Element const* el,
-                                                              G4double angleIn,
-                                                              G4double angleOut);
+  BDSBeamPipeInfo2* PrepareBeamPipeInfo2(GMAD::Element const* el,
+                                         G4double angleIn,
+                                         G4double angleOut,
+                                         const G4String& overrideBeamPipeType = "") const;
   
   /// Prepare the recipe for a piece of beam pipe. Static and public so it can be used by
   /// SBendBuilder.
@@ -160,14 +165,14 @@ public:
   /// Prepare the recipe for magnet outer geometry for an element. This uses a
   /// strength instance which (we assume) represents the element. Evenly splits angle
   /// between input and output faces.
-  static BDSMagnetOuterInfo* PrepareMagnetOuterInfo(const G4String&          elementNameIn,
+  BDSMagnetOuterInfo* PrepareMagnetOuterInfo(const G4String&          elementNameIn,
 						    const GMAD::Element*     el,
 						    const BDSMagnetStrength* st,
 						    const BDSBeamPipeInfo2*   beamPipe,
 						    G4double defaultHorizontalWidth    = -1,
 						    G4double defaultVHRatio            = 1.0,
 						    G4double defaultCoilWidthFraction  = -1,
-						    G4double defaultCoilHeightFraction = -1);
+						    G4double defaultCoilHeightFraction = -1) const;
 
   /// Determine the magnet geometry type. If not specified or the global option to ignore
   /// local magnet geometry definitions is on, then the global default is used
@@ -176,7 +181,7 @@ public:
   /// Prepare the recipe for magnet outer geometry with full control of the angled faces
   /// and which side the yoke is on. The angle in and out are the face angles relative
   /// to a chord for a straight section of outer magnet geometry.
-  static BDSMagnetOuterInfo* PrepareMagnetOuterInfo(const G4String&        elementNameIn,
+  BDSMagnetOuterInfo* PrepareMagnetOuterInfo(const G4String&        elementNameIn,
 						    const GMAD::Element*   el,
 						    const G4double         angleIn,
 						    const G4double         angleOut,
@@ -185,7 +190,7 @@ public:
 						    G4double       defaultHorizontalWidth    = -1,
 						    G4double       defaultVHRatio            = -1,
 						    G4double       defaultCoilWidthFraction  = -1,
-						    G4double       defaultCoilHeightFraction = -1);
+						    G4double       defaultCoilHeightFraction = -1) const;
 
   /// Checks if colour is specified for element, else uses the default for that element type.
   /// If the optional material is given and also element->autoColour is true then the material

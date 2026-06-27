@@ -26,6 +26,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSIntegratorType.hh"
 
 class BDSAcceleratorComponent;
+class BDSComponentFactory;
 class BDSFieldInfo;
 class BDSIntegratorSet;
 class BDSLine;
@@ -47,7 +48,8 @@ namespace BDS
   /// poleface, the faces of each wedge fade in/out from the poleface to the cental
   /// wedge in the middle. Thin fringefield elements are placed at the beginning and
   /// end of the beamline if required.
-  BDSAcceleratorComponent* BuildSBendLine(const G4String&         elementName,
+  BDSAcceleratorComponent* BuildSBendLine(BDSComponentFactory* factory,
+    const G4String&         elementName,
 					  const GMAD::Element*    element,
 					  BDSMagnetStrength*      st,
 					  G4double                brho,
@@ -62,7 +64,8 @@ namespace BDS
   /// Construct beamline for an rbend.  A line is returned with a single
   /// magnet as the main dipole, but can have fringefield magnets placed
   /// either end if specified.
-  BDSLine* BuildRBendLine(const G4String&         elementName,
+  BDSLine* BuildRBendLine(BDSComponentFactory* factory,
+    const G4String&         elementName,
 			  const GMAD::Element*    element,
 			  const GMAD::Element*    prevElement,
 			  const GMAD::Element*    nextElement,
@@ -84,7 +87,8 @@ namespace BDS
 
   /// Thin magnet for dipole fringe field.
   /// Is beampipe only, no outer magnet.
-  BDSMagnet* BuildDipoleFringe(const GMAD::Element*     element,
+  BDSMagnet* BuildDipoleFringe(BDSComponentFactory* factory,
+    const GMAD::Element*     element,
 			       G4double                 angleIn,
 			       G4double                 angleOut,
 			       const G4String&          name,
@@ -95,7 +99,8 @@ namespace BDS
                                BDSModulatorInfo*        fieldModulator = nullptr);
 
   /// Function to return a single sector bend section.
-  BDSMagnet* BuildSingleSBend(const GMAD::Element*     element,
+  BDSMagnet* BuildSingleSBend(BDSComponentFactory* factory,
+    const GMAD::Element*     element,
 			      const G4String&          name,
 			      G4double                 arcLength,
 			      G4double                 angle,

@@ -786,7 +786,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateSBend()
   G4double incomingFaceAngle = IncomingFaceAngle(element);
   G4double outgoingFaceAngle = OutgoingFaceAngle(element);
 
-  auto sBendLine = BDS::BuildSBendLine(elementName, element, st, BRho(), integratorSet,
+  auto sBendLine = BDS::BuildSBendLine(this, elementName, element, st, BRho(), integratorSet,
                                        incomingFaceAngle, outgoingFaceAngle,
 				       includeFringeFields, prevElement, nextElement, modulator);
   
@@ -838,7 +838,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateRBend()
   incomingFaceAngle -= 0.5*angle;
   outgoingFaceAngle -= 0.5*angle;
 
-  BDSLine* rbendline = BDS::BuildRBendLine(elementName, element, prevElement, nextElement,
+  BDSLine* rbendline = BDS::BuildRBendLine(this, elementName, element, prevElement, nextElement,
                                            BRho(), st, integratorSet,
 					   incomingFaceAngle, outgoingFaceAngle,
 					   includeFringeFields,
@@ -1175,7 +1175,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateKicker(KickerType type)
       if (buildEntranceFringe)
         {
           G4String entrFringeName = baseName + "_e1_fringe";
-          BDSMagnet* startfringe = BDS::BuildDipoleFringe(element, 0, 0,
+          BDSMagnet* startfringe = BDS::BuildDipoleFringe(this, element, 0, 0,
                                                           entrFringeName,
                                                           fringeStIn,
                                                           BRho(),
@@ -1198,7 +1198,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateKicker(KickerType type)
       if (buildEntranceFringe)
 	{
           G4String exitFringeName = baseName + "_e2_fringe";
-          BDSMagnet* endfringe = BDS::BuildDipoleFringe(element, 0, 0,
+          BDSMagnet* endfringe = BDS::BuildDipoleFringe(this, element, 0, 0,
                                                         exitFringeName,
                                                         fringeStOut, BRho(),
                                                         integratorSet, fieldType);
@@ -2444,7 +2444,7 @@ BDSMagnetOuterInfo* BDSComponentFactory::PrepareMagnetOuterInfo(const G4String& 
 								G4double defaultHorizontalWidth,
 								G4double defaultVHRatio,
 								G4double defaultCoilWidthFraction,
-								G4double defaultCoilHeightFraction)
+								G4double defaultCoilHeightFraction) const
 {
   G4bool yokeOnLeft = YokeOnLeft(el,st);
   G4double    angle = (*st)["angle"];
@@ -2475,7 +2475,7 @@ BDSMagnetOuterInfo* BDSComponentFactory::PrepareMagnetOuterInfo(const G4String& 
 								G4double        defaultHorizontalWidth,
 								G4double        defaultVHRatio,
 								G4double        defaultCoilWidthFraction,
-								G4double        defaultCoilHeightFraction)
+								G4double        defaultCoilHeightFraction) const
 {
   BDSMagnetOuterInfo* info = new BDSMagnetOuterInfo();
 

@@ -51,7 +51,8 @@ G4bool BDS::ZeroStrengthDipole(const BDSMagnetStrength* st)
   return !(finiteAngle || finiteField);
 }
 
-BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName,
+BDSAcceleratorComponent* BDS::BuildSBendLine(BDSComponentFactory* factory,
+  const G4String&         elementName,
 					     const Element*          element,
 					     BDSMagnetStrength*      st,
 					     G4double                brho,
@@ -162,9 +163,8 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
       BDSFieldInfo* vacuumField = nullptr;
       BDSFieldInfo* outerField = nullptr;
       // prepare one sbend segment
-      auto bpInfo = BDSComponentFactory::PrepareBeamPipeInfo2(element, -incomingFaceAngle,
-							     -outgoingFaceAngle);
-      auto mgInfo = BDSComponentFactory::PrepareMagnetOuterInfo(baseName, element,
+      auto bpInfo = factory->PrepareBeamPipeInfo2(element, -incomingFaceAngle, -outgoingFaceAngle);
+      auto mgInfo = factory->PrepareMagnetOuterInfo(baseName, element,
 								-incomingFaceAngle,
 								-outgoingFaceAngle,
 								bpInfo,
@@ -259,8 +259,8 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
   BDSIntegratorType intType = BDS::GetDipoleIntegratorType(integratorSet, element);
   BDSFieldInfo* semiVacuumField = nullptr;
   BDSFieldInfo* semiOuterField = nullptr;
-  auto bpInfo = BDSComponentFactory::PrepareBeamPipeInfo2(element, 0.5*semiAngle, 0.5*semiAngle);
-  auto mgInfo = BDSComponentFactory::PrepareMagnetOuterInfo(centralName, element,
+  auto bpInfo = factory->PrepareBeamPipeInfo2(element, 0.5*semiAngle, 0.5*semiAngle);
+  auto mgInfo = factory->PrepareMagnetOuterInfo(centralName, element,
                                                             0.5*semiAngle, 0.5*semiAngle, bpInfo,
                                                             yokeOnLeft);
   if (!zeroStrength)
@@ -293,7 +293,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
 					  semiOuterField); // minus for 3d cartesian conversion
   
   // check magnet outer info
-  auto magnetOuterInfoCheck = BDSComponentFactory::PrepareMagnetOuterInfo("checking", element,
+  auto magnetOuterInfoCheck = factory->PrepareMagnetOuterInfo("checking", element,
 									  -incomingFaceAngle,
                                                                           -outgoingFaceAngle,
 									  bpInfo, yokeOnLeft);
@@ -336,7 +336,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
       G4String segmentName           = baseName + "_e1_fringe";
       G4double fringeAngleIn         = 0.5*oneFringeAngle - incomingFaceAngle;
       G4double fringeAngleOut        = 0.5*oneFringeAngle + incomingFaceAngle;
-      BDSMagnet* startfringe = BDS::BuildDipoleFringe(element, fringeAngleIn, fringeAngleOut,
+      BDSMagnet* startfringe = BDS::BuildDipoleFringe(factory, element, fringeAngleIn, fringeAngleOut,
 						      segmentName, fringeStIn, brho,
 						      integratorSet, dipoleFieldType, fieldModulator);
       sbendline->AddComponent(startfringe);
@@ -366,7 +366,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
 	      name += "_"+std::to_string(numberOfUniqueComponents);
 	      numberOfUniqueComponents++;
 	      BDS::UpdateSegmentAngles(i,nSBends,semiAngle,incomingFaceAngle,outgoingFaceAngle,segmentAngleIn,segmentAngleOut);
-	      oneBend = BDS::BuildSingleSBend(element, name, semiArcLength, semiAngle,
+	      oneBend = BDS::BuildSingleSBend(factory, element, name, semiArcLength, semiAngle,
 					      segmentAngleIn, segmentAngleOut, semiStrength,
 					      brho, integratorSet, yokeOnLeft, semiOuterField);
 	    }
@@ -378,7 +378,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
 		  numberOfUniqueComponents++;
 		  segmentAngleIn  = 0.5*semiAngle - incomingFaceAngle; // whole pole face angle
 		  segmentAngleOut = 0.5*semiAngle;      // even matching angle
-		  oneBend = BDS::BuildSingleSBend(element, name, semiArcLength, semiAngle,
+		  oneBend = BDS::BuildSingleSBend(factory, element, name, semiArcLength, semiAngle,
 						  segmentAngleIn, segmentAngleOut, semiStrength,
 						  brho, integratorSet, yokeOnLeft, semiOuterField);
 		}
@@ -395,7 +395,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
 	      name += "_"+std::to_string(numberOfUniqueComponents);
 	      numberOfUniqueComponents++;
 	      BDS::UpdateSegmentAngles(i,nSBends,semiAngle,incomingFaceAngle,outgoingFaceAngle,segmentAngleIn,segmentAngleOut);
-	      oneBend = BDS::BuildSingleSBend(element, name, semiArcLength, semiAngle,
+	      oneBend = BDS::BuildSingleSBend(factory, element, name, semiArcLength, semiAngle,
 					      segmentAngleIn, segmentAngleOut, semiStrength,
 					      brho, integratorSet, yokeOnLeft, semiOuterField);
 	    }
@@ -407,7 +407,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
 		  numberOfUniqueComponents++;
 		  segmentAngleIn  = 0.5*semiAngle;
 		  segmentAngleOut = 0.5*semiAngle - outgoingFaceAngle;
-		  oneBend = BDS::BuildSingleSBend(element, name, semiArcLength, semiAngle,
+		  oneBend = BDS::BuildSingleSBend(factory, element, name, semiArcLength, semiAngle,
 						  segmentAngleIn, segmentAngleOut, semiStrength,
 						  brho, integratorSet, yokeOnLeft, semiOuterField);
 		}
@@ -444,7 +444,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(const G4String&         elementName
       G4double fringeAngleOut         = 0.5*oneFringeAngle - outgoingFaceAngle;
       G4String segmentName            = baseName + "_e2_fringe";
       
-      BDSMagnet* endfringe = BDS::BuildDipoleFringe(element, fringeAngleIn, fringeAngleOut,
+      BDSMagnet* endfringe = BDS::BuildDipoleFringe(factory, element, fringeAngleIn, fringeAngleOut,
 						    segmentName, fringeStOut, brho,
 						    integratorSet, dipoleFieldType);
       sbendline->AddComponent(endfringe);
@@ -494,7 +494,8 @@ void BDS::UpdateSegmentAngles(G4int index,
     }
 }
 
-BDSMagnet* BDS::BuildSingleSBend(const GMAD::Element*     element,
+BDSMagnet* BDS::BuildSingleSBend(BDSComponentFactory* factory,
+  const GMAD::Element*     element,
 				 const G4String&          name,
 				 G4double                 arcLength,
 				 G4double                 angle,
@@ -507,10 +508,10 @@ BDSMagnet* BDS::BuildSingleSBend(const GMAD::Element*     element,
 				 const BDSFieldInfo*      outerFieldIn,
                                  BDSModulatorInfo*        fieldModulator)
 {
-  auto bpInfo = BDSComponentFactory::PrepareBeamPipeInfo2(element, angleIn, angleOut);
+  auto bpInfo = factory->PrepareBeamPipeInfo2(element, angleIn, angleOut);
   
   BDSMagnetStrength* strengthCopy = new BDSMagnetStrength(*strength); // the copy is crucial to copy the field strength
-  auto  magnetOuterInfo = BDSComponentFactory::PrepareMagnetOuterInfo(name, element, angleIn, angleOut, bpInfo, yokeOnLeft);
+  auto  magnetOuterInfo = factory->PrepareMagnetOuterInfo(name, element, angleIn, angleOut, bpInfo, yokeOnLeft);
   // set the name to the desired one rather than the one from the element
   magnetOuterInfo->name = name;
   
@@ -546,7 +547,8 @@ BDSMagnet* BDS::BuildSingleSBend(const GMAD::Element*     element,
   return magnet;
 }
 
-BDSLine* BDS::BuildRBendLine(const G4String&         elementName,
+BDSLine* BDS::BuildRBendLine(BDSComponentFactory* factory,
+  const G4String&         elementName,
 			     const Element*          element,
 			     const Element*          prevElement,
 			     const Element*          nextElement,
@@ -721,7 +723,7 @@ BDSLine* BDS::BuildRBendLine(const G4String&         elementName,
       G4String fringeName = name + "_e1_fringe";
 
       // element used for beam pipe materials etc - not strength, angle or length.
-      BDSMagnet* startfringe = BDS::BuildDipoleFringe(element, angleIn, fringeInOutputAngle,
+      BDSMagnet* startfringe = BDS::BuildDipoleFringe(factory, element, angleIn, fringeInOutputAngle,
 						      fringeName,
 						      fringeStIn, brho,
 						      integratorSet, dipoleFieldType, fieldModulator);
@@ -735,8 +737,8 @@ BDSLine* BDS::BuildRBendLine(const G4String&         elementName,
   BDSIntegratorType intType = BDS::GetDipoleIntegratorType(integratorSet, element);
   BDSFieldInfo* vacuumField = nullptr;
   BDSFieldInfo* outerField = nullptr;
-  auto bpInfo = BDSComponentFactory::PrepareBeamPipeInfo2(element, centralInputFaceAngle, centralOutputFaceAngle);
-  auto mgInfo = BDSComponentFactory::PrepareMagnetOuterInfo(elementName, element, centralInputFaceAngle, centralOutputFaceAngle, bpInfo, yokeOnLeft);
+  auto bpInfo = factory->PrepareBeamPipeInfo2(element, centralInputFaceAngle, centralOutputFaceAngle);
+  auto mgInfo = factory->PrepareMagnetOuterInfo(elementName, element, centralInputFaceAngle, centralOutputFaceAngle, bpInfo, yokeOnLeft);
   mgInfo->name = elementName;
   if (!zeroStrength)
     {
@@ -787,7 +789,7 @@ BDSLine* BDS::BuildRBendLine(const G4String&         elementName,
                                                                     fintx, false);
       G4String fringeName = name + "_e2_fringe";
       
-      BDSMagnet* endfringe = BDS::BuildDipoleFringe(element, fringeOutInputAngle, angleOut,
+      BDSMagnet* endfringe = BDS::BuildDipoleFringe(factory, element, fringeOutInputAngle, angleOut,
 						    fringeName,
 						    fringeStOut, brho,
 						    integratorSet, dipoleFieldType);
@@ -797,7 +799,8 @@ BDSLine* BDS::BuildRBendLine(const G4String&         elementName,
   return rbendline;
 }
 
-BDSMagnet* BDS::BuildDipoleFringe(const GMAD::Element*     element,
+BDSMagnet* BDS::BuildDipoleFringe(BDSComponentFactory* factory,
+  const GMAD::Element*     element,
 				  G4double                 angleIn,
 				  G4double                 angleOut,
 				  const G4String&          name,
@@ -807,9 +810,9 @@ BDSMagnet* BDS::BuildDipoleFringe(const GMAD::Element*     element,
 				  BDSFieldType             dipoleFieldType,
                                   BDSModulatorInfo*        fieldModulator)
 {
-  BDSBeamPipeInfo2* beamPipeInfo = BDSComponentFactory::PrepareBeamPipeInfo2(element, angleIn, angleOut);
+  BDSBeamPipeInfo2* beamPipeInfo = factory->PrepareBeamPipeInfo2(element, angleIn, angleOut);
   beamPipeInfo->beamPipeType = BDSBeamPipeType::circularvacuum;
-  auto magnetOuterInfo = BDSComponentFactory::PrepareMagnetOuterInfo(name, element,
+  auto magnetOuterInfo = factory->PrepareMagnetOuterInfo(name, element,
 								     angleIn, angleOut, beamPipeInfo);
   magnetOuterInfo->geometryType   = BDSMagnetGeometryType::none;
   magnetOuterInfo->name           = name;
