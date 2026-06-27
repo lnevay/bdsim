@@ -41,6 +41,8 @@ public:
   BDSApertureCircle() = delete;
   explicit BDSApertureCircle(G4double     radiusIn,
                              unsigned int nPointsIn = 0);
+  BDSApertureCircle(const BDSApertureCircle& other);
+  BDSApertureCircle& operator=(const BDSApertureCircle& other) noexcept;
   virtual ~BDSApertureCircle(){;}
 
   G4double radius;

@@ -43,10 +43,11 @@ class BDSTiltOffset
 {
 public:
   BDSTiltOffset();
-
   BDSTiltOffset(G4double xOffset,
-		G4double yOffset,
-		G4double tiltIn);
+                G4double yOffset,
+                G4double tiltIn);
+  BDSTiltOffset(const BDSTiltOffset& other);
+  BDSTiltOffset& operator=(const BDSTiltOffset& other) noexcept;
 
   ///@{ Accessor.
   inline G4double OffsetX() const {return dx;}
@@ -75,12 +76,9 @@ public:
   friend bool operator!= (const BDSTiltOffset& lhs, const BDSTiltOffset& rhs) {return !(lhs == rhs);}
   
 private:
-  /// Horizontal displacement (mm) - note right handed coordinate system
-  G4double dx;
-  /// Vertical displacement (mm)
-  G4double dy;
-  /// Tilt angle (rad) - rotation angle about Z axis
-  G4double tilt;
+  G4double dx; ///< Horizontal displacement (mm) - note right-handed coordinate system
+  G4double dy; ///< Vertical displacement (mm)
+  G4double tilt; ///< Tilt angle (rad) - rotation angle about Z axis
 };
 
 #endif

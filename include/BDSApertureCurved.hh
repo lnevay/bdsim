@@ -34,10 +34,23 @@ class BDSApertureCurved: public BDSAperture
 {
 public:
   BDSApertureCurved(BDSApertureType apertureTypeIn,
-		    unsigned int    nPointsIn):
+                    unsigned int    nPointsIn):
     BDSAperture(apertureTypeIn),
     nPoints(nPointsIn)
   {;}
+  BDSApertureCurved(const BDSApertureCurved& other):
+    BDSAperture(other),
+    nPoints(other.nPoints)
+  {;}
+  BDSApertureCurved& operator=(const BDSApertureCurved& other) noexcept
+  {
+    if (this != &other)
+      {
+        BDSAperture::operator=(other);
+        nPoints = other.nPoints;
+      }
+    return *this;
+  }
   virtual ~BDSApertureCurved(){;}
 
   unsigned int RecommendedNumberOfPoints() const override {return nPoints;}

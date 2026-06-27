@@ -40,6 +40,21 @@ BDSApertureCircle::BDSApertureCircle(G4double     radiusIn,
   radius(radiusIn)
 {;}
 
+BDSApertureCircle::BDSApertureCircle(const BDSApertureCircle& other):
+  BDSApertureCurved(other),
+  radius(other.radius)
+{;}
+
+BDSApertureCircle& BDSApertureCircle::operator=(const BDSApertureCircle& other) noexcept
+{
+  if (this != &other)
+    {
+      BDSApertureCurved::operator=(other);
+      radius = other.radius;
+    }
+  return *this;
+}
+
 G4bool BDSApertureCircle::Equals(const BDSAperture* other) const
 {
   if (!other)
@@ -112,6 +127,7 @@ BDSAperture* BDSApertureCircle::Clone() const
 
 std::array<G4double,7> BDSApertureCircle::ApertureNumbers() const
 {
+  G4cout << "RA" << G4endl;
   return {radius,0,0,0,tiltOffset.OffsetX(),tiltOffset.OffsetY(),tiltOffset.Tilt()};
 }
 

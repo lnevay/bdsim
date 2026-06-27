@@ -29,15 +29,29 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4Types.hh"
 
 BDSAperture::BDSAperture(BDSApertureType apertureTypeIn):
-  apertureType(apertureTypeIn),
-  tiltOffset(BDSTiltOffset())
+  apertureType(apertureTypeIn)
 {;}
 
 BDSAperture::BDSAperture(BDSApertureType      apertureTypeIn,
-			 const BDSTiltOffset& tiltOffsetIn):
+                         const BDSTiltOffset& tiltOffsetIn):
   apertureType(apertureTypeIn),
   tiltOffset(tiltOffsetIn)
 {;}
+
+BDSAperture::BDSAperture(const BDSAperture& other):
+  apertureType(other.apertureType),
+  tiltOffset(other.tiltOffset)
+{;}
+
+BDSAperture& BDSAperture::operator=(const BDSAperture& other) noexcept
+{
+  if (this != &other)
+    {
+      apertureType = other.apertureType;
+      tiltOffset = other.tiltOffset;
+    }
+  return *this;
+}
 
 void BDSAperture::CheckRequiredParametersSet(G4double aper1, G4bool aper1Set,
 					     G4double aper2, G4bool aper2Set,

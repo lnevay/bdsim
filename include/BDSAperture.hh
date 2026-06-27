@@ -43,7 +43,9 @@ class BDSAperture
 public:
   explicit BDSAperture(BDSApertureType apertureTypeIn);
   BDSAperture(BDSApertureType      apertureTypeIn,
-	      const BDSTiltOffset& tiltOffsetIn);
+              const BDSTiltOffset& tiltOffsetIn);
+  BDSAperture(const BDSAperture& other);
+  BDSAperture& operator=(const BDSAperture& other) noexcept;
   virtual ~BDSAperture(){;}
 
   inline void SetTiltOffset(const BDSTiltOffset& tiltOffsetIn) {tiltOffset = tiltOffsetIn;}
