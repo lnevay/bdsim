@@ -40,8 +40,8 @@ class BDSApertureRaceTrack: public BDSApertureCurved
 public:
   BDSApertureRaceTrack() = delete;
   BDSApertureRaceTrack(G4double xIn,
-			           G4double yIn,
-			           G4double radiusIn,
+                       G4double yIn,
+                       G4double radiusIn,
                        unsigned int nPointsIn);
   virtual ~BDSApertureRaceTrack(){;}
 

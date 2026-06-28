@@ -42,7 +42,7 @@ public:
   BDSApertureEllipse() = delete;
   BDSApertureEllipse(G4double aIn,
                      G4double bIn,
-                     unsigned int nPointsIn = 0);
+                     unsigned int nPointsIn = 24);
   virtual ~BDSApertureEllipse(){;}
 
   G4double a;

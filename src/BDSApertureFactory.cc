@@ -87,6 +87,24 @@ BDSApertureFactory::BDSApertureFactory():
 BDSApertureFactory::~BDSApertureFactory()
 {;}
 
+G4int BDSApertureFactory::DefaultNPoints(BDSApertureType apt) const
+{
+  G4int nPointsPerTwoPi = 24;
+  std::map<BDSApertureType, G4int> npoints = {
+    {BDSApertureType::circle, nPointsPerTwoPi},
+    {BDSApertureType::ellipse, nPointsPerTwoPi},
+    {BDSApertureType::rectangle, 4},
+    {BDSApertureType::rectcircle, nPointsPerTwoPi},
+    {BDSApertureType::rectellipse, nPointsPerTwoPi},
+    {BDSApertureType::racetrack, nPointsPerTwoPi},
+    {BDSApertureType::octagon, 8},
+    {BDSApertureType::clicpcl, nPointsPerTwoPi},
+    {BDSApertureType::rhombus, 8},
+    {BDSApertureType::points, 0}
+  };
+  return npoints.at(apt);
+}
+
 BDSAperture* BDSApertureFactory::CreateAperture(BDSBeamPipeType bpt,
                                                 const GMAD::Element& el,
                                                 G4bool useElementVariables) const
@@ -157,6 +175,8 @@ BDSAperture* BDSApertureFactory::CreateAperture(BDSApertureType at,
                                                 const G4String& pointsFileString) const
 {
   BDSAperture* result = nullptr;
+  if (nPoints == 0)
+    {nPoints = DefaultNPoints(at);}
   switch (at.underlying())
     {
     case BDSApertureType::circle:
@@ -176,7 +196,7 @@ BDSAperture* BDSApertureFactory::CreateAperture(BDSApertureType at,
     case BDSApertureType::clicpcl:
       {result = new BDSApertureClicPCL(a1, a2, a3, a4, nPoints);     break;}
     case BDSApertureType::rhombus:
-      {result = new BDSApertureRhombus(a1, a2, a4);     break;}
+      {result = new BDSApertureRhombus(a1, a2, a4);                  break;}
     case BDSApertureType::points:
       {
         G4String pointsFile;

@@ -81,6 +81,11 @@ BDSExtent BDSApertureRhombus::Extent() const
   return ExtentOffsetTilt(simpleExtent);
 }
 
+unsigned int BDSApertureRhombus::MinimumNumberOfPoints() const
+{
+  return BDS::IsFinite(cornerRadius) ? 24 : 4;
+}
+
 BDSApertureRhombus BDSApertureRhombus::operator+ (G4double number) const
 {
   BDSApertureRhombus result = BDSApertureRhombus(*this);

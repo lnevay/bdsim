@@ -123,6 +123,9 @@ public:
                                                 G4double           lengthExtraForBoolean = 0);
 
 private:
+  /// Default level of detail for each shape.
+  G4int DefaultNPoints(BDSApertureType apt) const;
+
   /// Calculate the length on one side of a solid that is required for the
   /// Boolean operation for a given angle from the perpendicular.
   G4double RequiredLengthForBoolean(G4double angle, G4double radius) const;

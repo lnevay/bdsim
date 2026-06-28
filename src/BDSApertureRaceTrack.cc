@@ -34,8 +34,8 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 BDSApertureRaceTrack::BDSApertureRaceTrack(G4double xIn,
-					                       G4double yIn,
-					                       G4double radiusIn,
+                                           G4double yIn,
+                                           G4double radiusIn,
                                            unsigned int nPointsIn):
   BDSApertureCurved(BDSApertureType::racetrack, nPointsIn),
   x(xIn),

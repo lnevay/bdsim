@@ -31,7 +31,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 BDSAperturePoints::BDSAperturePoints(const G4String& pointsFileNameIn,
-				     const G4String& unitsStrIn):
+                                     const G4String& unitsStrIn):
   BDSAperture(BDSApertureType::points),
   pointsFileName(pointsFileNameIn),
   unitsStr(unitsStrIn),

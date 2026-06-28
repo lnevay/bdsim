@@ -32,10 +32,10 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <array>
 
 BDSApertureRectEllipse::BDSApertureRectEllipse(G4double rectangleAIn,
-					       G4double rectangleBIn,
-					       G4double ellipseAIn,
-					       G4double ellipseBIn,
-					       unsigned int nPointsIn):
+                                               G4double rectangleBIn,
+                                               G4double ellipseAIn,
+                                               G4double ellipseBIn,
+                                               unsigned int nPointsIn):
   BDSApertureCurved(BDSApertureType::rectellipse, nPointsIn),
   rectangleA(rectangleAIn),
   rectangleB(rectangleBIn),

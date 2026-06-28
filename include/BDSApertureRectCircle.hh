@@ -40,9 +40,9 @@ class BDSApertureRectCircle: public BDSApertureCurved
 public:
   BDSApertureRectCircle() = delete;
   BDSApertureRectCircle(G4double aIn,
-			            G4double bIn,
-			            G4double radiusIn,
-                        unsigned int nPointsIn);
+                        G4double bIn,
+                        G4double radiusIn,
+                        unsigned int nPointsIn = 24);
   virtual ~BDSApertureRectCircle(){;}
 
   G4double a;
@@ -53,7 +53,7 @@ public:
   void      CheckInfoOK()                    const override;
   G4double  RadiusToEncompass()              const override {return radius + tiltOffset.Radius();}
   BDSExtent Extent()                         const override;
-  unsigned int MinimumNumberOfPoints()       const override {return 10;}
+  unsigned int MinimumNumberOfPoints()       const override {return 24;}
 
   BDSApertureRectCircle        operator+ (G4double number) const;
   const BDSApertureRectCircle& operator+=(G4double number);

@@ -38,7 +38,7 @@ namespace BDS
  * 
  * This is a diamond shaped aperture. It optionally has a corner radius
  * for rounded edges. aper1 is the full extent of what would be the unrounded
- * corner in x; aper2 is the full extent of what would be the the unrounded
+ * corner in x; aper2 is the full extent of what would be the unrounded
  * corner in y. aper3 is the radius of curvature for the corners and is optional,
  * with the default value of 0.
  *
@@ -113,7 +113,7 @@ public:
   void      CheckInfoOK()                    const override;
   G4double  RadiusToEncompass()              const override;
   BDSExtent Extent()                         const override;
-  unsigned int MinimumNumberOfPoints()          const override {return 8;}
+  unsigned int MinimumNumberOfPoints()       const override;
 
   BDSApertureRhombus        operator+ (G4double number) const;
   const BDSApertureRhombus& operator+=(G4double number);

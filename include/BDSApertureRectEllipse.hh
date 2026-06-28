@@ -41,10 +41,10 @@ class BDSApertureRectEllipse: public BDSApertureCurved
 public:
   BDSApertureRectEllipse() = delete;
   explicit BDSApertureRectEllipse(G4double rectangleAIn,
-				                  G4double rectangleBIn,
-				                  G4double ellipseAIn,
-				                  G4double ellipseBIn,
-                                  unsigned int nPointsIn);
+                                  G4double rectangleBIn,
+                                  G4double ellipseAIn,
+                                  G4double ellipseBIn,
+                                  unsigned int nPointsIn = 24);
   virtual ~BDSApertureRectEllipse(){;}
 
   G4double rectangleA;
@@ -56,7 +56,7 @@ public:
   void      CheckInfoOK()                    const override;
   G4double  RadiusToEncompass()              const override {return std::max(ellipseA, ellipseB) + tiltOffset.Radius();}
   BDSExtent Extent()                         const override;
-  unsigned int MinimumNumberOfPoints()       const override {return 10;}
+  unsigned int MinimumNumberOfPoints()       const override {return 24;}
 
   BDSApertureRectEllipse        operator+ (G4double number) const;
   const BDSApertureRectEllipse& operator+=(G4double number);

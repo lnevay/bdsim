@@ -32,9 +32,9 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <array>
 
 BDSApertureRectCircle::BDSApertureRectCircle(G4double aIn,
-					                         G4double bIn,
-					                         G4double radiusIn,
-					                         unsigned int nPointsIn):
+                                             G4double bIn,
+                                             G4double radiusIn,
+                                             unsigned int nPointsIn):
   BDSApertureCurved(BDSApertureType::rectcircle, nPointsIn),
   a(aIn),
   b(bIn),
