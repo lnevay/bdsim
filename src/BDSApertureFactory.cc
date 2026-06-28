@@ -280,6 +280,8 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolid(const G4String&    n
   productLength      = length;
   productApertureIn  = apertureIn;
   productApertureOut = apertureOut;
+
+  lengthExtraForBoolean = CalculateExtraLength(lengthExtraForBoolean);
   productLengthExtra = lengthExtraForBoolean;
 
   if (variedAperture)
@@ -313,6 +315,24 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolid(const G4String&    n
   return product;
 }
 
+G4double BDSApertureFactory::CalculateExtraLength(G4double lengthExtraForBoolean)
+{
+  if (!BDS::IsFinite(lengthExtraForBoolean))
+    {
+      G4ThreeVector copy(productNormalIn);
+      copy.setZ(std::abs(copy.z())); // as otherwise '0' will be pi
+      G4double a1 = copy.theta();
+      G4double a2 = productNormalOut.theta();
+      G4double angle = std::max(std::abs(a1), std::abs(a2));
+      G4double r1 = productApertureIn->RadiusToEncompass();
+      G4double r2 = productApertureOut->RadiusToEncompass();
+      G4double radius = std::max(std::abs(r1), std::abs(r2));
+      lengthExtraForBoolean = RequiredLengthForBoolean(angle, radius);
+      lengthExtraForBoolean = std::max(lengthExtraForBoolean, 0.1*productLength);
+    }
+  return lengthExtraForBoolean;
+}
+
 BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4String&      name,
                                                                      G4double             length,
                                                                      const BDSAperture*   apertureInInside,
@@ -335,19 +355,7 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4Str
   productApertureIn  = apertureInInside;
   productApertureOut = variedAperture ? apertureOutInside : apertureInInside;
 
-  if (!BDS::IsFinite(lengthExtraForBoolean))
-    {
-      G4ThreeVector copy(productNormalIn);
-      copy.setZ(std::abs(copy.z())); // as otherwise '0' will be pi
-      G4double a1 = copy.theta();
-      G4double a2 = productNormalOut.theta();
-      G4double angle = std::max(std::abs(a1), std::abs(a2));
-      G4double r1 = productApertureIn->RadiusToEncompass();
-      G4double r2 = productApertureOut->RadiusToEncompass();
-      G4double radius = std::max(std::abs(r1), std::abs(r2));
-      lengthExtraForBoolean = RequiredLengthForBoolean(angle, radius);
-      lengthExtraForBoolean = std::max(lengthExtraForBoolean, 0.1*productLength);
-    }
+  lengthExtraForBoolean = CalculateExtraLength(lengthExtraForBoolean);
   productLengthExtra = lengthExtraForBoolean;
   
   // check specialisations

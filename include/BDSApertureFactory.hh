@@ -123,6 +123,8 @@ public:
                                                 G4double           lengthExtraForBoolean = 0);
 
 private:
+  G4double CalculateExtraLength(G4double lengthExtraForBoolean);
+
   /// Default level of detail for each shape.
   G4int DefaultNPoints(BDSApertureType apt) const;
 
