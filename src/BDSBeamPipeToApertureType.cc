@@ -25,14 +25,17 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 static const std::map<BDSBeamPipeType, BDSApertureType> beamPipeToApertureTypes =
   {
     {BDSBeamPipeType::circular, BDSApertureType::circle},
-    {BDSBeamPipeType::circularvacuum, BDSApertureType::circle},
     {BDSBeamPipeType::rectangular, BDSApertureType::rectangle},
     {BDSBeamPipeType::elliptical, BDSApertureType::ellipse},
     {BDSBeamPipeType::lhc, BDSApertureType::rectcircle},
     {BDSBeamPipeType::lhcdetailed, BDSApertureType::rectcircle},
+    {BDSBeamPipeType::rectellipse, BDSApertureType::rectellipse},
     {BDSBeamPipeType::racetrack, BDSApertureType::racetrack},
     {BDSBeamPipeType::octagonal, BDSApertureType::octagon},
-    {BDSBeamPipeType::clicpcl, BDSApertureType::clicpcl}
+    {BDSBeamPipeType::circularvacuum, BDSApertureType::circle},
+    {BDSBeamPipeType::clicpcl, BDSApertureType::clicpcl},
+    {BDSBeamPipeType::pointsfile, BDSApertureType::points},
+    {BDSBeamPipeType::rhombus, BDSApertureType::rhombus},
   };
 
 static const std::map<BDSApertureType, BDSBeamPipeType> apertureTypeToBeamPipe =
