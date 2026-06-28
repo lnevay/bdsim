@@ -41,7 +41,7 @@ typedef BDSTypeSafeEnum<aperturetypes_def,int> BDSApertureType;
 namespace BDS
 {
   /// function that gives corresponding enum value for string (case-insensitive)
-  BDSApertureType DetermineApertureType(G4String apertureType);
+  BDSApertureType DetermineApertureType(G4String apertureType, G4bool tolerateBeamPipeType=true);
 }
 
 #endif

@@ -43,7 +43,8 @@ std::map<BDSApertureType, std::string>* BDSApertureType::dictionary =
    {BDSApertureType::points,      "points"}
 });	
 
-BDSApertureType BDS::DetermineApertureType(G4String apertureType)
+BDSApertureType BDS::DetermineApertureType(G4String apertureType,
+                                           G4bool tolerateBeamPipeType)
 {
   std::map<G4String, BDSApertureType> types;
   types["circle"]       = BDSApertureType::circle;
@@ -59,6 +60,22 @@ BDSApertureType BDS::DetermineApertureType(G4String apertureType)
 
   // alternatives
   types["lhc"]          = BDSApertureType::rectcircle;
+
+  if (tolerateBeamPipeType)
+    {
+      types["circular"]       = BDSApertureType::circle;
+      types["elliptical"]     = BDSApertureType::ellipse;
+      types["rectangular"]    = BDSApertureType::rectangle;
+      types["lhc"]            = BDSApertureType::rectcircle;
+      types["lhcscreen"]      = BDSApertureType::rectcircle; // shortcut for madx compatability
+      types["lhcdetailed"]    = BDSApertureType::rectcircle;
+      types["rectellipse"]    = BDSApertureType::rectellipse;
+      types["racetrack"]      = BDSApertureType::racetrack;
+      types["octagonal"]      = BDSApertureType::octagon;
+      types["circularvacuum"] = BDSApertureType::circle;
+      types["clicpcl"]        = BDSApertureType::clicpcl;
+      types["rhombus"]        = BDSApertureType::rhombus;
+    }
   
   apertureType = BDS::LowerCase(apertureType);
 
@@ -71,7 +88,7 @@ BDSApertureType BDS::DetermineApertureType(G4String apertureType)
       G4String msg = "\"" + apertureType + "\" is not a valid apertureType\n";
       msg += "Available geometry types are:\n";
       for (const auto& it : types)
-	{msg += "\"" + it.first + "\"\n";}
+        {msg += "\"" + it.first + "\"\n";}
       throw BDSException(__METHOD_NAME__, msg);
     }
   
