@@ -82,9 +82,9 @@ G4bool BDSPolygon::Inside(const G4TwoVector& point) const
   G4int n = (G4int)size();
   for (G4int i = 0; i < n; i++)
     {
-      G4TwoVector test = points[i] - point;
-      G4TwoVector norm = (points[(i+1) % n] - points[i]).orthogonal();
-      result &= test.dot(norm) > 0;
+      G4TwoVector dir  = points[(i+1) % n] - points[i];
+      G4TwoVector norm(-dir.y(), dir.x()); // 90° CCW rotation: inward normal for CCW polygon
+      result &= (point - points[i]).dot(norm) > 0;
     }
   return result;
 }
@@ -118,7 +118,7 @@ G4bool BDSPolygon::SelfIntersecting(G4int* const indexOfIntersectionA,
   G4bool result = false;
   for (G4int i = 0; i < (G4int)size() - 1; i++)
     {
-      for (G4int j = i + 1; j < (G4int)size() - 1; j++)
+      for (G4int j = i + 2; j < (G4int)size() - 1; j++)
 	{
 	  result |= SegmentsIntersect(points[i], points[i+1], points[j], points[j+1]);
 	  if (result)
@@ -252,6 +252,9 @@ G4int BDSPolygon::SegmentsIntersect(const G4TwoVector& p1,
     {
       // lines are not parallel
       G4double s = (E.x() * D1.y() - E.y() * D1.x()) / kross;
+      G4double t = (E.x() * D0.y() - E.y() * D0.x()) / kross;
+      if (s < 0 || s > 1 || t < 0 || t > 1)
+        {return 0;}
       if (intersectionPoint)
 	{*intersectionPoint = p1 + s * D0;}
       return 1;
