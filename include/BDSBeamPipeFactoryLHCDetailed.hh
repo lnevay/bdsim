@@ -54,18 +54,21 @@ private:
   /// only the solids are unique, once we have those, the logical volumes and placement in the
   /// container are the same.  group all this functionality together
   BDSBeamPipe* CommonFinalConstruction(const G4String&    name,
-				       G4Material* vacuumMaterial,
-				       G4Material* beamPipeMaterial,
-				       G4double    length,
-				       G4double    containerRadius);
+                                       G4Material* vacuumMaterial,
+                                       G4Material* beamPipeMaterial,
+                                       G4double    length,
+                                       G4double    containerRadius);
+
+  /// The angled ones have degeneracy in the geant4 solids they used so we can avoid code duplication
+  /// by grouping common construction tasks.
   G4double CreateGeneralAngledSolids(const G4String&      name,
-				     G4double             length,
-				     const G4ThreeVector& inputface,
-				     const G4ThreeVector& outputface);
+                                     G4double             length,
+                                     const G4ThreeVector& inputface,
+                                     const G4ThreeVector& outputface);
 
   void  BuildLogicalVolumes(const G4String&    nameIn,
-					    G4Material* vacuumMaterialIn,
-					    G4Material* beamPipeMaterialIn) override;
+                            G4Material* vacuumMaterialIn,
+                            G4Material* beamPipeMaterialIn) override;
   void  SetVisAttributes(G4Material* beamPipeMaterialIn,
                          G4Material* bacuumMaterialIn) override;
   void  SetUserLimits(G4double length) override;
@@ -77,10 +80,10 @@ private:
   /// Calculate the various radii and geometrical parameters for this design
   /// based on the input aperture parameters
   void CalculateGeometricalParameters(G4double aper1,
-				      G4double aper2,
-				      G4double aper3,
-				      G4double beamPipeThickness,
-				      G4double length);
+                                      G4double aper2,
+                                      G4double aper3,
+                                      G4double beamPipeThickness,
+                                      G4double length);
 
   G4VSolid*        copperSkinSolid;
   G4VSolid*        screenSolid;

@@ -103,10 +103,10 @@ G4double BDSBeamPipeFactoryLHCDetailed::GetFullWidthOfCoolingPipe()
 }
 
 void BDSBeamPipeFactoryLHCDetailed::CalculateGeometricalParameters(G4double aper1,
-								   G4double aper2,
-								   G4double aper3,
-								   G4double beamPipeThickness,
-								   G4double length)
+                                                                   G4double aper2,
+                                                                   G4double aper3,
+                                                                   G4double beamPipeThickness,
+                                                                   G4double length)
 {
   // vacuum volume
   vacRadius     = aper3;
@@ -372,10 +372,10 @@ BDSBeamPipe* BDSBeamPipeFactoryLHCDetailed::CreateBeamPipe(const G4String&      
  */
 
 BDSBeamPipe* BDSBeamPipeFactoryLHCDetailed::CommonFinalConstruction(const G4String& name,
-								    G4Material* vacuumMaterial,
-								    G4Material* beamPipeMaterial,
-								    G4double    length,
-								    G4double    contRadius)
+                                                                    G4Material* vacuumMaterial,
+                                                                    G4Material* beamPipeMaterial,
+                                                                    G4double    length,
+                                                                    G4double    contRadius)
 {
   BDSBeamPipeFactoryBase::CommonConstruction(name, vacuumMaterial,
 					     beamPipeMaterial, length);
@@ -392,7 +392,7 @@ BDSBeamPipe* BDSBeamPipeFactoryLHCDetailed::CommonFinalConstruction(const G4Stri
       aPipe->RegisterSensitiveVolume(screenLV, BDSSDType::energydep);
       aPipe->RegisterSensitiveVolume(copperSkinLV, BDSSDType::energydep);
       if (buildCoolingPipe)
-	{aPipe->RegisterSensitiveVolume(coolingPipeLV, BDSSDType::energydep);}
+        {aPipe->RegisterSensitiveVolume(coolingPipeLV, BDSSDType::energydep);}
     }
   
   return aPipe;
@@ -432,7 +432,7 @@ void BDSBeamPipeFactoryLHCDetailed::SetVisAttributes(G4Material* beamPipeMateria
   BDSBeamPipeFactoryBase::SetVisAttributes(beamPipeMaterialIn, vacuumMateiralIn);
 
   // copper skin
-  G4VisAttributes* cuVisAttr   = new G4VisAttributes(*BDSColours::Instance()->GetColour("LHCcopperskin"));
+  G4VisAttributes* cuVisAttr = new G4VisAttributes(*BDSColours::Instance()->GetColour("LHCcopperskin"));
   cuVisAttr->SetForceLineSegmentsPerCircle(nSegmentsPerCircle);
   cuVisAttr->SetVisibility(true);
   allVisAttributes.insert(cuVisAttr);
@@ -524,13 +524,11 @@ void BDSBeamPipeFactoryLHCDetailed::PlaceComponents(const G4String& name)
       allPhysicalVolumes.insert(coolingPipeBottomPV);
     }
 }
-  
-/// the angled ones have degeneracy in the geant4 solids they used so we can avoid code duplication
-/// by grouping common construction tasks
+
 G4double BDSBeamPipeFactoryLHCDetailed::CreateGeneralAngledSolids(const G4String&      name,
-								  G4double             length,
-								  const G4ThreeVector& inputface,
-								  const G4ThreeVector& outputface)
+                                                                  G4double             length,
+                                                                  const G4ThreeVector& inputface,
+                                                                  const G4ThreeVector& outputface)
 { 
   // build the solids
   //vacuum cylindrical solid (circular cross-section)

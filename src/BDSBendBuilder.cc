@@ -142,8 +142,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(BDSComponentFactory*    factory,
     }// end of checks
   
   // Calculate number of sbends to split parent into
-  G4int nSBends = BDS::CalculateNSBendSegments(arcLength, angle, incomingFaceAngle,
-                                               outgoingFaceAngle);
+  G4int nSBends = BDS::CalculateNSBendSegments(arcLength, angle, incomingFaceAngle, outgoingFaceAngle);
   
   G4bool zeroStrength = BDS::ZeroStrengthDipole(st);
   if (zeroStrength)

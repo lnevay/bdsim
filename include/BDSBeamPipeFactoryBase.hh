@@ -78,14 +78,14 @@ protected:
   
   /// finalise beampipe construction
   void CommonConstruction(const G4String&    nameIn,
-			  G4Material* vacuumMaterialIn,
-			  G4Material* beamPipeMaterialIn,
-			  G4double    length);
+                          G4Material* vacuumMaterialIn,
+                          G4Material* beamPipeMaterialIn,
+                          G4double    length);
 
   /// build beampipe and register logical volumes
   BDSBeamPipe* BuildBeamPipeAndRegisterVolumes(const BDSExtent& extent,
-					       G4double  containerRadius,
-					       G4bool    containerIsCircular = false);
+                                               G4double  containerRadius,
+                                               G4bool    containerIsCircular = false);
 
   /// check if a beam pipe volume with angled faces can be constructed
   static void CheckAngledVolumeCanBeBuilt(G4double length,
@@ -98,8 +98,8 @@ protected:
   
   /// build logical volumes
   virtual void BuildLogicalVolumes(const G4String&    nameIn,
-				   G4Material* vacuumMaterialIn,
-				   G4Material* beamPipeMaterialIn);
+                                   G4Material* vacuumMaterialIn,
+                                   G4Material* beamPipeMaterialIn);
   /// Set visual attributes.
   virtual void SetVisAttributes(G4Material* beamPipeMaterialIn,
                                 G4Material* vacuumMaterialIn);

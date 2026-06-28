@@ -33,8 +33,8 @@ BDSBeamPipeFactoryGeneral::BDSBeamPipeFactoryGeneral()
 {;}
 
 BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
-						       G4double length,
-						       const BDSBeamPipeInfo2* bpi)
+                                                       G4double length,
+                                                       const BDSBeamPipeInfo2* bpi)
 {
   CleanUp();
   
