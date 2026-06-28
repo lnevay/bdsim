@@ -681,14 +681,14 @@ BDSApertureFactory::Product BDSApertureFactory::HollowCircleToCircle(G4double th
   if (!angledFaces)
     {
       G4VSolid* product = new G4Tubs(productName, ap->radius, ap->radius + thickness,
-                                     0.5 * productLength + productLengthExtra,
+                                     0.5 * productLength,
                                      0, CLHEP::twopi);
       return {product, {}};
     }
   else
     {
       G4VSolid* product = new G4CutTubs(productName,ap->radius, ap->radius + thickness,
-                                        0.5 * productLength + productLengthExtra,
+                                        0.5 * productLength,
                                         0, CLHEP::twopi,
                                         productNormalIn,
                                         productNormalOut);

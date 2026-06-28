@@ -146,15 +146,18 @@ void BDSBeamPipeFactoryBase::SetUserLimits(G4double length)
     {allUserLimits.insert(ul);}
   vacuumLV->SetUserLimits(ul);
   containerLV->SetUserLimits(ul);
-  
-  G4UserLimits* beamPipeUL = ul;
-  if (BDSGlobalConstants::Instance()->BeamPipeIsInfiniteAbsorber())
-    {// new beam pipe user limits, copy from updated default user limits above
-      beamPipeUL = new G4UserLimits(*ul);
-      beamPipeUL->SetUserMinEkine(std::numeric_limits<double>::max());
-      allUserLimits.insert(beamPipeUL);
+
+  if (beamPipeLV)
+    {
+      G4UserLimits* beamPipeUL = ul;
+      if (BDSGlobalConstants::Instance()->BeamPipeIsInfiniteAbsorber())
+        {// new beam pipe user limits, copy from updated default user limits above
+          beamPipeUL = new G4UserLimits(*ul);
+          beamPipeUL->SetUserMinEkine(std::numeric_limits<double>::max());
+          allUserLimits.insert(beamPipeUL);
+        }
+      beamPipeLV->SetUserLimits(beamPipeUL);
     }
-  beamPipeLV->SetUserLimits(beamPipeUL);
 }
 
 void BDSBeamPipeFactoryBase::PlaceComponents(const G4String& nameIn)
