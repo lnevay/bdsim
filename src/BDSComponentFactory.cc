@@ -1390,18 +1390,19 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateSolenoid()
 
   auto modulator = ModulatorDefinition(element, true);
 
+  BDSBeamPipeInfo2* bpInfo = PrepareBeamPipeInfo2(element);
+  G4double bpRadius = bpInfo->aperture->RadiusToEncompass();
   if (buildIncomingFringe)
     {
       auto stIn        = strength(s);
       auto solenoidIn  = CreateThinRMatrix(0, stIn, elementName + "_fringe_in",
-                                           BDSIntegratorType::rmatrixthin, BDSFieldType::rmatrix, 0, modulator);
+                                           BDSIntegratorType::rmatrixthin, BDSFieldType::rmatrix, bpRadius, modulator);
       bLine->AddComponent(solenoidIn);
     }
 
   // Do not use CreateMagnet method as solenoid body length needs to be reduced to conserve total
   // element length. The solenoid strength is scaled accordingly.
 
-  BDSBeamPipeInfo2* bpInfo = PrepareBeamPipeInfo2(element);
   BDSIntegratorType intType = integratorSet->Integrator(BDSFieldType::solenoid);
   G4Transform3D fieldTrans  = CreateFieldTransform(element);
   BDSFieldInfo* vacuumField = new BDSFieldInfo(BDSFieldType::solenoid,
@@ -1421,15 +1422,8 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateSolenoid()
   G4bool externalOuterField = !(element->fieldOuter.empty());
   if (yokeFields && !externalOuterField)
     {
-      outerField = PrepareMagnetOuterFieldInfo(st,
-					       BDSFieldType::solenoid,
-					       bpInfo,
-					       outerInfo,
-					       fieldTrans,
-					       integratorSet,
-                                               BRho(),
-                                               ScalingFieldOuter(element),
-                                               modulator);
+      outerField = PrepareMagnetOuterFieldInfo(st, BDSFieldType::solenoid, bpInfo, outerInfo, fieldTrans,
+                                               integratorSet, BRho(), ScalingFieldOuter(element), modulator);
 
       // determine a suitable radius for the current carrying coil of the solenoid
       // this defines the field geometry
@@ -1440,14 +1434,8 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateSolenoid()
       outerField->SetScalingRadius(coilRadius);
     }
 
-  auto solenoid = new BDSMagnet(BDSMagnetType::solenoid,
-                         elementName,
-                         solenoidBodyLength,
-                         bpInfo,
-                         outerInfo,
-                         vacuumField,
-                         0,
-                         outerField);
+  auto solenoid = new BDSMagnet(BDSMagnetType::solenoid, elementName, solenoidBodyLength, bpInfo,
+                                outerInfo, vacuumField, 0, outerField);
 
   bLine->AddComponent(solenoid);
 
@@ -1455,7 +1443,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateSolenoid()
     {
       auto stOut = strength(-s);
       auto solenoidOut = CreateThinRMatrix(0, stOut, elementName + "_fringe_out",
-                                           BDSIntegratorType::rmatrixthin, BDSFieldType::rmatrix, 0, modulator);
+                                           BDSIntegratorType::rmatrixthin, BDSFieldType::rmatrix, bpRadius, modulator);
       bLine->AddComponent(solenoidOut);
     }
   
