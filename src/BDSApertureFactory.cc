@@ -594,6 +594,9 @@ G4VSolid* BDSApertureFactory::CreateClicPCL() const
 
 G4VSolid* BDSApertureFactory::CreateDifferentEnds() const
 {
+  if (productApertureIn->TiltOrOffset() || productApertureOut->TiltOrOffset())
+    {return CreateTubeByPoints();}
+
   // check specialisations
   auto key    = MakePair(productApertureIn->apertureType, productApertureOut->apertureType);
   auto search = specialisations.find(key);
