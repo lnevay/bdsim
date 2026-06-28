@@ -51,6 +51,7 @@ public:
   inline void SetTiltOffset(const BDSTiltOffset& tiltOffsetIn) {tiltOffset = tiltOffsetIn;}
   G4bool FiniteTilt() const {return tiltOffset.HasFiniteTilt();}
   G4bool TiltOrOffset() const {return tiltOffset.HasFiniteTilt() || tiltOffset.HasFiniteOffset();}
+  G4bool Circular() const {return apertureType == BDSApertureType::circle;}
   
   BDSApertureType apertureType;
   BDSTiltOffset   tiltOffset;
