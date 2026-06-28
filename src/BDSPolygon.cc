@@ -289,26 +289,157 @@ std::list<BDSPolygon::LabelledPoint> BDSPolygon::GenerateLabelled(const BDSPolyg
 
 BDSPolygon BDSPolygon::Union(const BDSPolygon& other) const
 {
-  // loop over points in other and mark as inside or outside this polygon
   G4int nOtherInThis = 0;
-  std::list<BDSPolygon::LabelledPoint> otherLabelled = GenerateLabelled(*this, other, &nOtherInThis);
+  GenerateLabelled(*this, other, &nOtherInThis);
   G4int nThisInOther = 0;
-  std::list<BDSPolygon::LabelledPoint> thisLabelled = GenerateLabelled(other, *this, &nThisInOther);
+  GenerateLabelled(other, *this, &nThisInOther);
 
-  // if all outside search for intersections between all segments
-  if (nOtherInThis == 0)
+  // Trivial containment: one polygon entirely inside the other.
+  if (nOtherInThis == (G4int)other.size())
+    {return BDSPolygon(*this);}
+  if (nThisInOther == (G4int)size())
+    {return BDSPolygon(other);}
+
+  G4int nA = (G4int)size();
+  G4int nB = (G4int)other.size();
+
+  // Find all pairwise edge-edge intersections and their parameters along each edge.
+  struct ISect
+  {
+    G4TwoVector pt;
+    G4int iA, iB;
+    G4double sA, sB;
+  };
+  std::vector<ISect> allISects;
+
+  for (G4int i = 0; i < nA; i++)
     {
-      // check if any segments intersect
-
-      // if no intersections and all outside, then throw exception -> no disjoint unions
+      G4TwoVector D0 = points[(i+1)%nA] - points[i];
+      for (G4int j = 0; j < nB; j++)
+        {
+          G4TwoVector D1 = other.points[(j+1)%nB] - other.points[j];
+          G4TwoVector E  = other.points[j] - points[i];
+          G4double kross = D0.x()*D1.y() - D0.y()*D1.x();
+          if (std::abs(kross) < std::numeric_limits<G4double>::epsilon() * D0.mag() * D1.mag())
+            {continue;} // parallel
+          G4double s = (E.x()*D1.y() - E.y()*D1.x()) / kross;
+          G4double t = (E.x()*D0.y() - E.y()*D0.x()) / kross;
+          if (s <= 0 || s >= 1 || t <= 0 || t >= 1)
+            {continue;} // outside segment extent
+          allISects.push_back({points[i] + s*D0, i, j, s, t});
+        }
     }
-  else
+
+  if (allISects.empty())
+    {throw BDSException(__METHOD_NAME__, "cannot compute union of disjoint polygons");}
+
+  // Bucket intersections by which edge they lie on, sorted by parameter.
+  std::vector<std::vector<G4int>> byEdgeA(nA), byEdgeB(nB);
+  for (G4int k = 0; k < (G4int)allISects.size(); k++)
     {
-      // generate intersection points between this and other polygon
-
+      byEdgeA[allISects[k].iA].push_back(k);
+      byEdgeB[allISects[k].iB].push_back(k);
     }
-  
-  return BDSPolygon(*this);
+  for (G4int i = 0; i < nA; i++)
+    {std::sort(byEdgeA[i].begin(), byEdgeA[i].end(), [&](G4int a, G4int b){return allISects[a].sA < allISects[b].sA;});}
+  for (G4int j = 0; j < nB; j++)
+    {std::sort(byEdgeB[j].begin(), byEdgeB[j].end(), [&](G4int a, G4int b){return allISects[a].sB < allISects[b].sB;});}
+
+  // Build augmented point lists: original vertices with intersection points inserted
+  // in edge order.  Intersection entries carry a cross-link to their counterpart in
+  // the other polygon's list.
+  enum class PtType {vertex, intersection};
+  struct AugPt
+  {
+    G4TwoVector pt;
+    PtType      type;
+    G4int       crossIdx; // index in the other polygon's aug list (-1 if vertex)
+    bool        visited;
+  };
+
+  std::vector<AugPt> augA, augB;
+  std::vector<G4int> idxInAugA(allISects.size()), idxInAugB(allISects.size());
+
+  for (G4int i = 0; i < nA; i++)
+    {
+      augA.push_back({points[i], PtType::vertex, -1, false});
+      for (G4int k : byEdgeA[i])
+        {
+          idxInAugA[k] = (G4int)augA.size();
+          augA.push_back({allISects[k].pt, PtType::intersection, -1, false});
+        }
+    }
+  for (G4int j = 0; j < nB; j++)
+    {
+      augB.push_back({other.points[j], PtType::vertex, -1, false});
+      for (G4int k : byEdgeB[j])
+        {
+          idxInAugB[k] = (G4int)augB.size();
+          augB.push_back({allISects[k].pt, PtType::intersection, -1, false});
+        }
+    }
+  for (G4int k = 0; k < (G4int)allISects.size(); k++)
+    {
+      augA[idxInAugA[k]].crossIdx = idxInAugB[k];
+      augB[idxInAugB[k]].crossIdx = idxInAugA[k];
+    }
+
+  // Find a vertex on A that lies outside B as the traversal start.
+  G4int startA = -1;
+  for (G4int i = 0; i < (G4int)augA.size(); i++)
+    {
+      if (augA[i].type == PtType::vertex && !other.Inside(augA[i].pt))
+        {startA = i; break;}
+    }
+  if (startA < 0)
+    {throw BDSException(__METHOD_NAME__, "no vertex of polygon A is outside polygon B");}
+
+  // Greiner-Hormann union traversal:
+  //   Walk A forward, collecting points.
+  //   At an intersection entering B, switch to B and walk it forward.
+  //   At an intersection re-entering A, switch back.
+  //   The visited flag on the start point terminates the loop.
+  std::vector<G4TwoVector> result;
+  G4int curA = startA, curB = 0;
+  bool onA = true;
+  G4int maxSteps = 2 * ((G4int)augA.size() + (G4int)augB.size());
+
+  for (G4int step = 0; step < maxSteps; step++)
+    {
+      if (onA)
+        {
+          AugPt& ap = augA[curA];
+          if (ap.visited) {break;}
+          result.push_back(ap.pt);
+          ap.visited = true;
+          if (ap.type == PtType::intersection)
+            {
+              curB = (ap.crossIdx + 1) % (G4int)augB.size();
+              onA  = false;
+            }
+          else
+            {curA = (curA + 1) % (G4int)augA.size();}
+        }
+      else
+        {
+          AugPt& bp = augB[curB];
+          if (bp.visited) {break;}
+          result.push_back(bp.pt);
+          bp.visited = true;
+          if (bp.type == PtType::intersection)
+            {
+              curA = (bp.crossIdx + 1) % (G4int)augA.size();
+              onA  = true;
+            }
+          else
+            {curB = (curB + 1) % (G4int)augB.size();}
+        }
+    }
+
+  if ((G4int)result.size() < 3)
+    {throw BDSException(__METHOD_NAME__, "union traversal produced a degenerate polygon");}
+
+  return BDSPolygon(result);
 }
 
 std::vector<BDSPolygon*> BDSPolygon::Subtraction(const BDSPolygon& other) const
