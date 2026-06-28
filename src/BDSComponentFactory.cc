@@ -2089,16 +2089,13 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateRMatrix()
   GMAD::Element* elementNew = new GMAD::Element(*element);
   elementNew->l = (element->l-thinElementLength)/2.0;
 
-  BDSAcceleratorComponent* parallelTransport1 = CreateMagnet(elementNew,
-							     st,
-							     BDSFieldType::paralleltransporter,
-							     BDSMagnetType::paralleltransporter);
-  BDSAcceleratorComponent* rmatrix = CreateThinRMatrix(0,
-						       elementName + "_centre");
-  BDSAcceleratorComponent* parallelTransport2 = CreateMagnet(elementNew,
-							     st,
-							     BDSFieldType::paralleltransporter,
-							     BDSMagnetType::paralleltransporter);
+  BDSAcceleratorComponent* parallelTransport1 = CreateMagnet(elementNew, st,
+                                                             BDSFieldType::paralleltransporter,
+                                                             BDSMagnetType::paralleltransporter);
+  BDSAcceleratorComponent* rmatrix = CreateThinRMatrix(0, elementName + "_centre");
+  BDSAcceleratorComponent* parallelTransport2 = CreateMagnet(elementNew, st,
+                                                             BDSFieldType::paralleltransporter,
+                                                             BDSMagnetType::paralleltransporter);
 
   const G4String baseName = elementName;
   BDSLine* bLine = new BDSLine(baseName);
@@ -2112,7 +2109,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateRMatrix()
 }
 
 BDSAcceleratorComponent* BDSComponentFactory::CreateThinRMatrix(G4double        angleIn,
-								const G4String& name)
+                                                                const G4String& name)
 {
   BDSMagnetStrength* st = PrepareMagnetStrengthForRMatrix(element);
   auto modulator = ModulatorDefinition(element, true);
