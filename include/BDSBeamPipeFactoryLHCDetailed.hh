@@ -22,7 +22,15 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSBeamPipeFactoryBase.hh"
 #include "BDSBeamPipe.hh"
 
+#include "G4String.hh"
+#include "G4ThreeVector.hh"
+#include "G4Types.hh"
+
+class BDSBeamPipeInfo2;
 class G4Material;
+class G4LogicalVolume;
+class G4PVPlacement;
+class G4VSolid;
 
 /**
  * @brief Factory for detailed lhc aperture model beam pipes.
@@ -38,7 +46,7 @@ public:
   
   BDSBeamPipe* CreateBeamPipe(const G4String&   name,
                               G4double          length,
-                              const BDSBeamPipeInfo2* bpi) override {return nullptr;}
+                              const BDSBeamPipeInfo2* bpi) override;
 
   /// Access cooling pipe information from factory for parameter tests
   G4double GetFullWidthOfCoolingPipe();
@@ -50,6 +58,15 @@ private:
   /// Do the actual clean up of members here in a non-virtual function so it can be
   /// used in the constructor.
   void CleanUpLHCDetailed();
+
+  G4bool AngledFaces(const G4ThreeVector& v1,
+                     const G4ThreeVector& v2);
+
+  BDSBeamPipe* CreateBeamPipeAngled(const G4String&   name,
+                                    G4double          length,
+                                    const BDSBeamPipeInfo2* bpi,
+                                    const G4ThreeVector& inputFaceNormalIn,
+                                    const G4ThreeVector& outputFaceNormalIn);
   
   /// only the solids are unique, once we have those, the logical volumes and placement in the
   /// container are the same.  group all this functionality together
