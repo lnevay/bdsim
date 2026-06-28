@@ -78,7 +78,8 @@ BDSApertureFactory::BDSApertureFactory():
   
   hollowSpecialisations = {
     {MakePair(BDSApertureType::circle, BDSApertureType::circle), &BDSApertureFactory::HollowCircleToCircle},
-    {MakePair(BDSApertureType::rectangle, BDSApertureType::rectangle), &BDSApertureFactory::HollowRectangleToRectangle}
+    {MakePair(BDSApertureType::rectangle, BDSApertureType::rectangle), &BDSApertureFactory::HollowRectangleToRectangle},
+    {MakePair(BDSApertureType::ellipse, BDSApertureType::ellipse), &BDSApertureFactory::HollowEllipseToEllipse},
   };
 
   // TBC other specialisations possible given combination of available solids in Geant4
@@ -727,6 +728,32 @@ BDSApertureFactory::Product BDSApertureFactory::HollowRectangleToRectangle(G4dou
       G4VSolid* cut = CutSolid(productName + "_angled", productLength, maxRadius);
       G4VSolid* product = new G4IntersectionSolid(productName+"_so", part1, cut);
       return {product, {inner, outer, part1, cut}};
+    }
+}
+
+BDSApertureFactory::Product BDSApertureFactory::HollowEllipseToEllipse(G4double thickness) const
+{
+  const auto* ap = dynamic_cast<const BDSApertureEllipse*>(productApertureIn);
+  if (!ap)
+    {return {nullptr, {}};}
+  if (!angledFaces)
+    {
+      G4VSolid* inner = new G4EllipticalTube(productName+"_inner_so", ap->a, ap->b, 0.5 * productLength + productLengthExtra);
+      G4VSolid* outer = new G4EllipticalTube(productName+"_outer_so", ap->a+thickness, ap->b+thickness, 0.5 * productLength);
+      G4VSolid* product = new G4SubtractionSolid(productName+"_so", outer, inner);
+      return {product, {inner, outer}};
+    }
+  else
+    {
+      G4double maxRadius = ap->RadiusToEncompass();
+      G4VSolid* cut = CutSolid(productName+"_angled", productLength, maxRadius);
+      G4VSolid* inner = new G4EllipticalTube(productName+"_inner_so", ap->a, ap->b,
+                                             0.5*productLength + 1.5*productLengthExtra);
+      G4VSolid* outer = new G4EllipticalTube(productName+"_outer_so", ap->a+thickness, ap->b+thickness,
+                                             0.5*productLength + productLengthExtra);
+      G4VSolid* straight = new G4SubtractionSolid(productName+"_straight_so", outer, inner);
+      G4VSolid* product = new G4IntersectionSolid(productName+"_so", straight, cut);
+      return {product, {cut, inner, outer, straight}};
     }
 }
 
