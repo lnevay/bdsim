@@ -157,6 +157,12 @@ protected:
 						   G4int* nInside = nullptr);
   
 private:
+  /// Shared traversal kernel for Union and Intersection. Builds the augmented
+  /// point lists, then walks the boundary switching polygons at every intersection.
+  /// Starting outside other (startInsideOther==false) yields the union boundary;
+  /// starting inside other (true) yields the intersection boundary.
+  BDSPolygon BooleanTraversal(const BDSPolygon& other, bool startInsideOther, bool reverseOther = false) const;
+
   /// Calculate the normal at each vertex (point) in the polygon. Populates the
   /// member vector vertexNormals. If it already exists, it will be deleted and
   /// calculated afresh.

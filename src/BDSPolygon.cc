@@ -293,13 +293,13 @@ BDSPolygon BDSPolygon::Union(const BDSPolygon& other) const
   GenerateLabelled(*this, other, &nOtherInThis);
   G4int nThisInOther = 0;
   GenerateLabelled(other, *this, &nThisInOther);
+  if (nOtherInThis == (G4int)other.size()) {return BDSPolygon(*this);}
+  if (nThisInOther == (G4int)size())       {return BDSPolygon(other);}
+  return BooleanTraversal(other, false);
+}
 
-  // Trivial containment: one polygon entirely inside the other.
-  if (nOtherInThis == (G4int)other.size())
-    {return BDSPolygon(*this);}
-  if (nThisInOther == (G4int)size())
-    {return BDSPolygon(other);}
-
+BDSPolygon BDSPolygon::BooleanTraversal(const BDSPolygon& other, bool startInsideOther, bool reverseOther) const
+{
   G4int nA = (G4int)size();
   G4int nB = (G4int)other.size();
 
@@ -321,19 +321,19 @@ BDSPolygon BDSPolygon::Union(const BDSPolygon& other) const
           G4TwoVector E  = other.points[j] - points[i];
           G4double kross = D0.x()*D1.y() - D0.y()*D1.x();
           if (std::abs(kross) < std::numeric_limits<G4double>::epsilon() * D0.mag() * D1.mag())
-            {continue;} // parallel
+            {continue;}
           G4double s = (E.x()*D1.y() - E.y()*D1.x()) / kross;
           G4double t = (E.x()*D0.y() - E.y()*D0.x()) / kross;
           if (s <= 0 || s >= 1 || t <= 0 || t >= 1)
-            {continue;} // outside segment extent
+            {continue;}
           allISects.push_back({points[i] + s*D0, i, j, s, t});
         }
     }
 
   if (allISects.empty())
-    {throw BDSException(__METHOD_NAME__, "cannot compute union of disjoint polygons");}
+    {throw BDSException(__METHOD_NAME__, "polygons do not overlap");}
 
-  // Bucket intersections by which edge they lie on, sorted by parameter.
+  // Bucket intersections by edge, sorted by parameter along that edge.
   std::vector<std::vector<G4int>> byEdgeA(nA), byEdgeB(nB);
   for (G4int k = 0; k < (G4int)allISects.size(); k++)
     {
@@ -353,7 +353,7 @@ BDSPolygon BDSPolygon::Union(const BDSPolygon& other) const
   {
     G4TwoVector pt;
     PtType      type;
-    G4int       crossIdx; // index in the other polygon's aug list (-1 if vertex)
+    G4int       crossIdx;
     bool        visited;
   };
 
@@ -384,21 +384,22 @@ BDSPolygon BDSPolygon::Union(const BDSPolygon& other) const
       augB[idxInAugB[k]].crossIdx = idxInAugA[k];
     }
 
-  // Find a vertex on A that lies outside B as the traversal start.
+  // Find a starting vertex on A that is inside or outside other, depending on the
+  // operation: outside for union (walks outer boundary), inside for intersection
+  // (walks inner boundary).
   G4int startA = -1;
   for (G4int i = 0; i < (G4int)augA.size(); i++)
     {
-      if (augA[i].type == PtType::vertex && !other.Inside(augA[i].pt))
-        {startA = i; break;}
+      if (augA[i].type != PtType::vertex) {continue;}
+      G4bool inside = other.Inside(augA[i].pt);
+      if (inside == startInsideOther) {startA = i; break;}
     }
   if (startA < 0)
-    {throw BDSException(__METHOD_NAME__, "no vertex of polygon A is outside polygon B");}
+    {throw BDSException(__METHOD_NAME__, "no suitable starting vertex found for boolean traversal");}
 
-  // Greiner-Hormann union traversal:
-  //   Walk A forward, collecting points.
-  //   At an intersection entering B, switch to B and walk it forward.
-  //   At an intersection re-entering A, switch back.
-  //   The visited flag on the start point terminates the loop.
+  // Greiner-Hormann traversal: walk A forward; switch to B at every intersection;
+  // switch back to A at the next intersection on B.  The visited flag on the
+  // start point terminates the loop.
   std::vector<G4TwoVector> result;
   G4int curA = startA, curB = 0;
   bool onA = true;
@@ -414,7 +415,9 @@ BDSPolygon BDSPolygon::Union(const BDSPolygon& other) const
           ap.visited = true;
           if (ap.type == PtType::intersection)
             {
-              curB = (ap.crossIdx + 1) % (G4int)augB.size();
+              G4int nBaug = (G4int)augB.size();
+              curB = reverseOther ? (ap.crossIdx - 1 + nBaug) % nBaug
+                                  : (ap.crossIdx + 1) % nBaug;
               onA  = false;
             }
           else
@@ -432,22 +435,44 @@ BDSPolygon BDSPolygon::Union(const BDSPolygon& other) const
               onA  = true;
             }
           else
-            {curB = (curB + 1) % (G4int)augB.size();}
+            {
+              G4int nBaug = (G4int)augB.size();
+              curB = reverseOther ? (curB - 1 + nBaug) % nBaug
+                                  : (curB + 1) % nBaug;
+            }
         }
     }
 
   if ((G4int)result.size() < 3)
-    {throw BDSException(__METHOD_NAME__, "union traversal produced a degenerate polygon");}
+    {throw BDSException(__METHOD_NAME__, "boolean traversal produced a degenerate polygon");}
 
   return BDSPolygon(result);
 }
 
 std::vector<BDSPolygon*> BDSPolygon::Subtraction(const BDSPolygon& other) const
-{return std::vector<BDSPolygon*>();}
+{
+  G4int nOtherInThis = 0;
+  GenerateLabelled(*this, other, &nOtherInThis);
+  G4int nThisInOther = 0;
+  GenerateLabelled(other, *this, &nThisInOther);
+  if (nThisInOther == (G4int)size())
+    {return {};} // A entirely inside B → empty result
+  if (nOtherInThis == (G4int)other.size())
+    {throw BDSException(__METHOD_NAME__, "subtraction of an enclosed polygon produces a hole, which is not supported");}
+  if (nOtherInThis == 0 && nThisInOther == 0)
+    {return {new BDSPolygon(*this)};} // disjoint → A unchanged
+  return {new BDSPolygon(BooleanTraversal(other, false, true))};
+}
 
 BDSPolygon BDSPolygon::Intersection(const BDSPolygon& other) const
 {
-  return BDSPolygon(*this);
+  G4int nOtherInThis = 0;
+  GenerateLabelled(*this, other, &nOtherInThis);
+  G4int nThisInOther = 0;
+  GenerateLabelled(other, *this, &nThisInOther);
+  if (nOtherInThis == (G4int)other.size()) {return BDSPolygon(other);}
+  if (nThisInOther == (G4int)size())       {return BDSPolygon(*this);}
+  return BooleanTraversal(other, true);
 }
 
 BDSPolygon BDSPolygon::InterpolateWithNPoints(unsigned int nPointsNew) const
