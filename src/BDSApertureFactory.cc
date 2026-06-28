@@ -336,7 +336,9 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4Str
 
   if (!BDS::IsFinite(lengthExtraForBoolean))
     {
-      G4double a1 = productNormalIn.theta();
+      G4ThreeVector copy(productNormalIn);
+      copy.setZ(std::abs(copy.z())); // as otherwise '0' will be pi
+      G4double a1 = copy.theta();
       G4double a2 = productNormalOut.theta();
       G4double angle = std::max(std::abs(a1), std::abs(a2));
       G4double r1 = productApertureIn->RadiusToEncompass();
