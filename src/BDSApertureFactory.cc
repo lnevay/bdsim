@@ -474,14 +474,13 @@ BDSApertureFactory::Product BDSApertureFactory::CreateEllipse() const
     {return {nullptr, {}};}
   if (!angledFaces)
     {
-      G4VSolid* product = new G4EllipticalTube(productName, ap->a, ap->b,
-                                               0.5 * productLength + productLengthExtra);
+      G4VSolid* product = new G4EllipticalTube(productName, ap->a, ap->b, 0.5*productLength);
       return {product, {}};
     }
   else
     {
       G4double maxRadius = ap->RadiusToEncompass();
-      G4VSolid* cut = CutSolid(productName + "_angled", productLength, maxRadius);
+      G4VSolid* cut = CutSolid(productName + "_angled", 0.5*productLength, maxRadius);
       G4VSolid* tube = new G4EllipticalTube(productName + "_square", ap->a, ap->b,
                                             productLength + productLengthExtra);
       G4VSolid* product = new G4IntersectionSolid(productName, tube, cut);
@@ -496,9 +495,8 @@ BDSApertureFactory::Product BDSApertureFactory::CreateExtrudedSolid() const
   G4double zScale = 1; // the scale at each end of the points = 1
   if (!angledFaces)
     {
-      G4VSolid* product = new G4ExtrudedSolid(productName,
-                                              p.Points(),
-                                              0.5 * productLength + productLengthExtra,
+      G4VSolid* product = new G4ExtrudedSolid(productName, p.Points(),
+                                              0.5 * productLength,
                                               zOffsets, zScale,  // dx,dy offset for each face, scaling
                                               zOffsets, zScale); // dx,dy offset for each face, scaling
       return {product, {}};
@@ -506,9 +504,8 @@ BDSApertureFactory::Product BDSApertureFactory::CreateExtrudedSolid() const
   else
     {
       G4double maxRadius = productApertureIn->RadiusToEncompass();
-      G4VSolid* cut = CutSolid(productName + "_angled", productLength, maxRadius);
-      G4VSolid* square = new G4ExtrudedSolid(productName + "_square",
-                                            p.Points(),
+      G4VSolid* cut = CutSolid(productName + "_angled", 0.5*productLength, maxRadius);
+      G4VSolid* square = new G4ExtrudedSolid(productName + "_square", p.Points(),
                                             productLength + productLengthExtra,
                                             zOffsets, zScale,  // dx,dy offset for each face, scaling
                                             zOffsets, zScale); // dx,dy offset for each face, scaling
@@ -524,23 +521,15 @@ BDSApertureFactory::Product BDSApertureFactory::CreateRectCircle() const
     {return {nullptr, {}};}
   if (!angledFaces)
     {
-      G4VSolid* circle = new G4Tubs(productName + "_circle",
-                                               0,
-                                               ap->radius,
-                                               0.5 * productLength + productLengthExtra,
-                                               0,
-                                               CLHEP::twopi);
-      G4VSolid* rect = new G4Box(productName + "_rectangle",
-                                 ap->a,
-                                 ap->b,
-                                 productLength + productLengthExtra);
+      G4VSolid* circle = new G4Tubs(productName + "_circle", 0, ap->radius, 0.5*productLength, 0, CLHEP::twopi);
+      G4VSolid* rect = new G4Box(productName + "_rectangle", ap->a, ap->b, productLength+productLengthExtra);
       G4VSolid* product = new G4IntersectionSolid(productName, circle, rect);
       return {product, {circle, rect}};
     }
   else
     {
       G4double maxRadius = ap->RadiusToEncompass();
-      G4VSolid* cut = CutSolid(productName + "_angled", productLength, maxRadius);
+      G4VSolid* cut = CutSolid(productName + "_angled", 0.5*productLength, maxRadius);
       G4VSolid* circle = new G4Tubs(productName + "_circle",
                                     0,
                                     ap->radius,
@@ -564,28 +553,24 @@ BDSApertureFactory::Product BDSApertureFactory::CreateRectEllipse() const
     {return {nullptr, {}};}
   if (!angledFaces)
     {
-      G4VSolid* ellipse = new G4EllipticalTube(productName + "_ellipse",
-                                               ap->ellipseA,
-                                               ap->ellipseB,
-                                               0.5 * productLength + productLengthExtra);
+      G4VSolid* ellipse = new G4EllipticalTube(productName + "_ellipse_so", ap->ellipseA, ap->ellipseB,
+                                               0.5*productLength);
       G4VSolid* rect = new G4Box(productName + "_rectangle",
                                  ap->rectangleA,
                                  ap->rectangleB,
-                                 productLength + productLengthExtra);
+                                 productLength);
       G4VSolid* product = new G4IntersectionSolid(productName, ellipse, rect);
       return {product, {ellipse, rect}};
     }
   else
     {
       G4double maxRadius = ap->RadiusToEncompass();
-      G4VSolid* cut = CutSolid(productName + "_angled", productLength, maxRadius);
-      G4VSolid* ellipse = new G4EllipticalTube(productName + "_ellipse",
-                                               ap->ellipseA,
-                                               ap->ellipseB,
+      G4VSolid* cut = CutSolid(productName + "_angled", 0.5*productLength, maxRadius);
+      G4VSolid* ellipse = new G4EllipticalTube(productName + "_ellipse_so",
+                                               ap->ellipseA, ap->ellipseB,
                                                productLength + productLengthExtra);
-      G4VSolid* rect = new G4Box(productName + "_rectangle",
-                                 ap->rectangleA,
-                                 ap->rectangleB,
+      G4VSolid* rect = new G4Box(productName + "_rect_so",
+                                 ap->rectangleA, ap->rectangleB,
                                  1.5*productLength + productLengthExtra);
       G4VSolid* ellipseRect = new G4IntersectionSolid(productName, ellipse, rect);
       G4VSolid* product = new G4IntersectionSolid(productName, ellipseRect, cut);
@@ -689,14 +674,14 @@ BDSApertureFactory::Product BDSApertureFactory::HollowCircleToCircle(G4double th
   if (!angledFaces)
     {
       G4VSolid* product = new G4Tubs(productName, ap->radius, ap->radius + thickness,
-                                     0.5 * productLength,
+                                     0.5*productLength,
                                      0, CLHEP::twopi);
       return {product, {}};
     }
   else
     {
       G4VSolid* product = new G4CutTubs(productName,ap->radius, ap->radius + thickness,
-                                        0.5 * productLength,
+                                        0.5*productLength,
                                         0, CLHEP::twopi,
                                         productNormalIn,
                                         productNormalOut);
@@ -746,15 +731,15 @@ BDSApertureFactory::Product BDSApertureFactory::HollowEllipseToEllipse(G4double 
     {return {nullptr, {}};}
   if (!angledFaces)
     {
-      G4VSolid* inner = new G4EllipticalTube(productName+"_inner_so", ap->a, ap->b, 0.5 * productLength + productLengthExtra);
-      G4VSolid* outer = new G4EllipticalTube(productName+"_outer_so", ap->a+thickness, ap->b+thickness, 0.5 * productLength);
+      G4VSolid* inner = new G4EllipticalTube(productName+"_inner_so", ap->a, ap->b, 0.5*productLength + productLengthExtra);
+      G4VSolid* outer = new G4EllipticalTube(productName+"_outer_so", ap->a+thickness, ap->b+thickness, 0.5*productLength);
       G4VSolid* product = new G4SubtractionSolid(productName+"_so", outer, inner);
       return {product, {inner, outer}};
     }
   else
     {
       G4double maxRadius = ap->RadiusToEncompass();
-      G4VSolid* cut = CutSolid(productName+"_angled", productLength, maxRadius);
+      G4VSolid* cut = CutSolid(productName+"_angled", 0.5*productLength, maxRadius);
       G4VSolid* inner = new G4EllipticalTube(productName+"_inner_so", ap->a, ap->b,
                                              0.5*productLength + 1.5*productLengthExtra);
       G4VSolid* outer = new G4EllipticalTube(productName+"_outer_so", ap->a+thickness, ap->b+thickness,
