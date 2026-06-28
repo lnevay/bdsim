@@ -345,6 +345,7 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4Str
       G4double r2 = productApertureOut->RadiusToEncompass();
       G4double radius = std::max(std::abs(r1), std::abs(r2));
       lengthExtraForBoolean = RequiredLengthForBoolean(angle, radius);
+      lengthExtraForBoolean = std::max(lengthExtraForBoolean, 0.1*productLength);
     }
   productLengthExtra = lengthExtraForBoolean;
   
