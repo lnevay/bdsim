@@ -156,6 +156,7 @@ private:
   /// Utility to make angled solid for intersection when cutting angled faces.
   /// Makes use of members assumed to be set for current factory product.
   G4VSolid* CutSolid(const G4String& name,
+                     G4double halfLength,
                      G4double radiusToEncompass) const;
 
   /// Create a solid as an extruded solid
