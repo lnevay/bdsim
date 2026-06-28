@@ -252,7 +252,8 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolid(const G4String&    n
   
   if (!apertureIn)
     {throw BDSException(__METHOD_NAME__, "no aperture specified.");}
-  G4bool variedAperture = apertureOut != apertureIn;
+
+  G4bool variedAperture = (G4bool)apertureOut ? apertureOut != apertureIn : false;
 
   productName        = name;
   productLength      = length;
@@ -579,7 +580,8 @@ BDSApertureFactory::Product BDSApertureFactory::CreateClicPCL() const
 
 BDSApertureFactory::Product BDSApertureFactory::CreateDifferentEnds() const
 {
-  if (productApertureIn->TiltOrOffset() || productApertureOut->TiltOrOffset())
+  G4bool outTiltOffset = (G4bool)productApertureOut ? productApertureOut->TiltOrOffset() : false;
+  if (productApertureIn->TiltOrOffset() || outTiltOffset)
     {return CreateTubeByPoints();}
 
   // check specialisations
