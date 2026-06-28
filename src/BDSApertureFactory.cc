@@ -725,7 +725,7 @@ BDSApertureFactory::Product BDSApertureFactory::HollowRectangleToRectangle(G4dou
       G4VSolid* part1 = new G4SubtractionSolid(productName+"_straight_so", outer, inner);
       
       G4double maxRadius = ap->RadiusToEncompass();
-      G4VSolid* cut = CutSolid(productName + "_angled", productLength, maxRadius);
+      G4VSolid* cut = CutSolid(productName + "_angled_so", productLength, maxRadius);
       G4VSolid* product = new G4IntersectionSolid(productName+"_so", part1, cut);
       return {product, {inner, outer, part1, cut}};
     }

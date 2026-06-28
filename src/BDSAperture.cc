@@ -54,18 +54,18 @@ BDSAperture& BDSAperture::operator=(const BDSAperture& other) noexcept
 }
 
 void BDSAperture::CheckRequiredParametersSet(G4double aper1, G4bool aper1Set,
-					     G4double aper2, G4bool aper2Set,
-					     G4double aper3, G4bool aper3Set,
-					     G4double aper4, G4bool aper4Set) const
+                                             G4double aper2, G4bool aper2Set,
+                                             G4double aper3, G4bool aper3Set,
+                                             G4double aper4, G4bool aper4Set) const
 {
   if (aper1Set && !BDS::IsFinite(aper1))
-    {throw BDSException("","\"aper1\" not set, but required to be.");}
+    {throw BDSException("","\"aper1\" not set but required to be.");}
   if (aper2Set && !BDS::IsFinite(aper2))
-    {throw BDSException("","\"aper2\" not set, but required to be.");}
+    {throw BDSException("","\"aper2\" not set but required to be.");}
   if (aper3Set && !BDS::IsFinite(aper3))
-    {throw BDSException("","\"aper3\" not set, but required to be.");}
+    {throw BDSException("","\"aper3\" not set but required to be.");}
   if (aper4Set && !BDS::IsFinite(aper4))
-    {throw BDSException("","\"aper4\" not set, but required to be.");}
+    {throw BDSException("","\"aper4\" not set but required to be.");}
 }
 
 void BDSAperture::CheckParameterIsPositive(G4double        parameter,

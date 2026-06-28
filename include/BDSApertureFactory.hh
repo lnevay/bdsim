@@ -68,10 +68,10 @@ public:
                               G4double        a2,
                               G4double        a3,
                               G4double        a4,
-                              G4double        tilt,
-                              G4double        offsetX,
-                              G4double        offsetY,
-                              unsigned int    nPoints,
+                              G4double        tilt = 0,
+                              G4double        offsetX = 0,
+                              G4double        offsetY = 0,
+                              unsigned int    nPoints = 0,
                               const G4String& pointsFileAndString = "") const;
 
   /// Return type to give both the final solid but any transient solids on the way.

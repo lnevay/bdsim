@@ -137,7 +137,7 @@ G4int BDS::CalculateOrientation(G4double angle)
 }
 
 std::pair<G4ThreeVector,G4ThreeVector> BDS::CalculateFaces(G4double angleIn,
-							   G4double angleOut)
+                                                           G4double angleOut)
 {
   /// orientation -1,0,1 value - always use |angle| with trigonometric and then
   /// multiply by this factor, 0 by default

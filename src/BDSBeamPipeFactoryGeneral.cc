@@ -51,7 +51,7 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
   BDSAperture* apContSubOut = variedAperture ? apVacOut->Plus(containerThickness + lengthSafety) : apContSubIn;
   
   BDSApertureFactory fac;
-  auto vacProduct = fac.CreateSolid(name+"_vac", length - lengthSafety, apVacIn, apVacOut,
+  auto vacProduct = fac.CreateSolid(name+"_vac", length-lengthSafety, apVacIn, apVacOut,
                                     bpi->inputFaceNormal, bpi->outputFaceNormal);
   vacuumSolid = vacProduct.product;
   allSolids.insert(vacProduct.otherSolids.begin(), vacProduct.otherSolids.end());
