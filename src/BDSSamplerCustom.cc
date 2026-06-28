@@ -37,9 +37,9 @@ BDSSamplerCustom::BDSSamplerCustom(const G4String& nameIn,
   // problems with overlapping faces - unlike normal samplers were
   // BDSIM strictly controls the layout.
   BDSApertureFactory fac;
-  containerSolid = fac.CreateSolid(name + "_aperture",
-				      BDSSamplerCustom::chordLength,
-				      shape);
+  auto contProduct = fac.CreateSolid(name + "_aperture", chordLength, shape);
+  containerSolid = contProduct.product;
+  allSolids.insert(contProduct.otherSolids.begin(), contProduct.otherSolids.end());
   
   // We make the sampler 10x bigger than normal as it's still really small
   // but less likely to cause overlap problems. The original sampler width
@@ -47,8 +47,8 @@ BDSSamplerCustom::BDSSamplerCustom(const G4String& nameIn,
   // extra length for optical tracking.
 
   BDSExtent ae = shape->Extent();
-  G4double  dz = BDSSamplerCustom::chordLength * 0.5;
+  G4double  dz = chordLength * 0.5;
   SetExtent(BDSExtent(ae.XNeg(), ae.XPos(), ae.YNeg(), ae.YPos(), -dz, dz));
 
-  CommonConstruction();
+  BDSSampler::CommonConstruction();
 }

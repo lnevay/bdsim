@@ -62,6 +62,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <map>
 #include <utility>
 
+
 BDSApertureFactory::BDSApertureFactory():
   intersectionRadiusRatio(1.3),
   productName(""),
@@ -212,8 +213,8 @@ void BDSApertureFactory::CheckNPoints(int nPoints,
 }
 
 void BDSApertureFactory::ParsePointsFileAndUnits(const G4String& beamPipeType,
-                                                G4String& pointsFileName,
-                                                G4String& pointsUnit) const
+                                                 G4String& pointsFileName,
+                                                 G4String& pointsUnit) const
 {
   auto typeAndFileName = BDS::SplitOnColon(beamPipeType); // find first colon
   G4String fname = typeAndFileName.second;
@@ -237,13 +238,13 @@ G4bool BDSApertureFactory::AngledFaces(const G4ThreeVector& v1,
   return !straight;
 }
 
-G4VSolid* BDSApertureFactory::CreateSolid(const G4String&    name,
-                                          G4double           length,
-                                          const BDSAperture* apertureIn,
-                                          const BDSAperture* apertureOut,
-                                          const G4ThreeVector* normalIn,
-                                          const G4ThreeVector* normalOut,
-                                          G4double           lengthExtraForBoolean)
+BDSApertureFactory::Product BDSApertureFactory::CreateSolid(const G4String&    name,
+                                                            G4double           length,
+                                                            const BDSAperture* apertureIn,
+                                                            const BDSAperture* apertureOut,
+                                                            const G4ThreeVector* normalIn,
+                                                            const G4ThreeVector* normalOut,
+                                                            G4double           lengthExtraForBoolean)
 {
   productNormalIn  = normalIn  ? *normalIn : G4ThreeVector();
   productNormalOut = normalOut ? *normalOut : G4ThreeVector();
@@ -263,7 +264,7 @@ G4VSolid* BDSApertureFactory::CreateSolid(const G4String&    name,
     {return CreateDifferentEnds();}
 
   // else create non-tapering piece of geometry
-  G4VSolid* product = nullptr;
+  Product product;
   switch (apertureIn->apertureType.underlying())
     {
     case BDSApertureType::circle:
@@ -290,14 +291,14 @@ G4VSolid* BDSApertureFactory::CreateSolid(const G4String&    name,
   return product;
 }
 
-G4VSolid* BDSApertureFactory::CreateSolidWithInner(const G4String&      name,
-                                                   G4double             length,
-                                                   const BDSAperture*   apertureInInside,
-                                                   const BDSAperture*   apertureOutInside,
-                                                   G4double             thickness,
-                                                   const G4ThreeVector* normalIn,
-                                                   const G4ThreeVector* normalOut,
-                                                   G4double             lengthExtraForBoolean)
+BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4String&      name,
+                                                                     G4double             length,
+                                                                     const BDSAperture*   apertureInInside,
+                                                                     const BDSAperture*   apertureOutInside,
+                                                                     G4double             thickness,
+                                                                     const G4ThreeVector* normalIn,
+                                                                     const G4ThreeVector* normalOut,
+                                                                     G4double             lengthExtraForBoolean)
 {
   productNormalIn  = normalIn  ? *normalIn : G4ThreeVector();
   productNormalOut = normalOut ? *normalOut : G4ThreeVector();
@@ -334,30 +335,34 @@ G4VSolid* BDSApertureFactory::CreateSolidWithInner(const G4String&      name,
     }
   else // no specialisation -> use polygons
     {
-      G4VSolid* inner = CreateTubeByPoints();
+      Product result;
+      Product inner = CreateTubeByPoints();
+      result.Extend(inner); // keep track of all solids
       productLengthExtra = 0;
       BDSAperture* apInOutside = apertureInInside->Plus(thickness);
       BDSAperture* apOutOutside = variedAperture ? apertureOutInside->Plus(thickness) : apInOutside;
       productApertureIn = apInOutside; // assign to members for factory action
       productApertureOut = apOutOutside;
-      G4VSolid* outer = CreateTubeByPoints();
-      G4VSolid* product = new G4SubtractionSolid(productName, outer, inner);
+      Product outer = CreateTubeByPoints();
+      result.Extend(outer);
+      G4VSolid* product = new G4SubtractionSolid(productName, outer.product, inner.product);
+      result.product = product;
       delete apInOutside;
       if (variedAperture)
         {delete apOutOutside;}
-      return product;
+      return result;
     }
 }
 
-G4VSolid* BDSApertureFactory::CreateSolidWithInnerVariableThickness(const G4String&      name,
-                                                                    G4double             length,
-                                                                    const BDSAperture*   apertureInOutside,
-                                                                    const BDSAperture*   apertureInInside,
-                                                                    const BDSAperture*   apertureOutOutside,
-                                                                    const BDSAperture*   apertureOutInside,
-                                                                    const G4ThreeVector* normalIn,
-                                                                    const G4ThreeVector* normalOut,
-                                                                    G4double             lengthExtraForBoolean)
+BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInnerVariableThickness(const G4String&      name,
+                                                                                      G4double             length,
+                                                                                      const BDSAperture*   apertureInOutside,
+                                                                                      const BDSAperture*   apertureInInside,
+                                                                                      const BDSAperture*   apertureOutOutside,
+                                                                                      const BDSAperture*   apertureOutInside,
+                                                                                      const G4ThreeVector* normalIn,
+                                                                                      const G4ThreeVector* normalOut,
+                                                                                      G4double             lengthExtraForBoolean)
 {
   productNormalIn  = normalIn  ? *normalIn : G4ThreeVector();
   productNormalOut = normalOut ? *normalOut : G4ThreeVector();
@@ -367,61 +372,49 @@ G4VSolid* BDSApertureFactory::CreateSolidWithInnerVariableThickness(const G4Stri
   // were smaller than the outer apertures, but part way through they're bigger due to the rotation. This
   // should be handled.
   
-  return nullptr;
+  return {nullptr, {}};
 }
 
-G4VSolid* BDSApertureFactory::CreateCircle() const
+BDSApertureFactory::Product BDSApertureFactory::CreateCircle() const
 {
   const BDSApertureCircle* ap = dynamic_cast<const BDSApertureCircle*>(productApertureIn);
   if (!ap)
-    {return nullptr;}
+    {return {nullptr, {}};}
   if (!angledFaces)
     {
-      G4VSolid* product = new G4Tubs(productName,
-                                     0,
-                                     ap->radius,
+      G4VSolid* product = new G4Tubs(productName, 0, ap->radius,
                                      0.5 * productLength + productLengthExtra,
-                                     0,
-                                     CLHEP::twopi);
-      return product;
+                                     0, CLHEP::twopi);
+      return {product, {}};
     }
   else
     {
-      G4VSolid* product = new G4CutTubs(productName,
-                                        0,
-                                        ap->radius,
+      G4VSolid* product = new G4CutTubs(productName, 0, ap->radius,
                                         0.5 * productLength + productLengthExtra,
-                                        0,
-                                        CLHEP::twopi,
-                                        productNormalIn,
-                                        productNormalOut);
-      return product;
+                                        0, CLHEP::twopi,
+                                        productNormalIn, productNormalOut);
+      return {product, {}};
     }
 }
 
-G4VSolid* BDSApertureFactory::CreateRectangle() const
+BDSApertureFactory::Product BDSApertureFactory::CreateRectangle() const
 {
   const BDSApertureRectangle* ap = dynamic_cast<const BDSApertureRectangle*>(productApertureIn);
   if (!ap)
-    {return nullptr;}
+    {return {nullptr, {}};}
   if (!angledFaces)
     {
-      G4VSolid* product = new G4Box(productName,
-                                    ap->a,
-                                    ap->b,
-                                    0.5 * productLength + productLengthExtra);
-      return product;
+      G4VSolid* product = new G4Box(productName, ap->a, ap->b, 0.5 * productLength + productLengthExtra);
+      return {product, {}};
     }
   else
     {
-      G4VSolid* box = new G4Box(productName + "_square",
-                                ap->a,
-                                ap->b,
+      G4VSolid* box = new G4Box(productName + "_square", ap->a, ap->b,
                                 productLength + productLengthExtra); // factor 2 here
       G4double maxRadius = ap->RadiusToEncompass();
       G4VSolid* cut = CutSolid(productName + "_angled", maxRadius);
       G4VSolid* product = new G4IntersectionSolid(productName, box, cut);
-      return product;
+      return {product, {box, cut}};
     }
 }
 
@@ -441,45 +434,37 @@ G4VSolid* BDSApertureFactory::CutSolid(const G4String& name,
     }
   else
     {
-      cut = new G4CutTubs(name,
-                                0,
-                                intersectionRadius,
-                                0.5 * productLength + productLengthExtra,
-                                0,
-                                CLHEP::twopi,
-                                productNormalIn,
-                                productNormalOut);
+      cut = new G4CutTubs(name, 0, intersectionRadius,
+                          0.5 * productLength + productLengthExtra,
+                          0, CLHEP::twopi,
+                          productNormalIn, productNormalOut);
     }
   return cut;
 }
 
-G4VSolid* BDSApertureFactory::CreateEllipse() const
+BDSApertureFactory::Product BDSApertureFactory::CreateEllipse() const
 {
   const BDSApertureEllipse* ap = dynamic_cast<const BDSApertureEllipse*>(productApertureIn);
   if (!ap)
-    {return nullptr;}
+    {return {nullptr, {}};}
   if (!angledFaces)
     {
-      G4VSolid* product = new G4EllipticalTube(productName,
-                                               ap->a,
-                                               ap->b,
+      G4VSolid* product = new G4EllipticalTube(productName, ap->a, ap->b,
                                                0.5 * productLength + productLengthExtra);
-      return product;
+      return {product, {}};
     }
   else
     {
       G4double maxRadius = ap->RadiusToEncompass();
       G4VSolid* cut = CutSolid(productName + "_angled", maxRadius);
-      G4VSolid* tube = new G4EllipticalTube(productName + "_square",
-                                            ap->a,
-                                            ap->b,
+      G4VSolid* tube = new G4EllipticalTube(productName + "_square", ap->a, ap->b,
                                             productLength + productLengthExtra);
       G4VSolid* product = new G4IntersectionSolid(productName, tube, cut);
-      return product;
+      return {product, {}};
     }
 }
 
-G4VSolid* BDSApertureFactory::CreateExtrudedSolid() const
+BDSApertureFactory::Product BDSApertureFactory::CreateExtrudedSolid() const
 {
   BDSPolygon p = productApertureIn->Polygon();
   G4TwoVector zOffsets(0,0); // the transverse offset of each plane from 0,0
@@ -491,7 +476,7 @@ G4VSolid* BDSApertureFactory::CreateExtrudedSolid() const
                                               0.5 * productLength + productLengthExtra,
                                               zOffsets, zScale,  // dx,dy offset for each face, scaling
                                               zOffsets, zScale); // dx,dy offset for each face, scaling
-      return product;
+      return {product, {}};
     }
   else
     {
@@ -503,15 +488,15 @@ G4VSolid* BDSApertureFactory::CreateExtrudedSolid() const
                                             zOffsets, zScale,  // dx,dy offset for each face, scaling
                                             zOffsets, zScale); // dx,dy offset for each face, scaling
       G4VSolid* product = new G4IntersectionSolid(productName, square, cut);
-      return product;
+      return {product, {cut, square}};
     }
 }
 
-G4VSolid* BDSApertureFactory::CreateRectCircle() const
+BDSApertureFactory::Product BDSApertureFactory::CreateRectCircle() const
 {
   const BDSApertureRectCircle* ap = dynamic_cast<const BDSApertureRectCircle*>(productApertureIn);
   if (!ap)
-    {return nullptr;}
+    {return {nullptr, {}};}
   if (!angledFaces)
     {
       G4VSolid* circle = new G4Tubs(productName + "_circle",
@@ -525,7 +510,7 @@ G4VSolid* BDSApertureFactory::CreateRectCircle() const
                                  ap->b,
                                  productLength + productLengthExtra);
       G4VSolid* product = new G4IntersectionSolid(productName, circle, rect);
-      return product;
+      return {product, {circle, rect}};
     }
   else
     {
@@ -543,15 +528,15 @@ G4VSolid* BDSApertureFactory::CreateRectCircle() const
                                  1.5*productLength + productLengthExtra);
       G4VSolid* ellipseRect = new G4IntersectionSolid(productName, circle, rect);
       G4VSolid* product = new G4IntersectionSolid(productName, ellipseRect, cut);
-      return product;
+      return {product, {cut, circle, rect, ellipseRect}};
     }
 }
 
-G4VSolid* BDSApertureFactory::CreateRectEllipse() const
+BDSApertureFactory::Product BDSApertureFactory::CreateRectEllipse() const
 {
   const BDSApertureRectEllipse* ap = dynamic_cast<const BDSApertureRectEllipse*>(productApertureIn);
   if (!ap)
-    {return nullptr;}
+    {return {nullptr, {}};}
   if (!angledFaces)
     {
       G4VSolid* ellipse = new G4EllipticalTube(productName + "_ellipse",
@@ -563,7 +548,7 @@ G4VSolid* BDSApertureFactory::CreateRectEllipse() const
                                  ap->rectangleB,
                                  productLength + productLengthExtra);
       G4VSolid* product = new G4IntersectionSolid(productName, ellipse, rect);
-      return product;
+      return {product, {ellipse, rect}};
     }
   else
     {
@@ -579,20 +564,20 @@ G4VSolid* BDSApertureFactory::CreateRectEllipse() const
                                  1.5*productLength + productLengthExtra);
       G4VSolid* ellipseRect = new G4IntersectionSolid(productName, ellipse, rect);
       G4VSolid* product = new G4IntersectionSolid(productName, ellipseRect, cut);
-      return product;
+      return {product, {cut, ellipse, rect, ellipseRect}};
     }
 }
 
-G4VSolid* BDSApertureFactory::CreateRaceTrack() const
+BDSApertureFactory::Product BDSApertureFactory::CreateRaceTrack() const
 {return CreateExtrudedSolid();} //TBC if this is the best way (not intersection?)
 
-G4VSolid* BDSApertureFactory::CreateOctagonal() const
+BDSApertureFactory::Product BDSApertureFactory::CreateOctagonal() const
 {return CreateExtrudedSolid();}
 
-G4VSolid* BDSApertureFactory::CreateClicPCL() const
+BDSApertureFactory::Product BDSApertureFactory::CreateClicPCL() const
 {return CreateExtrudedSolid();}
 
-G4VSolid* BDSApertureFactory::CreateDifferentEnds() const
+BDSApertureFactory::Product BDSApertureFactory::CreateDifferentEnds() const
 {
   if (productApertureIn->TiltOrOffset() || productApertureOut->TiltOrOffset())
     {return CreateTubeByPoints();}
@@ -609,7 +594,7 @@ G4VSolid* BDSApertureFactory::CreateDifferentEnds() const
     {return CreateTubeByPoints();}
 }
 
-G4VSolid* BDSApertureFactory::CreateTubeByPoints() const
+BDSApertureFactory::Product BDSApertureFactory::CreateTubeByPoints() const
 {
   unsigned int nPointsIn  = productApertureIn->MinimumNumberOfPoints();
   unsigned int nPointsOut = productApertureOut->MinimumNumberOfPoints();
@@ -632,58 +617,56 @@ G4VSolid* BDSApertureFactory::CreateTubeByPoints() const
       G4double dTilt = productApertureOut->tiltOffset.Tilt() - productApertureIn->tiltOffset.Tilt();
       nZ += std::ceil(dTilt / 0.2*CLHEP::radian);
     }
-  
-  return new BDSTube(productName,
-		     productLength + productLengthExtra,
-		     startingPoints,
-		     finishingPoints,
-		     nZ);
+
+  G4VSolid* result = new BDSTube(productName, productLength + productLengthExtra,
+                                 startingPoints, finishingPoints, nZ);
+  return {result, {}};
 }
 
-G4VSolid* BDSApertureFactory::CreateDifferentEndsCircleToCircle() const
+BDSApertureFactory::Product BDSApertureFactory::CreateDifferentEndsCircleToCircle() const
 {
   const BDSApertureCircle* ap1 = dynamic_cast<const BDSApertureCircle*>(productApertureIn);
   const BDSApertureCircle* ap2 = dynamic_cast<const BDSApertureCircle*>(productApertureOut);
   if (!ap1 || !ap2)
-    {return nullptr;}
+    {return {nullptr, {}};}
   G4VSolid* product;
   if (angledFaces)
-  {
-    productNormalIn.theta();
-    // make longer cone, then intersect with cut tubs
-    G4Cons* cons = new G4Cons(productName + "_base_cons",
-                              0, ap1->radius,
-                              0, ap2->radius,
-                              0.5*(productLength + productLengthExtra),
-                              0, CLHEP::twopi);
-    G4double maxRadius = std::max(ap1->radius, ap2->radius);
-    G4VSolid* cut = CutSolid(productName + "_angled", maxRadius);
-    product = new G4IntersectionSolid(productName, cons, cut);
-    return product;
-  }
+    {
+      productNormalIn.theta();
+      // make longer cone, then intersect with cut tubs
+      G4Cons* cons = new G4Cons(productName + "_base_cons",
+                                0, ap1->radius,
+                                0, ap2->radius,
+                                0.5*(productLength + productLengthExtra),
+                                0, CLHEP::twopi);
+      G4double maxRadius = std::max(ap1->radius, ap2->radius);
+      G4VSolid* cut = CutSolid(productName + "_angled", maxRadius);
+      product = new G4IntersectionSolid(productName, cons, cut);
+      return {product, {cons, cut}};
+    }
   else
-  {
-    product = new G4Cons(productName,
-                        0, ap1->radius,
-                        0, ap2->radius,
-                        0.5*(productLength + productLengthExtra),
-                        0, CLHEP::twopi);
-  }
-  return product;
+    {
+      product = new G4Cons(productName,
+                          0, ap1->radius,
+                          0, ap2->radius,
+                          0.5*(productLength + productLengthExtra),
+                          0, CLHEP::twopi);
+      return {product, {}};
+    }
 }
 
-G4VSolid* BDSApertureFactory::HollowCircleToCircle(G4double thickness) const
+BDSApertureFactory::Product BDSApertureFactory::HollowCircleToCircle(G4double thickness) const
 {
   const BDSApertureCircle* ap = dynamic_cast<const BDSApertureCircle*>(productApertureIn);
   if (!ap)
-    {return nullptr;}
+    {return {nullptr, {}};}
   if (!angledFaces)
     {
       G4VSolid* product = new G4Tubs(productName, ap->radius, ap->radius + thickness,
                                      0.5 * productLength + productLengthExtra,
                                      0, CLHEP::twopi);
-        return product;
-      }
+      return {product, {}};
+    }
   else
     {
       G4VSolid* product = new G4CutTubs(productName,ap->radius, ap->radius + thickness,
@@ -691,15 +674,15 @@ G4VSolid* BDSApertureFactory::HollowCircleToCircle(G4double thickness) const
                                         0, CLHEP::twopi,
                                         productNormalIn,
                                         productNormalOut);
-      return product;
+      return {product, {}};
     }
 }
 
-G4VSolid* BDSApertureFactory::HollowRectangleToRectangle(G4double thickness) const
+BDSApertureFactory::Product BDSApertureFactory::HollowRectangleToRectangle(G4double thickness) const
 {
   const auto* ap = dynamic_cast<const BDSApertureRectangle*>(productApertureIn);
   if (!ap)
-    {return nullptr;}
+    {return {nullptr, {}};}
   if (!angledFaces)
     {
       G4VSolid* inner = new G4Box(productName+"_inner_so",
@@ -710,7 +693,7 @@ G4VSolid* BDSApertureFactory::HollowRectangleToRectangle(G4double thickness) con
                                   ap->b + thickness,
                                   0.5*productLength);
       G4VSolid* product = new G4SubtractionSolid(productName+"_so", outer, inner);
-      return product;
+      return {product, {inner, outer}};
     }
   else
     {
@@ -726,12 +709,12 @@ G4VSolid* BDSApertureFactory::HollowRectangleToRectangle(G4double thickness) con
       G4double maxRadius = ap->RadiusToEncompass();
       G4VSolid* cut = CutSolid(productName + "_angled", maxRadius);
       G4VSolid* product = new G4IntersectionSolid(productName+"_so", part1, cut);
-      return product;
+      return {product, {inner, outer, part1, cut}};
     }
 }
 
 std::pair<BDSApertureType,BDSApertureType> BDSApertureFactory::MakePair(BDSApertureType a1,
-									BDSApertureType a2) const
+                                                                        BDSApertureType a2) const
 {
   return std::make_pair(std::min(a1, a2), std::max(a1, a2));
 }

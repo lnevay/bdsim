@@ -27,6 +27,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 #include <utility>
+#include <vector>
 
 class BDSAperture;
 class G4VSolid;
@@ -72,41 +73,54 @@ public:
                               G4double        offsetY,
                               unsigned int    nPoints,
                               const G4String& pointsFileAndString = "") const;
-  
+
+  /// Return type to give both the final solid but any transient solids on the way.
+  struct Product
+  {
+    G4VSolid* product;
+    std::vector<G4VSolid*> otherSolids;
+
+    void Extend(const Product& other)
+    {
+      otherSolids.push_back(other.product);
+      otherSolids.insert(otherSolids.end(), other.otherSolids.begin(), other.otherSolids.end());
+    }
+  };
+
   /// Create any aperture shape with flat ends. The apertureOut is optionally
   /// for defining the possibly different aperture shape at the output end.
-  G4VSolid* CreateSolid(const G4String&    name,
-                        G4double           length,
-                        const BDSAperture* apertureIn,
-                        const BDSAperture* apertureOut = nullptr,
-                        const G4ThreeVector* normalIn  = nullptr,
-                        const G4ThreeVector* normalOut = nullptr,
-                        G4double           lengthExtraForBoolean = 0);
+  Product CreateSolid(const G4String&    name,
+                      G4double           length,
+                      const BDSAperture* apertureIn,
+                      const BDSAperture* apertureOut = nullptr,
+                      const G4ThreeVector* normalIn  = nullptr,
+                      const G4ThreeVector* normalOut = nullptr,
+                      G4double           lengthExtraForBoolean = 0);
   
   /// Create a solid according to an aperture entrance ('in') and exit ('out') with
   /// a constant thickness. The aperture defines the interior edge of the solid. In
   /// effect, a beam pipe on its own; a tube.
-  G4VSolid* CreateSolidWithInner(const G4String&      name,
-                                 G4double             length,
-                                 const BDSAperture*   apertureInInside,
-                                 const BDSAperture*   apertureOutInside,
-                                 G4double             thickness,
-                                 const G4ThreeVector* normalIn,
-                                 const G4ThreeVector* normalOut,
-                                 G4double             lengthExtraForBoolean = 0);
+  Product CreateSolidWithInner(const G4String&      name,
+                               G4double             length,
+                               const BDSAperture*   apertureInInside,
+                               const BDSAperture*   apertureOutInside,
+                               G4double             thickness,
+                               const G4ThreeVector* normalIn,
+                               const G4ThreeVector* normalOut,
+                               G4double             lengthExtraForBoolean = 0);
   
   /// Create a solid like a pipe or tube, but where there are 4 shapes to specify. The inner
   /// entrance and exit shapes, and the outer entrance and exit shapes. These outer ones must
   /// be large enough to encompass the inner ones.
-  G4VSolid* CreateSolidWithInnerVariableThickness(const G4String& name,
-                                                  G4double length,
-                                                  const BDSAperture* apertureInOutside,
-                                                  const BDSAperture* apertureInInside,
-                                                  const BDSAperture* apertureOutOutside = nullptr,
-                                                  const BDSAperture* apertureOutInside  = nullptr,
-                                                  const G4ThreeVector* normalIn  = nullptr,
-                                                  const G4ThreeVector* normalOut = nullptr,
-                                                  G4double           lengthExtraForBoolean = 0);
+  Product CreateSolidWithInnerVariableThickness(const G4String& name,
+                                                G4double length,
+                                                const BDSAperture* apertureInOutside,
+                                                const BDSAperture* apertureInInside,
+                                                const BDSAperture* apertureOutOutside = nullptr,
+                                                const BDSAperture* apertureOutInside  = nullptr,
+                                                const G4ThreeVector* normalIn  = nullptr,
+                                                const G4ThreeVector* normalOut = nullptr,
+                                                G4double           lengthExtraForBoolean = 0);
 
 private:
   /// Calculate the length on one side of a solid that is required for the
@@ -126,14 +140,14 @@ private:
                                G4String& pointsUnit) const;
   
   /// @{ Flat faced construction function.
-  G4VSolid* CreateCircle()      const;
-  G4VSolid* CreateRectangle()   const;
-  G4VSolid* CreateEllipse()     const;
-  G4VSolid* CreateRectCircle()  const;
-  G4VSolid* CreateRectEllipse() const;
-  G4VSolid* CreateRaceTrack()   const;
-  G4VSolid* CreateOctagonal()   const;
-  G4VSolid* CreateClicPCL()     const;
+  Product CreateCircle()      const;
+  Product CreateRectangle()   const;
+  Product CreateEllipse()     const;
+  Product CreateRectCircle()  const;
+  Product CreateRectEllipse() const;
+  Product CreateRaceTrack()   const;
+  Product CreateOctagonal()   const;
+  Product CreateClicPCL()     const;
   /// @}
 
   /// Utility to make angled solid for intersection when cutting angled faces.
@@ -142,19 +156,19 @@ private:
                      G4double radiusToEncompass) const;
 
   /// Create a solid as an extruded solid
-  G4VSolid* CreateExtrudedSolid() const;
+  Product CreateExtrudedSolid() const;
 
   /// Create a shape with different ends.
-  G4VSolid* CreateDifferentEnds() const;
+  Product CreateDifferentEnds() const;
   
-  G4VSolid* CreateTubeByPoints()  const;
+  Product CreateTubeByPoints()  const;
 
   /// @{ Specialisation for particular solids.
-  G4VSolid* CreateDifferentEndsCircleToCircle() const;
+  Product CreateDifferentEndsCircleToCircle() const;
   /// @}
   /// @{ Specialisation for particular solids for hollow solid.
-  G4VSolid* HollowCircleToCircle(G4double thickness) const;
-  G4VSolid* HollowRectangleToRectangle(G4double thickness) const;
+  Product HollowCircleToCircle(G4double thickness) const;
+  Product HollowRectangleToRectangle(G4double thickness) const;
   /// @}
 
   /// Ratio of radii used for an intersection solid - greater than 1 and
@@ -178,13 +192,13 @@ private:
                                                        BDSApertureType a2) const;
 
   /// Typedef for function pointers to simplify syntax.
-  typedef G4VSolid*(BDSApertureFactory::*Constructor)(void) const;
+  typedef Product(BDSApertureFactory::*Constructor)(void) const;
 
   /// Map of unique aperture type pairs to member function pointers.
   std::map<std::pair<BDSApertureType, BDSApertureType>, Constructor> specialisations;
 
   /// Typedef for function pointers to simplify syntax.
-  typedef G4VSolid*(BDSApertureFactory::*HollowConstructor)(G4double) const;
+  typedef Product(BDSApertureFactory::*HollowConstructor)(G4double) const;
 
   /// Map of unique aperture type pairs to member function pointers for hollow constructors.
   std::map<std::pair<BDSApertureType, BDSApertureType>, HollowConstructor> hollowSpecialisations;

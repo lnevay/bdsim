@@ -51,42 +51,32 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
   BDSAperture* apContSubOut = variedAperture ? apVacOut->Plus(containerThickness + lengthSafety) : apContSubIn;
   
   BDSApertureFactory fac;
-  vacuumSolid = fac.CreateSolid(name+"_vac",
-                                length - lengthSafety,
-                                apVacIn,
-                                apVacOut,
-                                bpi->inputFaceNormal,
-                                bpi->outputFaceNormal);
+  auto vacProduct = fac.CreateSolid(name+"_vac", length - lengthSafety, apVacIn, apVacOut,
+                                    bpi->inputFaceNormal, bpi->outputFaceNormal);
+  vacuumSolid = vacProduct.product;
+  allSolids.insert(vacProduct.otherSolids.begin(), vacProduct.otherSolids.end());
   // do not delete apVac as it belongs to the beampipe info
   
   if (!bpi->vacuumOnly)
     {
-      beamPipeSolid = fac.CreateSolidWithInner(name+"_bp",
-                                               length,
-                                               apBpInnerIn,
-                                               apBpInnerOut,
-                                               bpi->beamPipeThickness,
-                                               bpi->inputFaceNormal,
-                                               bpi->outputFaceNormal);
+      auto bpProduct = fac.CreateSolidWithInner(name+"_bp", length, apBpInnerIn, apBpInnerOut,
+                                                bpi->beamPipeThickness, bpi->inputFaceNormal, bpi->outputFaceNormal);
+      beamPipeSolid = bpProduct.product;
+      allSolids.insert(bpProduct.otherSolids.begin(), bpProduct.otherSolids.end());
     }
   if (apBpInnerOut != apBpInnerIn)
     {delete apBpInnerOut;}
   delete apBpInnerIn;
   
-  containerSolid = fac.CreateSolid(name + "_cont_so",
-				   length,
-				   apContIn,
-				   apContOut,
-				   bpi->inputFaceNormal,
-				   bpi->outputFaceNormal);
+  auto contProduct = fac.CreateSolid(name + "_cont_so", length, apContIn, apContOut,
+				                             bpi->inputFaceNormal, bpi->outputFaceNormal);
+  containerSolid = contProduct.product;
+  allSolids.insert(contProduct.otherSolids.begin(), contProduct.otherSolids.end());
   
-  containerSubtractionSolid = fac.CreateSolid(name+"_cont_sub_so",
-                                              length,
-                                              apContSubIn,
-                                              apContSubOut,
-                                              nullptr,
-                                              nullptr,
-                                              0.2*length);
+  auto contSubProduct = fac.CreateSolid(name+"_cont_sub_so", length, apContSubIn, apContSubOut,
+                                              nullptr, nullptr, 0.2*length);
+  containerSubtractionSolid = contSubProduct.product;
+  allSolids.insert(contSubProduct.otherSolids.begin(), contSubProduct.otherSolids.end());
   delete apContSubIn;
   if (variedAperture)
     {delete apContSubOut;}
