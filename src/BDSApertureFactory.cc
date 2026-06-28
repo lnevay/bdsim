@@ -416,14 +416,14 @@ BDSApertureFactory::Product BDSApertureFactory::CreateCircle() const
   if (!angledFaces)
     {
       G4VSolid* product = new G4Tubs(productName, 0, ap->radius,
-                                     0.5 * productLength + productLengthExtra,
+                                     0.5 * productLength,
                                      0, CLHEP::twopi);
       return {product, {}};
     }
   else
     {
       G4VSolid* product = new G4CutTubs(productName, 0, ap->radius,
-                                        0.5 * productLength + productLengthExtra,
+                                        0.5 * productLength,
                                         0, CLHEP::twopi,
                                         productNormalIn, productNormalOut);
       return {product, {}};
@@ -437,7 +437,7 @@ BDSApertureFactory::Product BDSApertureFactory::CreateRectangle() const
     {return {nullptr, {}};}
   if (!angledFaces)
     {
-      G4VSolid* product = new G4Box(productName, ap->a, ap->b, 0.5 * productLength + productLengthExtra);
+      G4VSolid* product = new G4Box(productName, ap->a, ap->b, 0.5 * productLength);
       return {product, {}};
     }
   else
