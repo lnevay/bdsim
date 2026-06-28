@@ -79,10 +79,11 @@ BDSPolygon::BDSPolygon(const BDSPolygon& other):
 G4bool BDSPolygon::Inside(const G4TwoVector& point) const
 {
   G4bool result = true;
-  for (G4int i = 0; i < (G4int)size() - 1; i++)
+  G4int n = (G4int)size();
+  for (G4int i = 0; i < n; i++)
     {
       G4TwoVector test = points[i] - point;
-      G4TwoVector norm = (points[i+1] - points[i]).orthogonal();
+      G4TwoVector norm = (points[(i+1) % n] - points[i]).orthogonal();
       result &= test.dot(norm) > 0;
     }
   return result;
@@ -136,7 +137,7 @@ G4bool BDSPolygon::SelfIntersecting(G4int* const indexOfIntersectionA,
 BDSPolygon BDSPolygon::ApplyTiltOffset(const BDSTiltOffset& to) const
 {
   BDSPolygon r(*this);
-  if (!to.HasFiniteOffset() || !to.HasFiniteTilt())
+  if (!to.HasTiltOrOffset())
     {return r;}
   G4double t = to.Tilt();
   G4TwoVector offset = to.GetOffset2D();
@@ -156,10 +157,7 @@ BDSPolygon BDSPolygon::ExpandByValueUsingVertexNormals(G4double value) const
   std::vector<G4TwoVector> newPoints;
   newPoints.reserve(points.size());
   for (G4int i = 0; i < (G4int)points.size(); i++)
-    {
-      auto ur = vertexNormals[i];
-      newPoints.emplace_back(points[i] + (*vertexNormals)[i] * value);
-    }
+    {newPoints.emplace_back(points[i] + (*vertexNormals)[i] * value);}
   return BDSPolygon(newPoints);
 }
 
@@ -170,7 +168,6 @@ void BDSPolygon::ExpandByValueUsingVertexNormalsInPlace(G4double value)
   
   for (G4int i = 0; i < (G4int)points.size(); i++)
     {
-      auto ur = vertexNormals[i];
       G4TwoVector newValue = points[i] + (*vertexNormals)[i] * value;
       points[i] = newValue;
     }
@@ -182,7 +179,7 @@ BDSPolygon BDSPolygon::ScaleByValue(G4double scale) const
   std::vector<G4TwoVector> newPoints;
   newPoints.reserve(points.size());
   for (G4int i = 0; i < (G4int)points.size(); i++)
-    {newPoints[i] = points[i] * scale;}
+    {newPoints.emplace_back(points[i] * scale);}
   return BDSPolygon(newPoints);
 }
 
@@ -237,29 +234,32 @@ G4int BDSPolygon::SegmentsIntersect(const G4TwoVector& p1,
 				    const G4TwoVector& q2,
 				    G4TwoVector* intersectionPoint)
 {
+  // Algorithm parametrises segments as P(s) = p1 + s*D0 and Q(t) = q1 + t*D1.
   // Use a relative error test to test for parallelism.  This effectively
   // is a threshold on the angle between D0 and D1.  The threshold
-  // parameter ’sqrEpsilon’ can be defined in this function or be
+  // parameter ‘sqrEpsilon’ can be defined in this function or be
   // available globally.
+  G4TwoVector D0       = p2 - p1;
+  G4TwoVector D1       = q2 - q1;
   const G4double eps = std::numeric_limits<double>::epsilon() * std::abs(std::max(p1.x(), p1.y()));
   const G4double sqrEpsilon = eps*eps;
   G4TwoVector E        = q1 - p1;
-  G4double    kross    = p2.x() * q2.y() - p2.y() * q2.x();
+  G4double    kross    = D0.x() * D1.y() - D0.y() * D1.x();
   G4double    sqrKross = kross * kross;
-  G4double    sqrLen0  = p2.x() * p2.x() + p2.y() * p2.y();
-  G4double    sqrLen1  = q2.x() * q2.x() + q2.y() * q2.y();
+  G4double    sqrLen0  = D0.x() * D0.x() + D0.y() * D0.y();
+  G4double    sqrLen1  = D1.x() * D1.x() + D1.y() * D1.y();
   if (sqrKross > sqrEpsilon * sqrLen0 * sqrLen1)
     {
       // lines are not parallel
-      G4double s = (E.x() * q2.y() - E.y() *q2.x()) / kross;
+      G4double s = (E.x() * D1.y() - E.y() * D1.x()) / kross;
       if (intersectionPoint)
-	{*intersectionPoint = p1 + s * p2;}
+	{*intersectionPoint = p1 + s * D0;}
       return 1;
     }
-  
+
   // lines are parallel
   G4double sqrLenE = E.x() * E.x() + E.y() * E.y();
-  kross = E.x() * p2.y() - E.y() * p2.x();
+  kross = E.x() * D0.y() - E.y() * D0.x();
   sqrKross = kross * kross;
   if (sqrKross > sqrEpsilon * sqrLen0 * sqrLenE)
     {// lines are different
@@ -293,7 +293,7 @@ BDSPolygon BDSPolygon::Union(const BDSPolygon& other) const
   G4int nOtherInThis = 0;
   std::list<BDSPolygon::LabelledPoint> otherLabelled = GenerateLabelled(*this, other, &nOtherInThis);
   G4int nThisInOther = 0;
-  std::list<BDSPolygon::LabelledPoint> thisLabelled = GenerateLabelled(other, *this, &nOtherInThis);
+  std::list<BDSPolygon::LabelledPoint> thisLabelled = GenerateLabelled(other, *this, &nThisInOther);
 
   // if all outside search for intersections between all segments
   if (nOtherInThis == 0)
@@ -345,7 +345,7 @@ BDSPolygon BDSPolygon::InterpolateWithNPoints(unsigned int nPointsNew) const
 	    BDSFieldValue localData[2];
 	    G4double xFrac;
 	    array.ExtractSection2(newIndex, localData, xFrac);
-	    result[i] = ConvertBack(BDS::Linear1D(localData, xFrac));
+	    result.emplace_back(ConvertBack(BDS::Linear1D(localData, xFrac)));
 	  }
 	break;
       }
@@ -357,7 +357,7 @@ BDSPolygon BDSPolygon::InterpolateWithNPoints(unsigned int nPointsNew) const
 	    BDSFieldValue localData[4];
 	    G4double xFrac;
 	    array.ExtractSection4(newIndex, localData, xFrac);
-	    result[i] = ConvertBack(BDS::Cubic1D(localData, xFrac));
+	    result.emplace_back(ConvertBack(BDS::Cubic1D(localData, xFrac)));
 	  }
 	break;
       }
