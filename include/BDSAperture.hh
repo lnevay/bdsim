@@ -79,13 +79,13 @@ public:
 
   /// Check flagged parameters (variable number) are non-zero and throw exception if not.
   void CheckRequiredParametersSet(G4double aper1,     G4bool aper1Set,
-				  G4double aper2 = 0, G4bool aper2Set = false,
-				  G4double aper3 = 0, G4bool aper3Set = false,
-				  G4double aper4 = 0, G4bool aper4Set = false) const;
+                                  G4double aper2 = 0, G4bool aper2Set = false,
+                                  G4double aper3 = 0, G4bool aper3Set = false,
+                                  G4double aper4 = 0, G4bool aper4Set = false) const;
 
   /// Check value is >= 0 and throw exception with nameToWarn if not.
   void CheckParameterIsPositive(G4double        parameter,
-				const G4String& nameToWarn) const;
+                                const G4String& nameToWarn) const;
   
   virtual G4bool LessThan(const BDSAperture* other) const;
   
@@ -105,12 +105,12 @@ protected:
   /// Utility function to append points on an ellipse to a vector.
   static void AppendAngleEllipse(std::vector<G4TwoVector>& vec,
                                  G4double startAngle,
-				 G4double finishAngle,
-				 G4double radiusA,
-				 G4double radiusB,
+                                 G4double finishAngle,
+                                 G4double radiusA,
+                                 G4double radiusB,
                                  unsigned int nPoints,
-				 G4double xOffset,
-				 G4double yOffset);
+                                 G4double xOffset,
+                                 G4double yOffset);
 };
 
 #endif

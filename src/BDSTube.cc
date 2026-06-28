@@ -33,39 +33,39 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 
 BDSTube::BDSTube(const G4String&   nameIn,
-		 G4double          fullLengthIn,
-		 const BDSPolygon& startingShape):
+                 G4double          fullLengthIn,
+                 const BDSPolygon& startingShape):
   BDSTube(nameIn, fullLengthIn, startingShape.Points(), startingShape.Points())
 {;}
 
 BDSTube::BDSTube(const G4String&   nameIn,
-		 G4double          fullLengthIn,
-		 const BDSPolygon& startingShape,
-		 const BDSPolygon& finishingShape,
-		 unsigned int      numberOfSuggestedZSections):
+                 G4double          fullLengthIn,
+                 const BDSPolygon& startingShape,
+                 const BDSPolygon& finishingShape,
+                 unsigned int      numberOfSuggestedZSections):
   BDSTube(nameIn, fullLengthIn, startingShape.Points(), finishingShape.Points(), numberOfSuggestedZSections)
 {;}
 
 BDSTube::BDSTube(const G4String& nameIn,
-		 G4double        fullLengthIn,
-		 const std::vector<G4TwoVector>& startingPoints):
+                 G4double        fullLengthIn,
+                 const std::vector<G4TwoVector>& startingPoints):
   BDSTube(nameIn, fullLengthIn, startingPoints, startingPoints)
 {;}
 
 BDSTube::BDSTube(const G4String& nameIn,
-		 G4double        fullLengthIn,
-		 const std::vector<G4TwoVector>& startingPoints,
-		 const std::vector<G4TwoVector>& finishingPoints,
-		 unsigned int    numberOfSuggestedZSections):
+                 G4double        fullLengthIn,
+                 const std::vector<G4TwoVector>& startingPoints,
+                 const std::vector<G4TwoVector>& finishingPoints,
+                 unsigned int    numberOfSuggestedZSections):
   BDSTube(nameIn, -0.5*fullLengthIn, 0.5*fullLengthIn, startingPoints, finishingPoints, numberOfSuggestedZSections)
 {;}
 
 BDSTube::BDSTube(const G4String& nameIn,
-		 G4double        dZNegative,
-		 G4double        dZPositive,
-		 const std::vector<G4TwoVector>& startingPoints,
-		 const std::vector<G4TwoVector>& finishingPoints,
-		 unsigned int    numberOfSuggestedZSections):
+                 G4double        dZNegative,
+                 G4double        dZPositive,
+                 const std::vector<G4TwoVector>& startingPoints,
+                 const std::vector<G4TwoVector>& finishingPoints,
+                 unsigned int    numberOfSuggestedZSections):
   G4TessellatedSolid(nameIn)
 {
   // checks
@@ -82,12 +82,12 @@ BDSTube::BDSTube(const G4String& nameIn,
   if (spSize != fpSize)
     {
       if (spSize % fpSize == 0 || fpSize % spSize == 0)
-	{
-	  if (numberOfSuggestedZSections > 2)
-	    {throw BDSException(__METHOD_NAME__, "cannot use multiple z-sections with non 1:1 points.");}
-	  SubMultipleConstruction(dZNegative, dZPositive, startingPoints, finishingPoints);}
+        {
+          if (numberOfSuggestedZSections > 2)
+            {throw BDSException(__METHOD_NAME__, "cannot use multiple z-sections with non 1:1 points.");}
+          SubMultipleConstruction(dZNegative, dZPositive, startingPoints, finishingPoints);}
       else
-	{throw BDSException(__METHOD_NAME__, "mismatched sizes of points.");}
+        {throw BDSException(__METHOD_NAME__, "mismatched sizes of points.");}
     }
   else
     {
@@ -95,18 +95,18 @@ BDSTube::BDSTube(const G4String& nameIn,
       std::vector<G4double> z;
       G4double dzNorm = 1.0 / ((G4double)numberOfSuggestedZSections - 1.0);
       for (unsigned int i = 0; i < numberOfSuggestedZSections; i++)
-	{
-	  G4double t = (G4double)i * dzNorm;
-	  G4double points[2] = {dZNegative,dZPositive}; // TBC
-	  z.push_back(BDS::Linear1D(points, t));
-	}
+        {
+          G4double t = (G4double)i * dzNorm;
+          G4double points[2] = {dZNegative,dZPositive}; // TBC
+          z.push_back(BDS::Linear1D(points, t));
+        }
       RegularConstruction(z, startingPoints, finishingPoints);   
     }
 }
 
 void BDSTube::RegularConstruction(const std::vector<G4double>&    z,
-				  const std::vector<G4TwoVector>& startingPoints,
-				  const std::vector<G4TwoVector>& finishingPoints)
+                                  const std::vector<G4TwoVector>& startingPoints,
+                                  const std::vector<G4TwoVector>& finishingPoints)
 {
   if (z.size() < 2)
     {throw BDSException(__METHOD_NAME__, "must be at least 2 z positions.");}
@@ -125,47 +125,47 @@ void BDSTube::RegularConstruction(const std::vector<G4double>&    z,
       
       G4int limit = (G4int)sp.size();
       for (G4int i = 0; i < limit; i++)
-	{
-	  G4int j = i + 1;
-	  if (j == limit)
-	    {j = 0;}
+        {
+          G4int j = i + 1;
+          if (j == limit)
+            {j = 0;}
 
-	  G4TwoVector ii[2] = {sp[i],fp[i]}; // TBC
-	  G4TwoVector jj[2] = {sp[j],fp[j]};
-	  G4TwoVector si = BDS::Linear1D(ii, (G4double)zi   * dzNorm);
-	  G4TwoVector sj = BDS::Linear1D(jj, (G4double)zi   * dzNorm);
-	  G4TwoVector fi = BDS::Linear1D(ii, ((G4double)zi+1) * dzNorm);
-	  G4TwoVector fj = BDS::Linear1D(jj, ((G4double)zi+1) * dzNorm);
-	  
-	  G4TriangularFacet* facet1 = new G4TriangularFacet(G4TV(si.x(), si.y(), za),
-							    G4TV(sj.x(), sj.y(), za),
-							    G4TV(fi.x(), fi.y(), zb),
-							    G4FacetVertexType::ABSOLUTE);
-	  G4TriangularFacet* facet2 = new G4TriangularFacet(G4TV(sj.x(), sj.y(), za),
-							    G4TV(fj.x(), fj.y(), zb),
-							    G4TV(fi.x(), fi.y(), zb),
-							    G4FacetVertexType::ABSOLUTE);
-	  G4TriangularFacet* facetF = new G4TriangularFacet(G4TV(0,      0,      za),
-							    G4TV(sj.x(), sj.y(), za),
-							    G4TV(si.x(), si.y(), za),
-							    G4FacetVertexType::ABSOLUTE);
-	  G4TriangularFacet* facetB = new G4TriangularFacet(G4TV(0,      0,      zb),
-							    G4TV(fi.x(), fi.y(), zb),
-							    G4TV(fj.x(), fj.y(), zb),
-							    G4FacetVertexType::ABSOLUTE);
-	  AddFacet(facet1);
-	  AddFacet(facet2);
-	  AddFacet(facetF);
-	  AddFacet(facetB);
-	}
+          G4TwoVector ii[2] = {sp[i],fp[i]}; // TBC
+          G4TwoVector jj[2] = {sp[j],fp[j]};
+          G4TwoVector si = BDS::Linear1D(ii, (G4double)zi   * dzNorm);
+          G4TwoVector sj = BDS::Linear1D(jj, (G4double)zi   * dzNorm);
+          G4TwoVector fi = BDS::Linear1D(ii, ((G4double)zi+1) * dzNorm);
+          G4TwoVector fj = BDS::Linear1D(jj, ((G4double)zi+1) * dzNorm);
+          
+          G4TriangularFacet* facet1 = new G4TriangularFacet(G4TV(si.x(), si.y(), za),
+                                                            G4TV(sj.x(), sj.y(), za),
+                                                            G4TV(fi.x(), fi.y(), zb),
+                                                            G4FacetVertexType::ABSOLUTE);
+          G4TriangularFacet* facet2 = new G4TriangularFacet(G4TV(sj.x(), sj.y(), za),
+                                                            G4TV(fj.x(), fj.y(), zb),
+                                                            G4TV(fi.x(), fi.y(), zb),
+                                                            G4FacetVertexType::ABSOLUTE);
+          G4TriangularFacet* facetF = new G4TriangularFacet(G4TV(0,      0,      za),
+                                                            G4TV(sj.x(), sj.y(), za),
+                                                            G4TV(si.x(), si.y(), za),
+                                                            G4FacetVertexType::ABSOLUTE);
+          G4TriangularFacet* facetB = new G4TriangularFacet(G4TV(0,      0,      zb),
+                                                            G4TV(fi.x(), fi.y(), zb),
+                                                            G4TV(fj.x(), fj.y(), zb),
+                                                            G4FacetVertexType::ABSOLUTE);
+          AddFacet(facet1);
+          AddFacet(facet2);
+          AddFacet(facetF);
+          AddFacet(facetB);
+        }
     }
   SetSolidClosed(true);
 }
 
 void BDSTube::SubMultipleConstruction(G4double dZNegative,
-				      G4double dZPositive,
-				      const std::vector<G4TwoVector>& startingPoints,
-				      const std::vector<G4TwoVector>& finishingPoints)
+                                      G4double dZPositive,
+                                      const std::vector<G4TwoVector>& startingPoints,
+                                      const std::vector<G4TwoVector>& finishingPoints)
 {
   // shortcuts / aliases
   const std::vector<G4TwoVector>& sp = startingPoints;
@@ -181,31 +181,31 @@ void BDSTube::SubMultipleConstruction(G4double dZNegative,
     {
       unsigned int factor = fn / sn;
       for (unsigned int si = 0; si < sn; si++)
-	{// for each starting point (fewer)
-	  for (unsigned int fi = 0; fi < factor; fi++)
-	    {// one triangle from starting point to each end point multiple
-	      G4TriangularFacet* f = new G4TriangularFacet(G4TV(sp[si].x(),      sp[si].y(),      za),
-							   G4TV(fp[si+fi].x(),   fp[si+fi].y(),   zb),
-							   G4TV(fp[si+fi+1].x(), fp[si+fi+1].y(), zb),
-							   G4FacetVertexType::ABSOLUTE);
-	      AddFacet(f);
-	    }
-	}
+        {// for each starting point (fewer)
+          for (unsigned int fi = 0; fi < factor; fi++)
+            {// one triangle from starting point to each end point multiple
+              G4TriangularFacet* f = new G4TriangularFacet(G4TV(sp[si].x(),      sp[si].y(),      za),
+                                                           G4TV(fp[si+fi].x(),   fp[si+fi].y(),   zb),
+                                                           G4TV(fp[si+fi+1].x(), fp[si+fi+1].y(), zb),
+                                                           G4FacetVertexType::ABSOLUTE);
+              AddFacet(f);
+            }
+        }
     }
   else
     {// start has more points
       unsigned int factor = sn / fn;
       for (unsigned int fi = 0; fi < fn; fi++)
-	{// for each finishing point (fewer)
-	  for (unsigned int si = 0; si < factor; si++)
-	    {// one triangle from finishing point to each start point multiple
-	      G4TriangularFacet* f = new G4TriangularFacet(G4TV(fp[fi].x(),      fp[fi].y(),      zb),
-							   G4TV(sp[fi+si+1].x(), sp[fi+si+1].y(), za),
-							   G4TV(sp[fi+si].x(),   sp[fi+si].y(),   za),
-							   G4FacetVertexType::ABSOLUTE);
-	      AddFacet(f);
-	    }
-	}
+        {// for each finishing point (fewer)
+          for (unsigned int si = 0; si < factor; si++)
+            {// one triangle from finishing point to each start point multiple
+              G4TriangularFacet* f = new G4TriangularFacet(G4TV(fp[fi].x(),      fp[fi].y(),      zb),
+                                                           G4TV(sp[fi+si+1].x(), sp[fi+si+1].y(), za),
+                                                           G4TV(sp[fi+si].x(),   sp[fi+si].y(),   za),
+                                                           G4FacetVertexType::ABSOLUTE);
+              AddFacet(f);
+            }
+        }
 
     }
 
@@ -214,11 +214,11 @@ void BDSTube::SubMultipleConstruction(G4double dZNegative,
     {
       unsigned int j = i + 1;
       if (j == sn)
-	{j = 0;}
+        {j = 0;}
       G4TriangularFacet* f = new G4TriangularFacet(G4TV(0,         0,         za),
-						   G4TV(sp[j].x(), sp[j].y(), za),
-						   G4TV(sp[i].x(), sp[i].y(), za),
-						   G4FacetVertexType::ABSOLUTE);
+                                                   G4TV(sp[j].x(), sp[j].y(), za),
+                                                   G4TV(sp[i].x(), sp[i].y(), za),
+                                                   G4FacetVertexType::ABSOLUTE);
       AddFacet(f);
     }
 
@@ -227,11 +227,11 @@ void BDSTube::SubMultipleConstruction(G4double dZNegative,
     {
       unsigned int j = i + 1;
       if (j == fn)
-	{j = 0;}
+        {j = 0;}
       G4TriangularFacet* f = new G4TriangularFacet(G4TV(0,         0,         zb),
-						   G4TV(fp[i].x(), fp[i].y(), zb),
-						   G4TV(fp[j].x(), fp[j].y(), zb),
-						   G4FacetVertexType::ABSOLUTE);
+                                                   G4TV(fp[i].x(), fp[i].y(), zb),
+                                                   G4TV(fp[j].x(), fp[j].y(), zb),
+                                                   G4FacetVertexType::ABSOLUTE);
       AddFacet(f);
     }
   

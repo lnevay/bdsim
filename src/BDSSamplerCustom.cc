@@ -29,7 +29,7 @@ G4double BDSSamplerCustom::chordLength = -1;
 
 
 BDSSamplerCustom::BDSSamplerCustom(const G4String& nameIn,
-				   BDSAperture*    shape,
+                                   BDSAperture*    shape,
                                    G4int           filterSetIDIn):
   BDSSampler(nameIn, filterSetIDIn)
 {
