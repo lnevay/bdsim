@@ -2112,22 +2112,27 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateThinRMatrix(G4double        
                                                                 const G4String& name)
 {
   BDSMagnetStrength* st = PrepareMagnetStrengthForRMatrix(element);
+  auto bpi = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2();
+  G4double bpr = bpi->aperture->RadiusToEncompass();
   auto modulator = ModulatorDefinition(element, true);
-  return CreateThinRMatrix(angleIn, st, name, BDSIntegratorType::rmatrixthin, BDSFieldType::rmatrix, 0, modulator);
+  return CreateThinRMatrix(angleIn, st, name, BDSIntegratorType::rmatrixthin, BDSFieldType::rmatrix, bpr, modulator);
 }
 
 BDSAcceleratorComponent* BDSComponentFactory::CreateThinRMatrix(G4double                 angleIn,
-								BDSMagnetStrength*       st,
-								const G4String&          name,
-								BDSIntegratorType        intType,
-								BDSFieldType             fieldType,
-								G4double                 beamPipeRadius,
-								BDSModulatorInfo*        fieldModulator)
+                                                                BDSMagnetStrength*       st,
+                                                                const G4String&          name,
+                                                                BDSIntegratorType        intType,
+                                                                BDSFieldType             fieldType,
+                                                                G4double                 beamPipeRadius,
+                                                                BDSModulatorInfo*        fieldModulator)
 {
-  BDSBeamPipeInfo2* beamPipeInfo = PrepareBeamPipeInfo2(element, angleIn, -angleIn, "circularvacuum");
-  BDSApertureCircle* apCircle = dynamic_cast<BDSApertureCircle*>(beamPipeInfo->aperture);
-  if (apCircle)
-    {apCircle->radius = beamPipeRadius;}
+  BDSApertureFactory fac;
+  BDSAperture* ap = fac.CreateAperture(BDSApertureType::circle, beamPipeRadius, 0, 0, 0);
+  G4Material* vacMat = PrepareVacuumMaterial(element);
+  auto faces = BDS::CalculateFaces(angleIn, -angleIn);
+  BDSBeamPipeInfo2* beamPipeInfo = new BDSBeamPipeInfo2(BDSBeamPipeType::circularvacuum, ap, vacMat, 0, nullptr, true,
+                                                        nullptr, new G4ThreeVector(faces.first),
+                                                        new G4ThreeVector(faces.second));
 
   BDSMagnetOuterInfo* magnetOuterInfo = PrepareMagnetOuterInfo(name, element, -angleIn, angleIn, beamPipeInfo);
   magnetOuterInfo->geometryType = BDSMagnetGeometryType::none;
