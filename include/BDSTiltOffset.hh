@@ -66,6 +66,7 @@ public:
   ///@{ Inspector.
   G4bool HasFiniteOffset() const;
   G4bool HasFiniteTilt()   const;
+  G4bool HasTiltOrOffset() const {return HasFiniteTilt() || HasFiniteOffset();}
   ///@}
 
   /// Output stream.
