@@ -184,7 +184,7 @@ void BDSDetectorConstruction::UpdateSamplerDiameterAndCountSamplers()
         {nSamplers++;}
       
       G4double length = blElement.l;
-      G4double angle  = blElement.angle;
+      G4double angle  = std::abs(blElement.angle);
       if (!BDS::IsFinite(length))
         {continue;} // avoid divide by 0
       G4double ratio  = angle / length;
