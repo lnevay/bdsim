@@ -62,7 +62,10 @@ public:
   friend bool operator >  (const BDSAperture& lhs, const BDSAperture& rhs) {return rhs < lhs;}
   friend bool operator <= (const BDSAperture& lhs, const BDSAperture& rhs) {return !(lhs > rhs);}
   friend bool operator >= (const BDSAperture& lhs, const BDSAperture& rhs) {return !(lhs < rhs);}
-  
+
+  /// Optional 2nd stage construction that should be called after CheckInfoOk.
+  virtual void LoadData() {;}
+
   virtual BDSAperture* Plus(G4double number)  const = 0;
   virtual BDSAperture* Times(G4double number) const = 0;
   virtual BDSAperture* Clone() const = 0;

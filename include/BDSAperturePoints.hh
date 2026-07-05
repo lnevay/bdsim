@@ -33,6 +33,9 @@ class BDSPolygon;
 /**
  * @brief Points aperture.
  *
+ * Note, this does not load the aperture data in the constructor but relies
+ * on the LoadData() function to be called. Ideally, this happens after CheckInfoOk().
+ *
  * @author Laurie Nevay
  */
 
@@ -58,7 +61,10 @@ public:
   const BDSAperturePoints& operator+=(G4double number);
   BDSAperturePoints        operator* (G4double number) const;
   const BDSAperturePoints& operator*=(G4double number);
-  
+
+  /// Load the aperture data.
+  void LoadData() override;
+
   BDSAperture* Plus(G4double number) const override;
   BDSAperture* Times(G4double number) const override;
   BDSAperture* Clone() const override;

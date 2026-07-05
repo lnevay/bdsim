@@ -220,6 +220,7 @@ BDSAperture* BDSApertureFactory::CreateAperture(BDSApertureType at,
     {
       result->CheckInfoOK();
       result->SetTiltOffset(BDSTiltOffset(tilt, offsetX, offsetY));
+      result->LoadData(); // default does nothing for apertures that don't need it
     }
   return result;
 }

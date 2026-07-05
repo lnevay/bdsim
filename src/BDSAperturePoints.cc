@@ -36,10 +36,7 @@ BDSAperturePoints::BDSAperturePoints(const G4String& pointsFileNameIn,
   pointsFileName(pointsFileNameIn),
   unitsStr(unitsStrIn),
   points(nullptr)
-{
-  std::vector<G4TwoVector>* rawPoints = BDS::LoadAperturePoints(pointsFileName, unitsStr);
-  points = new BDSPolygon(*rawPoints);
-}
+{;}
 
 BDSAperturePoints::BDSAperturePoints(const BDSAperturePoints& other):
   BDSAperture(other.apertureType),
@@ -47,12 +44,19 @@ BDSAperturePoints::BDSAperturePoints(const BDSAperturePoints& other):
   unitsStr(other.unitsStr),
   points(nullptr)
 {
-  points = new BDSPolygon(*other.points);
+  if (other.points)
+    {points = new BDSPolygon(*other.points);}
 }
 
 BDSAperturePoints::~BDSAperturePoints() noexcept
 {
   delete points;
+}
+
+void BDSAperturePoints::LoadData()
+{
+  std::vector<G4TwoVector>* rawPoints = BDS::LoadAperturePoints(pointsFileName, unitsStr);
+  points = new BDSPolygon(*rawPoints);
 }
 
 G4bool BDSAperturePoints::Equals(const BDSAperture* other) const
