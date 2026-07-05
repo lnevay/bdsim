@@ -564,8 +564,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateDrift(G4double angleIn, G4do
 
   BDSBeamPipeInfo2* beamPipeInfo = PrepareBeamPipeInfo2(element, inputFaceNormal, outputFaceNormal);
   const BDSExtent extent = beamPipeInfo->Extent();
-  G4bool facesWillIntersect = BDS::WillIntersect(inputFaceNormal, outputFaceNormal,
-						 length, extent, extent);
+  G4bool facesWillIntersect = BDS::WillIntersect(inputFaceNormal, outputFaceNormal, length, extent, extent);
 
   if (facesWillIntersect)
     {
@@ -2115,8 +2114,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateThinRMatrix(G4double        
                                                                 G4double                 beamPipeRadius,
                                                                 BDSModulatorInfo*        fieldModulator)
 {
-  BDSApertureFactory fac;
-  BDSAperture* ap = fac.CreateAperture(BDSApertureType::circle, beamPipeRadius, 0, 0, 0);
+  BDSAperture* ap = apertureFactory.CreateAperture(BDSApertureType::circle, beamPipeRadius, 0, 0, 0);
   G4Material* vacMat = PrepareVacuumMaterial(element);
   auto faces = BDS::CalculateFaces(angleIn, -angleIn);
   BDSBeamPipeInfo2* beamPipeInfo = new BDSBeamPipeInfo2(BDSBeamPipeType::circularvacuum, ap, vacMat, 0, nullptr, true,
@@ -2574,8 +2572,6 @@ BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
                                                             const G4ThreeVector& outputFaceNormalIn,
                                                             const G4String& overrideBeamPipeType) const
 {
-  BDSApertureFactory apFac;
-  const BDSBeamPipeInfo2* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2();
   BDSBeamPipeInfo2* result;
   if (!BDSGlobalConstants::Instance()->IgnoreLocalAperture())
     {
@@ -2588,9 +2584,8 @@ BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
       if (!overrideBeamPipeType.empty())
         {
           bpt = BDS::DetermineBeamPipeType(overrideBeamPipeType);
-          BDSApertureFactory fac;
           G4bool useElementVars = BDS::IsFinite(el->aper1);
-          ap = fac.CreateAperture(bpt, *el, useElementVars);
+          ap = apertureFactory.CreateAperture(bpt, *el, useElementVars);
         }
       else if (!(el->apertureModel.empty()))
         {
@@ -2610,23 +2605,18 @@ BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
           G4bool elListMissing = el->aperture.empty();
           bpt = el->apertureType.empty() ? defaultBeamPipe->beamPipeType : BDS::DetermineBeamPipeType(el->apertureType);
           if (atMissing && (elVarsMissing || elListMissing))
-            {
-              ap = defaultModel->aperture->Clone();
-              bpt = defaultModel->beamPipeType;
-            }
-          else if (!atMissing && (elVarsMissing && elListMissing))
+            {ap = defaultBeamPipe->aperture->Clone();}
+          else if (!atMissing && (elVarsMissing && elListMissing) && bpt != BDSBeamPipeType::pointsfile)
             {throw BDSException(__METHOD_NAME__, "apertureType specified in element definition but no aperture parameters given");}
           else
             {
-              bpt = el->apertureType.empty() ? defaultModel->beamPipeType : BDS::DetermineBeamPipeType(el->apertureType);
               G4bool useElementVars = BDS::IsFinite(el->aper1);
-              BDSApertureFactory fac;
-              ap = fac.CreateAperture(bpt, *el, useElementVars);
+              ap = apertureFactory.CreateAperture(bpt, *el, useElementVars);
             }
         }
       
-      G4double thickness = BDS::IsFinite(el->beampipeThickness) ? el->beampipeThickness*CLHEP::m : defaultModel->beamPipeThickness;
-      G4Material* bpm = el->beampipeMaterial.empty() ? defaultModel->beamPipeMaterial : BDSMaterials::Instance()->GetMaterial(el->beampipeMaterial);
+      G4double thickness = BDS::IsFinite(el->beampipeThickness) ? el->beampipeThickness*CLHEP::m : defaultBeamPipe->beamPipeThickness;
+      G4Material* bpm = el->beampipeMaterial.empty() ? defaultBeamPipe->beamPipeMaterial : BDSMaterials::Instance()->GetMaterial(el->beampipeMaterial);
       result = new BDSBeamPipeInfo2(bpt, ap, PrepareVacuumMaterial(el), thickness, bpm);
     }
   else
