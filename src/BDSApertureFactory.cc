@@ -379,13 +379,13 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4Str
       Product result;
       G4ThreeVector in = {0, 0, -1};
       G4ThreeVector out = {0, 0, 1};
-      Product inner = CreateSolid(productName+"_inner", productLength + productLengthExtra,
+      Product inner = CreateSolid(productName+"_inner", length + productLengthExtra,
                                   productApertureIn, productApertureOut, &in, &out, 0);
       result.Extend(inner); // keep track of all solids
       productLengthExtra = 0;
       BDSAperture* apInOutside = apertureInInside->Plus(thickness);
-      Product outer = CreateSolid(productName+"_outer", 0.5*productLength, productApertureIn,
-                                  productApertureOut, normalIn, normalOut, 0);
+      Product outer = CreateSolid(productName+"_outer", length, apInOutside,
+                                  apInOutside, normalIn, normalOut, 0);
       result.Extend(outer);
       G4VSolid* product = new G4SubtractionSolid(productName, outer.product, inner.product);
       result.product = product;
@@ -742,8 +742,10 @@ BDSApertureFactory::Product BDSApertureFactory::HollowRectCircleToRectCircle(G4d
       G4VSolid* rectInside = new G4Box(productName + "_inner_rect_so", ap->a, ap->b, 1.1*productLength);
       G4VSolid* inner = new G4IntersectionSolid(productName+"_inner_so", circleInside, rectInside);
 
-      G4VSolid* circleOutside = new G4Tubs(productName + "_outer_circle_so", 0, ap->radius, 0.5*productLength, 0, CLHEP::twopi);
-      G4VSolid* rectOutside = new G4Box(productName + "_outer_rect_so", ap->a, ap->b, 0.6*productLength);
+      G4VSolid* circleOutside = new G4Tubs(productName + "_outer_circle_so", 0, ap->radius+thickness,
+                                           0.5*productLength, 0, CLHEP::twopi);
+      G4VSolid* rectOutside = new G4Box(productName + "_outer_rect_so", ap->a+thickness,
+                                        ap->b+thickness, 0.6*productLength);
       G4VSolid* outer = new G4IntersectionSolid(productName+"_outer_so", circleOutside, rectOutside);
 
       G4VSolid* product = new G4SubtractionSolid(productName+"_so", outer, inner);
@@ -751,16 +753,17 @@ BDSApertureFactory::Product BDSApertureFactory::HollowRectCircleToRectCircle(G4d
     }
   else
     {
-      G4VSolid* circleInside = new G4CutTubs(productName + "_inner_circle_so", 0, ap->radius+thickness,
+      G4VSolid* circleInside = new G4CutTubs(productName + "_inner_circle_so", 0, ap->radius,
                                              productLength+productLengthExtra, 0, CLHEP::twopi,
                                              productNormalIn, productNormalOut);
-      G4VSolid* rectInside = new G4Box(productName + "_inner_rect_so", ap->a+thickness, ap->b+thickness,
+      G4VSolid* rectInside = new G4Box(productName + "_inner_rect_so", ap->a, ap->b,
                                        1.1*(productLength+productLengthExtra));
       G4VSolid* inner = new G4IntersectionSolid(productName+"_inner_so", circleInside, rectInside);
 
-      G4VSolid* circleOutside = new G4CutTubs(productName + "_outer_circle_so", 0, ap->radius, 0.5*productLength,
+      G4VSolid* circleOutside = new G4CutTubs(productName + "_outer_circle_so", 0, ap->radius+thickness, 0.5*productLength,
                                               0, CLHEP::twopi, productNormalIn, productNormalOut);
-      G4VSolid* rectOutside = new G4Box(productName + "_outer_rect_so", ap->a, ap->b, 0.6*productLength+productLengthExtra);
+      G4VSolid* rectOutside = new G4Box(productName + "_outer_rect_so", ap->a+thickness, ap->b+thickness,
+                                        0.6*productLength+productLengthExtra);
       G4VSolid* outer = new G4IntersectionSolid(productName+"_outer_so", circleOutside, rectOutside);
 
       G4VSolid* product = new G4SubtractionSolid(productName+"_so", outer, inner);

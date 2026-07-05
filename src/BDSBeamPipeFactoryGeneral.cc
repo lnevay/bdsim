@@ -59,7 +59,7 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
   
   if (!bpi->vacuumOnly)
     {
-      auto bpProduct = fac.CreateSolidWithInner(name+"_bp", length-lengthSafety, apBpInnerIn, apBpInnerOut,
+      auto bpProduct = fac.CreateSolidWithInner(name+"_pipe", length-lengthSafety, apBpInnerIn, apBpInnerOut,
                                                 bpi->beamPipeThickness, bpi->inputFaceNormal, bpi->outputFaceNormal);
       beamPipeSolid = bpProduct.product;
       allSolids.insert(bpProduct.otherSolids.begin(), bpProduct.otherSolids.end());
@@ -68,12 +68,12 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
     {delete apBpInnerOut;}
   delete apBpInnerIn;
   
-  auto contProduct = fac.CreateSolid(name + "_cont_so", length, apContIn, apContOut,
+  auto contProduct = fac.CreateSolid(name + "_cont", length, apContIn, apContOut,
 				                             bpi->inputFaceNormal, bpi->outputFaceNormal);
   containerSolid = contProduct.product;
   allSolids.insert(contProduct.otherSolids.begin(), contProduct.otherSolids.end());
   
-  auto contSubProduct = fac.CreateSolid(name+"_cont_sub_so", length, apContSubIn, apContSubOut,
+  auto contSubProduct = fac.CreateSolid(name+"_cont_sub", length, apContSubIn, apContSubOut,
                                               nullptr, nullptr, 0.2*length);
   containerSubtractionSolid = contSubProduct.product;
   allSolids.insert(contSubProduct.otherSolids.begin(), contSubProduct.otherSolids.end());

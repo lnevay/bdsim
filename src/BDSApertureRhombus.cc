@@ -154,7 +154,6 @@ std::array<G4double,7> BDSApertureRhombus::ApertureNumbers() const
 
 BDSPolygon BDSApertureRhombus::PolygonNPoints(unsigned int nPointsIn) const
 {
-  nPointsIn = BDS::NextMultiple(nPointsIn, 8); // ensure multiple of 8
   std::vector<G4TwoVector> vec;
   if (! (cornerRadius > 0))
     {
@@ -166,6 +165,7 @@ BDSPolygon BDSApertureRhombus::PolygonNPoints(unsigned int nPointsIn) const
     }
   else
     {
+      nPointsIn = BDS::NextMultiple(nPointsIn, 8); // ensure multiple of 8
       // The rhombus may be asymmetric, in which case building a pi/2 range of curve
       // won't result in a smooth transition to the straight sections. We need to work
       // out what range of angle to cover to come to the right tangent.
