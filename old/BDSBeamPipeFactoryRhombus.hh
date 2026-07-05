@@ -16,10 +16,9 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef BDSAPERTURERHOMBUS_H
-#define BDSAPERTURERHOMBUS_H
+#ifndef BDSBEAMPIPEFACTORYRHOMBUS_H
+#define BDSBEAMPIPEFACTORYRHOMBUS_H
 
-/*
 #include "BDSBeamPipeFactoryPoints.hh"
 
 namespace BDS
@@ -31,14 +30,13 @@ namespace BDS
     G4double aper3;
   };
 }
-*/
 
 /**
  * @brief Factory for rhombus aperture model beampipes.
  * 
  * This is a diamond shaped aperture. It optionally has a corner radius
  * for rounded edges. aper1 is the full extent of what would be the unrounded
- * corner in x; aper2 is the full extent of what would be the unrounded
+ * corner in x; aper2 is the full extent of what would be the the unrounded
  * corner in y. aper3 is the radius of curvature for the corners and is optional,
  * with the default value of 0.
  *
@@ -46,7 +44,7 @@ namespace BDS
  * 
  * @author Laurie Nevay
  */
-/*
+
 class BDSBeamPipeFactoryRhombus: public BDSBeamPipeFactoryPoints
 {
 public:
@@ -82,50 +80,5 @@ private:
                                  G4double aper3,
                                  G4double distance);
 };
-*/
-
-
-#include "BDSApertureCurved.hh"
-#include "BDSTiltOffset.hh"
-
-#include "G4Types.hh"
-
-#include <array>
-
-class BDSExtent;
-class BDSPolygon;
-
-
-class BDSApertureRhombus: public BDSApertureCurved
-{
-public:
-  BDSApertureRhombus() = delete;
-  BDSApertureRhombus(G4double xIn,
-                     G4double yIn,
-                     G4double cornerRadiusIn,
-                     unsigned int nPointsPerTwoPiIn = 24);
-  virtual ~BDSApertureRhombus(){;}
-
-  G4double x;
-  G4double y;
-  G4double cornerRadius;
-
-  G4bool    Equals(const BDSAperture* other) const override;
-  void      CheckInfoOK()                    const override;
-  G4double  RadiusToEncompass()              const override;
-  BDSExtent Extent()                         const override;
-  unsigned int MinimumNumberOfPoints()       const override;
-
-  BDSApertureRhombus        operator+ (G4double number) const;
-  const BDSApertureRhombus& operator+=(G4double number);
-  BDSApertureRhombus        operator* (G4double number) const;
-  const BDSApertureRhombus& operator*=(G4double number);
-
-  BDSAperture* Plus(G4double number) const override;
-  BDSAperture* Times(G4double number) const override;
-  BDSAperture* Clone() const override;
-  std::array<G4double, 7> ApertureNumbers() const override;
-
-  BDSPolygon PolygonNPoints(unsigned int nPointsIn) const override;
-};
+  
 #endif
