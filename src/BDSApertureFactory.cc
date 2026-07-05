@@ -277,8 +277,8 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolid(const G4String&    n
                                                             const G4ThreeVector* normalOut,
                                                             G4double           lengthExtraForBoolean)
 {
-  productNormalIn  = normalIn  ? *normalIn : G4ThreeVector();
-  productNormalOut = normalOut ? *normalOut : G4ThreeVector();
+  productNormalIn  = normalIn  ? *normalIn : G4ThreeVector(0, 0, -1);
+  productNormalOut = normalOut ? *normalOut : G4ThreeVector(0, 0, 1);
   angledFaces      = AngledFaces(productNormalIn, productNormalOut);
   
   if (!apertureIn)
@@ -350,8 +350,8 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4Str
                                                                      const G4ThreeVector* normalOut,
                                                                      G4double             lengthExtraForBoolean)
 {
-  productNormalIn  = normalIn  ? *normalIn : G4ThreeVector();
-  productNormalOut = normalOut ? *normalOut : G4ThreeVector();
+  productNormalIn  = normalIn  ? *normalIn : G4ThreeVector(0,0,-1);
+  productNormalOut = normalOut ? *normalOut : G4ThreeVector(0, 0, 1);
   angledFaces      = AngledFaces(productNormalIn, productNormalOut);
   
   if (!apertureInInside)
@@ -377,10 +377,8 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4Str
   else if (!variedAperture)
     {// use two instances of the same shape but with one expanded to make a subtraction
       Product result;
-      G4ThreeVector in = {0, 0, -1};
-      G4ThreeVector out = {0, 0, 1};
       Product inner = CreateSolid(productName+"_inner", length + productLengthExtra,
-                                  productApertureIn, productApertureOut, &in, &out, 0);
+                                  productApertureIn, productApertureOut, normalIn, normalOut, 0);
       result.Extend(inner); // keep track of all solids
       productLengthExtra = 0;
       BDSAperture* apInOutside = apertureInInside->Plus(thickness);
@@ -422,8 +420,8 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInnerVariableThic
                                                                                       const G4ThreeVector* normalOut,
                                                                                       G4double             lengthExtraForBoolean)
 {
-  productNormalIn  = normalIn  ? *normalIn : G4ThreeVector();
-  productNormalOut = normalOut ? *normalOut : G4ThreeVector();
+  productNormalIn  = normalIn  ? *normalIn : G4ThreeVector(0, 0, -1);
+  productNormalOut = normalOut ? *normalOut : G4ThreeVector(0, 0, 1);
   angledFaces      = normalIn || normalOut;
   
   // If the apertures are twisted, it would be possible to create a shape where both the inner apertures
