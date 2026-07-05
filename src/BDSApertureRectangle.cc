@@ -116,12 +116,21 @@ std::array<G4double,7> BDSApertureRectangle::ApertureNumbers() const
 
 BDSPolygon BDSApertureRectangle::PolygonNPoints(unsigned int nPointsIn) const
 {
-  nPointsIn = BDS::NextMultiple(nPointsIn,4); // ensure multiple of 4
-  /// TODO deal with nPoints
   std::vector<G4TwoVector> r;
-  r.emplace_back(G4TwoVector( a,  b));
-  r.emplace_back(G4TwoVector(-a,  b));
-  r.emplace_back(G4TwoVector(-a, -b));
-  r.emplace_back(G4TwoVector( a, -b));
-  return BDSPolygon(r);
+  r.emplace_back( a,  b);
+  r.emplace_back(-a,  b);
+  r.emplace_back(-a, -b);
+  r.emplace_back( a, -b);
+
+  if (nPointsIn == 8)
+    {return BDSPolygon(r);}
+  else
+    {
+      nPointsIn = BDS::NextMultiple(nPointsIn, 4); // ensure multiple of 8
+      unsigned int nPointsPerEdge = nPointsIn / 4;
+      std::vector<G4TwoVector> result;
+      for (G4int i=0; i < 8; i++)
+        {AddPointsOnLineUpTo(result, r[i], r[(i+1)%4], nPointsPerEdge);}
+      return BDSPolygon(result);
+    }
 }

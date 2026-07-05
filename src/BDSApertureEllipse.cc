@@ -122,6 +122,6 @@ BDSPolygon BDSApertureEllipse::PolygonNPoints(unsigned int nPointsIn) const
   r.reserve(nPointsIn);
   G4double dTheta = CLHEP::twopi / (G4double)nPointsIn;
   for (unsigned int i = 0; i < nPointsIn; i++)
-    {r.emplace_back(G4TwoVector(a * std::cos(i*dTheta), b * std::sin(i*dTheta)));}
+    {r.emplace_back(a * std::cos(i*dTheta), b * std::sin(i*dTheta));}
   return BDSPolygon(r);
 }

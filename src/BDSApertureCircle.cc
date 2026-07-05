@@ -136,6 +136,6 @@ BDSPolygon BDSApertureCircle::PolygonNPoints(unsigned int nPointsIn) const
   r.reserve(nPointsIn);
   G4double dTheta = CLHEP::twopi / (G4double)nPointsIn;
   for (unsigned int i = 0; i < nPointsIn; i++)
-    {r.emplace_back(G4TwoVector(radius * std::cos(i*dTheta), radius * std::sin(i*dTheta)));}
+    {r.emplace_back(radius * std::cos(i*dTheta), radius * std::sin(i*dTheta));}
   return BDSPolygon(r);
 }

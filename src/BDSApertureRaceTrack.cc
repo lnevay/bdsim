@@ -129,16 +129,13 @@ std::array<G4double,7> BDSApertureRaceTrack::ApertureNumbers() const
 BDSPolygon BDSApertureRaceTrack::PolygonNPoints(unsigned int nPointsIn) const
 {
   nPointsIn = BDS::NextMultiple(nPointsIn, 4); // ensure multiple of 4
-  std::vector<G4TwoVector> r;
-  r.reserve(nPointsIn);
-  G4int pointsPerCurve = nPointsIn / 4;
-  AppendAngleEllipse(r, 0, 0.5 * CLHEP::pi, radius, radius, pointsPerCurve, x, y);
-  r.emplace_back(x + radius, y);
-  AppendAngleEllipse(r, 0.5 * CLHEP::pi, CLHEP::pi, radius, radius, pointsPerCurve, x, -y);
-  r.emplace_back(x, -y - radius);
-  AppendAngleEllipse(r, CLHEP::pi, (3./2.) * CLHEP::pi, radius, radius, pointsPerCurve, -x, -y);
-  r.emplace_back(-x - radius, -y);
-  AppendAngleEllipse(r, (3. / 2) * CLHEP::pi, CLHEP::twopi, radius, radius, pointsPerCurve, -x, y);
-  r.emplace_back(-x, y + radius);
-  return BDSPolygon(r);
+  std::vector<G4TwoVector> vec;
+  auto pointsPerCurve = (G4int)(nPointsIn / 4);
+
+  AppendAngle(vec, 0,             0.5*CLHEP::pi,     radius, pointsPerCurve, x, y);
+  AppendAngle(vec, 0.5*CLHEP::pi, CLHEP::pi,         radius, pointsPerCurve, x, -y);
+  AppendAngle(vec, CLHEP::pi,     (3./2.)*CLHEP::pi, radius, pointsPerCurve, -x, -y);
+  AppendAngle(vec, (3./2)*CLHEP::pi, CLHEP::twopi,   radius, pointsPerCurve, -x, y);
+
+  return BDSPolygon(vec);
 }

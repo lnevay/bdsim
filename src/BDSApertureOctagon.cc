@@ -136,16 +136,24 @@ std::array<G4double,7> BDSApertureOctagon::ApertureNumbers() const
 
 BDSPolygon BDSApertureOctagon::PolygonNPoints(unsigned int nPointsIn) const
 {
-  nPointsIn = BDS::NextMultiple(nPointsIn, 8); // ensure multiple of 8
-  /// TODO deal with nPoints
   std::vector<G4TwoVector> r;
-  r.emplace_back(G4TwoVector( x,      yEdge));
-  r.emplace_back(G4TwoVector( x,     -yEdge));
-  r.emplace_back(G4TwoVector( xEdge, -y));
-  r.emplace_back(G4TwoVector(-xEdge, -y));
-  r.emplace_back(G4TwoVector(-x,     -yEdge));
-  r.emplace_back(G4TwoVector(-x,      yEdge));
-  r.emplace_back(G4TwoVector(-xEdge,  y));
-  r.emplace_back(G4TwoVector( xEdge,  y));
-  return BDSPolygon(r);
+  r.emplace_back( x,      yEdge);
+  r.emplace_back( x,     -yEdge);
+  r.emplace_back( xEdge, -y);
+  r.emplace_back(-xEdge, -y);
+  r.emplace_back(-x,     -yEdge);
+  r.emplace_back(-x,      yEdge);
+  r.emplace_back(-xEdge,  y);
+  r.emplace_back( xEdge,  y);
+  if (nPointsIn == 8)
+    {return BDSPolygon(r);}
+  else
+    {
+      nPointsIn = BDS::NextMultiple(nPointsIn, 8); // ensure multiple of 8
+      unsigned int nPointsPerEdge = nPointsIn / 8;
+      std::vector<G4TwoVector> result;
+      for (G4int i=0; i < 8; i++)
+        {AddPointsOnLineUpTo(result, r[i], r[(i+1)%8], nPointsPerEdge);}
+      return BDSPolygon(result);
+    }
 }
