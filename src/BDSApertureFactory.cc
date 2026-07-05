@@ -118,7 +118,9 @@ BDSAperture* BDSApertureFactory::CreateAperture(BDSBeamPipeType bpt,
                                                 G4bool useElementVariables) const
 {
   BDSApertureType apt = BDS::ApertureTypeFromBeamPipeType(bpt);
-  if (useElementVariables)
+  if (bpt == BDSBeamPipeType::pointsfile)
+    {return CreateAperture(apt, 0, 0, 0, 0, 0, 0, 0, 0, el.apertureType);}
+  else if (useElementVariables)
     {
       return CreateAperture(apt,
                             el.aper1 * CLHEP::m,
