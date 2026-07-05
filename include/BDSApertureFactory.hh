@@ -174,8 +174,10 @@ private:
   /// @}
   /// @{ Specialisation for particular solids for hollow solid.
   Product HollowCircleToCircle(G4double thickness) const;
-  Product HollowRectangleToRectangle(G4double thickness) const;
   Product HollowEllipseToEllipse(G4double thickness) const;
+  Product HollowRectangleToRectangle(G4double thickness) const;
+  Product HollowRectCircleToRectCircle(G4double thickness) const;
+  Product HollowRectEllipseToRectEllipse(G4double thickness) const;
   /// @}
 
   /// Ratio of radii used for an intersection solid - greater than 1 and
