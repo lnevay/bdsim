@@ -88,8 +88,8 @@ BDSGlobalConstants::BDSGlobalConstants(const GMAD::Options& opt):
 
   defaultAperture.apertureType = options.apertureType;
   defaultAperture.aper1 = options.aper1;
-  defaultAperture.aper2 = options.aper3;
-  defaultAperture.aper3 = options.aper4;
+  defaultAperture.aper2 = options.aper2;
+  defaultAperture.aper3 = options.aper3;
   defaultAperture.aper4 = options.aper4;
 
   magnetGeometryType = BDS::DetermineMagnetGeometryType(options.magnetGeometryType);
