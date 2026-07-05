@@ -99,20 +99,37 @@ public:
   /// be called from the public Polygon() function that will check the value.
   virtual BDSPolygon PolygonNPoints(unsigned int nPointsIn) const = 0;
 
+  /// Generate 2-vector points (and append them) about a circle. Uses ellipse
+  /// code with equal radii.
+  static void AppendAngle(std::vector<G4TwoVector>& vec,
+                          G4double startAngle,
+                          G4double finishAngle,
+                          G4double radius,
+                          G4int    nPoints = 10,
+                          G4double xOffset = 0,
+                          G4double yOffset = 0);
+
+  /// Generate 2-vector points (and append them) about an ellipse.
+  static void AppendAngleEllipse(std::vector<G4TwoVector>& vec,
+                                 G4double startAngle,
+                                 G4double finishAngle,
+                                 G4double radiusA,   // radius in horizontal
+                                 G4double radiusB,   // radius in vertical
+                                 G4int    nPoints = 10,
+                                 G4double xOffset = 0,
+                                 G4double yOffset = 0);
+
+  /// Add nPoints between start and stop to vec including start but excluding stop. i.e.
+  /// start----1----2----3(....stop)  is added to vec for nPoints=3. Stop is not added.
+  static void AddPointsOnLineUpTo(std::vector<G4TwoVector>& vec,
+                                  const G4TwoVector& start,
+                                  const G4TwoVector& stop,
+                                  unsigned int nPoints);
+
 protected:
   /// Apply the members offsetX, offsetY and tilt to an extent. Utility
   /// function for Extent() implemented in derived classes.
   inline BDSExtent ExtentOffsetTilt(const BDSExtent& simpleExtent) const {return simpleExtent.TiltOffset(&tiltOffset);}
-
-  /// Utility function to append points on an ellipse to a vector.
-  static void AppendAngleEllipse(std::vector<G4TwoVector>& vec,
-                                 G4double startAngle,
-                                 G4double finishAngle,
-                                 G4double radiusA,
-                                 G4double radiusB,
-                                 unsigned int nPoints,
-                                 G4double xOffset,
-                                 G4double yOffset);
 };
 
 #endif

@@ -204,31 +204,6 @@ private:
   std::pair<BDSApertureType, BDSApertureType> MakePair(BDSApertureType a1,
                                                        BDSApertureType a2) const;
 
-  /// Utility funciton to append a point.
-  void AppendPoint(std::vector<G4TwoVector>& vec,
-                   G4double x,
-                   G4double y) const;
-
-  /// Generate 2-vector points (and append them) about a circle. Uses ellipse
-  /// code with equal radii.
-  void AppendAngle(std::vector<G4TwoVector>& vec,
-                   G4double startAngle,
-                   G4double finishAngle,
-                   G4double radius,
-                   G4int    nPoints = 10,
-                   G4double xOffset = 0,
-                   G4double yOffset = 0) const;
-
-  /// Generate 2-vector points (and append them) about an ellipse.
-  void AppendAngleEllipse(std::vector<G4TwoVector>& vec,
-                          G4double startAngle,
-                          G4double finishAngle,
-                          G4double radiusA,   // radius in horizontal
-                          G4double radiusB,   // radius in vertical
-                          G4int    nPoints = 10,
-                          G4double xOffset = 0,
-                          G4double yOffset = 0) const;
-
   /// Typedef for function pointers to simplify syntax.
   typedef Product(BDSApertureFactory::*Constructor)(void) const;
 

@@ -83,24 +83,46 @@ G4bool BDSAperture::LessThan(const BDSAperture* other) const
   return Polygon().Inside(other->Polygon());
 }
 
+void BDSAperture::AppendAngle(std::vector<G4TwoVector>& vec,
+                              G4double startAngle,
+                              G4double finishAngle,
+                              G4double radius,
+                              G4int    nPoints,
+                              G4double xOffset,
+                              G4double yOffset)
+{
+  AppendAngleEllipse(vec, startAngle, finishAngle, radius, radius,nPoints, xOffset, yOffset);
+}
+
 void BDSAperture::AppendAngleEllipse(std::vector<G4TwoVector>& vec,
-				     G4double startAngle,
-				     G4double finishAngle,
-				     G4double radiusA,
-				     G4double radiusB,
-                                     unsigned int nPoints,
-				     G4double xOffset,
-				     G4double yOffset)
+                                     G4double startAngle,
+                                     G4double finishAngle,
+                                     G4double radiusA,
+                                     G4double radiusB,
+                                     G4int    nPoints,
+                                     G4double xOffset,
+                                     G4double yOffset)
 {
   G4double diff = finishAngle - startAngle;
-  G4double delta = diff / (G4double)nPoints;
-  for (G4double ang = startAngle; ang < finishAngle;)
-    {// l for local
+  G4double delta = diff / ((G4double)nPoints-1);
+  G4double ang = startAngle;
+  for (G4int i = 0; i < nPoints; i++)
+    { // l for local
       G4double xl = xOffset + radiusA*std::sin(ang);
       G4double yl = yOffset + radiusB*std::cos(ang);
       vec.emplace_back(xl, yl);
       ang += delta;
     }
+}
+
+void BDSAperture::AddPointsOnLineUpTo(std::vector<G4TwoVector>& vec,
+                                      const G4TwoVector& start,
+                                      const G4TwoVector& stop,
+                                      unsigned int nPoints)
+{
+  auto diff = (stop - start)/(nPoints-1);
+  for (G4int i=0; i<(G4int)nPoints; i++)
+    {vec.push_back(start + i*diff);}
 }
 
 BDSPolygon BDSAperture::Polygon(unsigned int nPointsIn) const

@@ -139,8 +139,6 @@ BDSPolygon BDSApertureClicPCL::PolygonNPoints(unsigned int nPointsIn) const
   nPointsIn = BDS::NextMultiple(nPointsIn, 2); // ensure multiple of 2
   G4int nPoints = nPointsIn / 2;
   AppendAngleEllipse(r, -CLHEP::halfpi, CLHEP::halfpi, x, yTop, nPoints, 0, ySep);
-  r.emplace_back(G4TwoVector(x, ySep));
   AppendAngleEllipse(r, CLHEP::halfpi, CLHEP::halfpi + CLHEP::pi, x, yBottom, nPoints, 0, 0);
-  r.emplace_back(G4TwoVector(-x, 0));
   return BDSPolygon(r);
 }
