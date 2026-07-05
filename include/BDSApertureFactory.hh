@@ -50,6 +50,7 @@ class BDSApertureFactory
 {
 public:
   BDSApertureFactory();
+  explicit BDSApertureFactory(G4double nPointsPerTwoPiIn);
   ~BDSApertureFactory();
 
   /// Create an aperture from a parser element definition but fall back to a default model.
@@ -184,8 +185,9 @@ private:
   Product HollowRectEllipseToRectEllipse(G4double thickness) const;
   /// @}
 
-  /// Ratio of radii used for an intersection solid - greater than 1 and
-  /// defined arbitrarily.
+  G4double nPointsPerTwoPi;
+
+  /// Ratio of radii used for an intersection solid - greater than 1 and defined arbitrarily.
   const G4double intersectionRadiusRatio;
 
   /// @{ Cache of input variable to simplify function arguments.

@@ -65,6 +65,11 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 
 BDSApertureFactory::BDSApertureFactory():
+  BDSApertureFactory(24)
+{;}
+
+BDSApertureFactory::BDSApertureFactory(G4double nPointsPerTwoPiIn):
+  nPointsPerTwoPi(nPointsPerTwoPiIn),
   intersectionRadiusRatio(1.3),
   productName(""),
   productLength(0),
@@ -93,7 +98,6 @@ BDSApertureFactory::~BDSApertureFactory()
 
 G4int BDSApertureFactory::DefaultNPoints(BDSApertureType apt) const
 {
-  G4int nPointsPerTwoPi = 24;
   std::map<BDSApertureType, G4int> npoints = {
     {BDSApertureType::circle, nPointsPerTwoPi},
     {BDSApertureType::ellipse, nPointsPerTwoPi},
