@@ -361,7 +361,7 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4Str
   lengthExtraForBoolean = CalculateExtraLength(lengthExtraForBoolean);
   productLengthExtra = lengthExtraForBoolean;
   
-  // check specialisations
+  // check specialisations - these are more optimal combinations
   auto key    = MakePair(productApertureIn->apertureType, productApertureOut->apertureType);
   auto search = hollowSpecialisations.find(key);
   if (search != hollowSpecialisations.end())
@@ -369,14 +369,32 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4Str
       auto mem = search->second;
       return (this->*mem)(thickness);
     }
-  else // no specialisation -> use polygons
+  else if (!variedAperture)
+    {// use two instances of the same shape but with one expanded to make a subtraction
+      Product result;
+      G4ThreeVector in = {0, 0, -1};
+      G4ThreeVector out = {0, 0, 1};
+      Product inner = CreateSolid(productName+"_inner", productLength + productLengthExtra,
+                                  productApertureIn, productApertureOut, &in, &out, 0);
+      result.Extend(inner); // keep track of all solids
+      productLengthExtra = 0;
+      BDSAperture* apInOutside = apertureInInside->Plus(thickness);
+      Product outer = CreateSolid(productName+"_outer", 0.5*productLength, productApertureIn,
+                                  productApertureOut, normalIn, normalOut, 0);
+      result.Extend(outer);
+      G4VSolid* product = new G4SubtractionSolid(productName, outer.product, inner.product);
+      result.product = product;
+      delete apInOutside;
+      return result;
+    }
+  else // no specialisation and different types -> use polygons
     {
       Product result;
       Product inner = CreateTubeByPoints("_inner");
       result.Extend(inner); // keep track of all solids
       productLengthExtra = 0;
       BDSAperture* apInOutside = apertureInInside->Plus(thickness);
-      BDSAperture* apOutOutside = variedAperture ? apertureOutInside->Plus(thickness) : apInOutside;
+      BDSAperture* apOutOutside = apertureOutInside->Plus(thickness); // must be different from "in" as variedAperture==true
       productApertureIn = apInOutside; // assign to members for factory action
       productApertureOut = apOutOutside;
       Product outer = CreateTubeByPoints("_outer");
@@ -384,8 +402,7 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolidWithInner(const G4Str
       G4VSolid* product = new G4SubtractionSolid(productName, outer.product, inner.product);
       result.product = product;
       delete apInOutside;
-      if (variedAperture)
-        {delete apOutOutside;}
+      delete apOutOutside;
       return result;
     }
 }
