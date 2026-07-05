@@ -175,6 +175,7 @@ BDSFieldFactory::BDSFieldFactory():
   chordStepMinimumYoke(1),
   defaultUserLimits(nullptr)
 {
+  defaultUserLimits = BDSGlobalConstants::Instance()->DefaultUserLimits();
   G4double defaultRigidity = std::numeric_limits<double>::max();
   if (designParticle)
     {defaultRigidity = designParticle->BRho();}
@@ -188,7 +189,6 @@ BDSFieldFactory::BDSFieldFactory():
   verbose = BDSGlobalConstants::Instance()->Verbose();
   chordStepMinimumYoke = BDSGlobalConstants::Instance()->ChordStepMinimumYoke();
   ptcOneTurnMapFileName = BDSGlobalConstants::Instance()->PTCOneTurnMapFileName();
-  defaultUserLimits = BDSGlobalConstants::Instance()->DefaultUserLimits();
 }
 
 BDSFieldFactory::~BDSFieldFactory()
