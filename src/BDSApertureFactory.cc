@@ -465,7 +465,7 @@ BDSApertureFactory::Product BDSApertureFactory::CreateRectangle() const
       G4VSolid* box = new G4Box(productName+"_square_so", ap->a, ap->b,
                                 productLength + productLengthExtra); // factor 2 here
       G4double maxRadius = ap->RadiusToEncompass();
-      G4VSolid* cut = CutSolid(productName+"_cut_so", productLength, maxRadius);
+      G4VSolid* cut = CutSolid(productName+"_cut_so", 0.5*productLength, maxRadius);
       G4VSolid* product = new G4IntersectionSolid(productName+"_so", box, cut);
       return {product, {box, cut}};
     }
