@@ -167,7 +167,7 @@ private:
   /// Create a shape with different ends.
   Product CreateDifferentEnds() const;
   
-  Product CreateTubeByPoints()  const;
+  Product CreateTubeByPoints(const G4String& nameSuffix)  const;
 
   /// @{ Specialisation for particular solids.
   Product CreateDifferentEndsCircleToCircle() const;
