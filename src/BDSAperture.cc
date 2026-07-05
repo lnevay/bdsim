@@ -134,7 +134,10 @@ BDSPolygon BDSAperture::Polygon(unsigned int nPointsIn) const
   unsigned int rnp = RecommendedNumberOfPoints();
   unsigned int np = nPointsIn == 0 ? rnp : nPointsIn;
   if (np < mnp)
-    {throw BDSException(__METHOD_NAME__, "number of points for aperture specified < " + std::to_string(mnp) + ".");}
+    {
+      G4String msg = apertureType.ToString() + " -> number of points for aperture specified < " + std::to_string(mnp);
+      throw BDSException(__METHOD_NAME__, msg);
+    }
   BDSPolygon r = PolygonNPoints(MinimumNumberOfPoints());
   return r.ApplyTiltOffset(tiltOffset);
 }

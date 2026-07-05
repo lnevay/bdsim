@@ -103,7 +103,7 @@ public:
   BDSApertureRhombus(G4double xIn,
                      G4double yIn,
                      G4double cornerRadiusIn,
-                     unsigned int nPointsPerTwoPiIn = 24);
+                     unsigned int nPointsPerTwoPiIn = 0);
   virtual ~BDSApertureRhombus(){;}
 
   G4double x;
@@ -127,5 +127,8 @@ public:
   std::array<G4double, 7> ApertureNumbers() const override;
 
   BDSPolygon PolygonNPoints(unsigned int nPointsIn) const override;
+
+private:
+  G4double nPointsMinimum;
 };
 #endif

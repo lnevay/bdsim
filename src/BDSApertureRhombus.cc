@@ -41,10 +41,17 @@ BDSApertureRhombus::BDSApertureRhombus(G4double xIn,
   BDSApertureCurved(BDSApertureType::rhombus, nPointsPerTwoPi),
   x(xIn),
   y(yIn),
-  cornerRadius(cornerRadiusIn)
+  cornerRadius(cornerRadiusIn),
+  nPointsMinimum(0)
 {
+  nPointsMinimum = cornerRadius > 0 ? 24 : 4;
   if (!(cornerRadius > 0))
     {nPoints = 4;}
+  else
+    {
+      if (nPoints < nPointsMinimum)
+        {nPoints = nPointsMinimum;}
+    }
 }
 
 G4bool BDSApertureRhombus::Equals(const BDSAperture* other) const
@@ -89,7 +96,7 @@ BDSExtent BDSApertureRhombus::Extent() const
 
 unsigned int BDSApertureRhombus::MinimumNumberOfPoints() const
 {
-  return BDS::IsFinite(cornerRadius) ? 24 : 4;
+  return nPointsMinimum;
 }
 
 BDSApertureRhombus BDSApertureRhombus::operator+ (G4double number) const
