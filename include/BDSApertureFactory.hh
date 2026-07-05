@@ -140,6 +140,8 @@ private:
                     const G4String& objectName) const;
 
 
+  /// Return whether the input and output normal vectors are different from 0,0,-1
+  /// and 0,0,1, i.e. one or both faces are angled.
   G4bool AngledFaces(const G4ThreeVector& v1, const G4ThreeVector& v2);
   
   void ParsePointsFileAndUnits(const G4String& beamPipeType,
@@ -152,11 +154,6 @@ private:
   Product CreateEllipse()     const;
   Product CreateRectCircle()  const;
   Product CreateRectEllipse() const;
-  Product CreateExtruded()    const;
-  Product CreateRaceTrack()   const;
-  Product CreateOctagonal()   const;
-  Product CreateClicPCL()     const;
-  Product CreateRhombus()     const;
   /// @}
 
   /// Utility to make angled solid for intersection when cutting angled faces.
@@ -164,9 +161,6 @@ private:
   G4VSolid* CutSolid(const G4String& name,
                      G4double halfLength,
                      G4double radiusToEncompass) const;
-
-  Product ExtrudedCommon(std::vector<G4TwoVector>& points,
-                         G4double cutCylinderRadius) const;
 
   /// Create a solid as an extruded solid
   Product CreateExtrudedSolid() const;

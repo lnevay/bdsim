@@ -312,7 +312,6 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolid(const G4String&    n
     case BDSApertureType::octagon:
     case BDSApertureType::clicpcl:
     case BDSApertureType::rhombus:
-      {product = CreateExtruded();     break;}
     case BDSApertureType::points:
       {product = CreateExtrudedSolid(); break;}
     default:
@@ -486,29 +485,6 @@ G4VSolid* BDSApertureFactory::CutSolid(const G4String& name,
   return cut;
 }
 
-BDSApertureFactory::Product BDSApertureFactory::ExtrudedCommon(std::vector<G4TwoVector>& points,
-                                                               G4double cutCylinderRadius) const
-{
-  G4TwoVector zOffsets(0,0); // the transverse offset of each plane from 0,0
-  G4double zScale = 1; // the scale at each end of the points = 1
-  if (!angledFaces)
-    {
-      G4VSolid* product = new G4ExtrudedSolid(productName+"_so", points, 0.5*productLength,
-                                              zOffsets, zScale,       // dx,dy offset for each face, scaling
-                                              zOffsets, zScale);      // dx,dy offset for each face, scaling
-      return {product, {}};
-    }
-  else
-    {
-      G4VSolid* straight = new G4ExtrudedSolid(productName+"_straight_so", points, 0.5*productLength + productLengthExtra,
-                                               zOffsets, zScale,       // dx,dy offset for each face, scaling
-                                               zOffsets, zScale);      // dx,dy offset for each face, scaling
-      G4VSolid* cut = CutSolid(productName + "_angled_so", 0.5*productLength, cutCylinderRadius);
-      G4VSolid* product = new G4IntersectionSolid(productName, straight, cut);
-      return {product, {straight, cut}};
-    }
-}
-
 BDSApertureFactory::Product BDSApertureFactory::CreateEllipse() const
 {
   const BDSApertureEllipse* ap = dynamic_cast<const BDSApertureEllipse*>(productApertureIn);
@@ -546,7 +522,7 @@ BDSApertureFactory::Product BDSApertureFactory::CreateExtrudedSolid() const
     {
       G4double maxRadius = productApertureIn->RadiusToEncompass();
       G4VSolid* cut = CutSolid(productName+"_cut_so", 0.5*productLength, maxRadius);
-      G4VSolid* square = new G4ExtrudedSolid(productName+"_square_so", p.Points(),
+      G4VSolid* square = new G4ExtrudedSolid(productName+"_straight_so", p.Points(),
                                             productLength + productLengthExtra,
                                             zOffsets, zScale,  // dx,dy offset for each face, scaling
                                             zOffsets, zScale); // dx,dy offset for each face, scaling
@@ -603,13 +579,6 @@ BDSApertureFactory::Product BDSApertureFactory::CreateRectEllipse() const
       G4VSolid* product = new G4IntersectionSolid(productName, ellipseRect, cut);
       return {product, {cut, ellipse, rect, ellipseRect}};
     }
-}
-
-BDSApertureFactory::Product BDSApertureFactory::CreateExtruded() const
-{
-  BDSPolygon poly = productApertureIn->Polygon();
-  std::vector<G4TwoVector> vec = poly.Points();
-  return ExtrudedCommon(vec, productApertureIn->RadiusToEncompass());
 }
 
 BDSApertureFactory::Product BDSApertureFactory::CreateDifferentEnds() const
