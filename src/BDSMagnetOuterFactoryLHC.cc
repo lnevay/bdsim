@@ -900,8 +900,8 @@ BDSMagnetOuter* BDSMagnetOuterFactoryLHC::CreateLHCDipole(const G4String&    nam
 			     checkOverlaps);
   allPhysicalVolumes.insert(yokePV);
 
-  BDSBeamPipeInfo2* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2();
-  G4Material* vacuumMaterial   = defaultModel->vacuumMaterial;
+  // copy the other pipe vacuum material
+  G4Material* vacuumMaterial = beamPipe->GetVacuumLogicalVolume()->GetMaterial();
   
   //use beampipe factories to create another beampipe (note no magnetic field for now...)
   BDSApertureFactory apFac;
@@ -1505,8 +1505,8 @@ BDSMagnetOuter* BDSMagnetOuterFactoryLHC::CreateQuadrupole(G4String      name,
 			     checkOverlaps);
   allPhysicalVolumes.insert(yokePV);
 
-  BDSBeamPipeInfo2* defaultModel = BDSGlobalConstants::Instance()->DefaultBeamPipeModel2();
-  G4Material* vacuumMaterial   = defaultModel->vacuumMaterial;
+  // copy the other pipe material
+  G4Material* vacuumMaterial = beamPipe->GetVacuumLogicalVolume()->GetMaterial();
   
   //use beampipe factories to create another beampipe (note no magnetic field for now...)
   BDSApertureFactory apFac;
