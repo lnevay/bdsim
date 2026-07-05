@@ -32,6 +32,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
+#include "parser/aperture.h"
 #include "parser/options.h"
 
 #include <bitset>
@@ -312,6 +313,8 @@ public:
   inline G4double MinimumKineticEnergyTunnel() const {return G4double(options.minimumKineticEnergyTunnel)*CLHEP::GeV;}
   inline G4double MinimumRange()             const {return G4double(options.minimumRange*CLHEP::m);}
   inline G4String ParticlesToExcludeFromCuts() const {return G4String(options.particlesToExcludeFromCuts);}
+  inline G4String BeamPipeMaterial()         const {return G4String(options.beampipeMaterial);}
+  inline G4double BeamPipeThickness()        const {return G4double(options.beampipeThickness*CLHEP::m);}
   inline G4String VacuumMaterial()           const {return G4String(options.vacMaterial);}
   inline G4String EmptyMaterial()            const {return G4String(options.emptyMaterial);}
   inline G4String WorldMaterial()            const {return G4String(options.worldMaterial);}
@@ -379,8 +382,7 @@ public:
   inline G4double              SamplerDiameter()         const {return samplerDiameter;}
   inline G4double              CurvilinearDiameter()     const {return curvilinearDiameter;}
   inline G4bool                CurvilinearDiameterShrunkForBends() const {return curvilinearDiameterShrunkForBends;}
-  inline BDSBeamPipeInfo2*     DefaultBeamPipeModel2()   const {return defaultBeamPipeModel2;}
-  inline BDSAperture*          DefaultAperture()         const {return defaultAperture;}
+  inline GMAD::Aperture        DefaultAperture()         const {return defaultAperture;}
   inline BDSMagnetGeometryType MagnetGeometryType()      const {return magnetGeometryType;}
   inline BDSTunnelInfo*        TunnelInfo()              const {return tunnelInfo;}
   inline G4VisAttributes*      GetInvisibleVisAttr()     const {return invisibleVisAttr;}
@@ -427,8 +429,7 @@ private:
   ///@}
 
   /// Default beam pipe model information
-  BDSBeamPipeInfo2* defaultBeamPipeModel2;
-  BDSAperture*      defaultAperture;
+  GMAD::Aperture defaultAperture;
   
   /// Tunnel model
   BDSTunnelInfo* tunnelInfo;

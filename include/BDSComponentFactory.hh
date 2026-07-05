@@ -242,6 +242,7 @@ private:
   G4double thinElementLength; ///< Length of a thin element.
   G4bool includeFringeFields; ///< Cache of whether to include fringe fields.
   G4bool yokeFields;          ///< Cache of whether to include yoke magnetic fields.
+  BDSBeamPipeInfo2* defaultBeamPipe;
   BDSModulatorInfo* defaultModulator; ///< Default modulator for all components.
   BDSBeamlineIntegral* integralUpToThisComponent; ///< To save passing it through many functions arguments.
   G4double synchronousTAtMiddleOfThisComponent;

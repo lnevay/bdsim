@@ -85,33 +85,13 @@ BDSGlobalConstants::BDSGlobalConstants(const GMAD::Options& opt):
   samplerDiameter = G4double(options.samplerDiameter)*CLHEP::m;
   curvilinearDiameter = 5*CLHEP::m;
   curvilinearDiameterShrunkForBends = false;
-  
-  BDSBeamPipeType bpt = BDS::DetermineBeamPipeType(options.apertureType);
-  BDSApertureType apt = BDS::ApertureTypeFromBeamPipeType(bpt);
-  BDSApertureFactory apFac;
-  defaultAperture = apFac.CreateAperture(apt,
-                                         options.aper1 * CLHEP::m,
-                                         options.aper2 * CLHEP::m,
-                                         options.aper3 * CLHEP::m,
-                                         options.aper4 * CLHEP::m,
-                                         0,0,0,0);
 
-  // beam pipe
-  defaultBeamPipeModel2 = new BDSBeamPipeInfo2(bpt,
-                                               defaultAperture,
-                                               BDSMaterials::Instance()->GetMaterial(options.vacMaterial),
-                                               options.beampipeThickness * CLHEP::m,
-                                               BDSMaterials::Instance()->GetMaterial(options.beampipeMaterial));
-  
-  // magnet geometry
-  G4double horizontalWidth = options.horizontalWidth * CLHEP::m;
-  if (horizontalWidth < 2*defaultBeamPipeModel2->Extent().MaximumAbsTransverse())
-    {
-      G4cerr << __METHOD_NAME__ << "Error: option \"horizontalWidth\" " << horizontalWidth
-             << " must be greater than 2x (\"aper1\" + \"beampipeThickness\") ("
-             << options.aper1<< " + " << options.beampipeThickness << ")" << G4endl;
-      throw BDSException(__METHOD_NAME__,"error in beam pipe defaults");
-    }
+  defaultAperture.apertureType = options.apertureType;
+  defaultAperture.aper1 = options.aper1;
+  defaultAperture.aper2 = options.aper3;
+  defaultAperture.aper3 = options.aper4;
+  defaultAperture.aper4 = options.aper4;
+
   magnetGeometryType = BDS::DetermineMagnetGeometryType(options.magnetGeometryType);
 
   // tunnel
