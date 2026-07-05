@@ -309,11 +309,10 @@ BDSApertureFactory::Product BDSApertureFactory::CreateSolid(const G4String&    n
     case BDSApertureType::rectellipse:
       {product = CreateRectEllipse(); break;}
     case BDSApertureType::racetrack:
-      {product = CreateRaceTrack();   break;}
     case BDSApertureType::octagon:
-      {product = CreateOctagonal();   break;}
     case BDSApertureType::clicpcl:
-      {product = CreateClicPCL();     break;}
+    case BDSApertureType::rhombus:
+      {product = CreateExtruded();     break;}
     case BDSApertureType::points:
       {product = CreateExtrudedSolid(); break;}
     default:
@@ -606,70 +605,11 @@ BDSApertureFactory::Product BDSApertureFactory::CreateRectEllipse() const
     }
 }
 
-BDSApertureFactory::Product BDSApertureFactory::CreateRaceTrack() const
+BDSApertureFactory::Product BDSApertureFactory::CreateExtruded() const
 {
-  const BDSApertureRaceTrack* ap = dynamic_cast<const BDSApertureRaceTrack*>(productApertureIn);
-  if (!ap)
-    {return {nullptr, {}};}
-
-  std::vector<G4TwoVector> vec;
-  G4double x = ap->x;
-  G4double y = ap->y;
-  G4double r = ap->radius;
-  G4int pointsPerTwoPi = (G4int)ap->RecommendedNumberOfPoints();
-  G4int pointsPerCurve = pointsPerTwoPi / 4;
-
-  AppendAngle(vec, 0,             0.5*CLHEP::pi,     r, pointsPerCurve, x, y);
-  AppendPoint(vec, x+r, y);
-  AppendAngle(vec, 0.5*CLHEP::pi, CLHEP::pi,         r, pointsPerCurve, x, -y);
-  AppendPoint(vec, x, -y-r);
-  AppendAngle(vec, CLHEP::pi,     (3./2.)*CLHEP::pi, r, pointsPerCurve, -x, -y);
-  AppendPoint(vec, -x-r, -y);
-  AppendAngle(vec, (3./2)*CLHEP::pi, CLHEP::twopi,   r, pointsPerCurve, -x, y);
-  AppendPoint(vec, -x, y+r);
-
-  return ExtrudedCommon(vec, ap->RadiusToEncompass());
-}
-
-BDSApertureFactory::Product BDSApertureFactory::CreateOctagonal() const
-{
-  const BDSApertureOctagon* ap = dynamic_cast<const BDSApertureOctagon*>(productApertureIn);
-  if (!ap)
-    {return {nullptr, {}};}
-
-  std::vector<G4TwoVector> vec;
-  G4double x1 = ap->x;
-  G4double y1 = ap->y;
-  G4double x2 = ap->xEdge;
-  G4double y2 = ap->yEdge;
-
-  AppendPoint(vec, x1,  y2 );
-  AppendPoint(vec, x1,  -y2);
-  AppendPoint(vec, x2,  -y1);
-  AppendPoint(vec, -x2, -y1);
-  AppendPoint(vec, -x1, -y2);
-  AppendPoint(vec, -x1, y2 );
-  AppendPoint(vec, -x2, y1 );
-  AppendPoint(vec, x2,  y1 );
-
-  return ExtrudedCommon(vec, ap->RadiusToEncompass());
-}
-
-BDSApertureFactory::Product BDSApertureFactory::CreateClicPCL() const
-{
-  const BDSApertureClicPCL* ap = dynamic_cast<const BDSApertureClicPCL*>(productApertureIn);
-  if (!ap)
-    {return {nullptr, {}};}
-
-  std::vector<G4TwoVector> vec;
-  G4int pointsPerTwoPi = (G4int)ap->RecommendedNumberOfPoints();
-  G4int nPoints = 0.5*pointsPerTwoPi;
-  AppendAngleEllipse(vec, -CLHEP::halfpi, CLHEP::halfpi, ap->x, ap->yTop, nPoints, 0, ap->ySep);
-  AppendPoint(vec, ap->x, ap->ySep);
-  AppendAngleEllipse(vec, CLHEP::halfpi, CLHEP::halfpi + CLHEP::pi, ap->x, ap->yBottom, nPoints);
-  AppendPoint(vec, -ap->x, 0);
-
-  return CreateExtrudedSolid();
+  BDSPolygon poly = productApertureIn->Polygon();
+  std::vector<G4TwoVector> vec = poly.Points();
+  return ExtrudedCommon(vec, productApertureIn->RadiusToEncompass());
 }
 
 BDSApertureFactory::Product BDSApertureFactory::CreateDifferentEnds() const

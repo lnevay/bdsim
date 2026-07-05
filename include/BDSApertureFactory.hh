@@ -152,9 +152,11 @@ private:
   Product CreateEllipse()     const;
   Product CreateRectCircle()  const;
   Product CreateRectEllipse() const;
+  Product CreateExtruded()    const;
   Product CreateRaceTrack()   const;
   Product CreateOctagonal()   const;
   Product CreateClicPCL()     const;
+  Product CreateRhombus()     const;
   /// @}
 
   /// Utility to make angled solid for intersection when cutting angled faces.
