@@ -204,7 +204,7 @@ BDSAperture* BDSApertureFactory::CreateAperture(BDSApertureType at,
     case BDSApertureType::clicpcl:
       {result = new BDSApertureClicPCL(a1, a2, a3, a4, nPoints);     break;}
     case BDSApertureType::rhombus:
-      {result = new BDSApertureRhombus(a1, a2, a4);                  break;}
+      {result = new BDSApertureRhombus(a1, a2, a3, nPoints);         break;}
     case BDSApertureType::points:
       {
         G4String pointsFile;
