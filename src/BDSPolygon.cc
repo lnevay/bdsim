@@ -102,7 +102,7 @@ G4bool BDSPolygon::Inside(const BDSPolygon& other) const
   for (G4int i = 0; i < (G4int)size() - 1; i++)
     {
       for (G4int j = 0; j < (G4int)other.size() - 1; j++)
-	{result &= !SegmentsIntersect(points[i], points[i+1], other.points[j], other.points[j+1]);}
+        {result &= !SegmentsIntersect(points[i], points[i+1], other.points[j], other.points[j+1]);}
     }
   if (!result) // don't bother with inside point check
     {return result;}
@@ -113,23 +113,23 @@ G4bool BDSPolygon::Inside(const BDSPolygon& other) const
 }
 
 G4bool BDSPolygon::SelfIntersecting(G4int* const indexOfIntersectionA,
-				    G4int* const indexOfIntersectionB) const
+                                    G4int* const indexOfIntersectionB) const
 {
   G4bool result = false;
   for (G4int i = 0; i < (G4int)size() - 1; i++)
     {
       for (G4int j = i + 2; j < (G4int)size() - 1; j++)
-	{
-	  result |= SegmentsIntersect(points[i], points[i+1], points[j], points[j+1]);
-	  if (result)
-	    {// for optional feedback
-	      if (indexOfIntersectionA)
-		{*indexOfIntersectionA = i;}
-	      if (indexOfIntersectionB)
-		{*indexOfIntersectionB = j;}
-	      return result;
-	    }
-	}
+        {
+          result |= SegmentsIntersect(points[i], points[i+1], points[j], points[j+1]);
+          if (result)
+            {// for optional feedback
+              if (indexOfIntersectionA)
+                {*indexOfIntersectionA = i;}
+              if (indexOfIntersectionB)
+                {*indexOfIntersectionB = j;}
+              return result;
+            }
+        }
     }
   return result;
 }
@@ -212,8 +212,8 @@ BDSExtent BDSPolygon::Extent() const
 
   G4double lsl = BDSGlobalConstants::Instance()->LengthSafetyLarge();
   extent = new BDSExtent(extXNeg, extXPos,
-			 extYNeg, extYPos,
-			 -lsl,    lsl);
+                         extYNeg, extYPos,
+                         -lsl,    lsl);
   return BDSExtent(*extent);
 }
 
@@ -229,10 +229,10 @@ G4double BDSPolygon::RadiusToEncompass() const
 }
 
 G4int BDSPolygon::SegmentsIntersect(const G4TwoVector& p1,
-				    const G4TwoVector& p2,
-				    const G4TwoVector& q1,
-				    const G4TwoVector& q2,
-				    G4TwoVector* intersectionPoint)
+                                    const G4TwoVector& p2,
+                                    const G4TwoVector& q1,
+                                    const G4TwoVector& q2,
+                                    G4TwoVector* intersectionPoint)
 {
   // Algorithm parametrises segments as P(s) = p1 + s*D0 and Q(t) = q1 + t*D1.
   // Use a relative error test to test for parallelism.  This effectively
@@ -256,7 +256,7 @@ G4int BDSPolygon::SegmentsIntersect(const G4TwoVector& p1,
       if (s < 0 || s > 1 || t < 0 || t > 1)
         {return 0;}
       if (intersectionPoint)
-	{*intersectionPoint = p1 + s * D0;}
+        {*intersectionPoint = p1 + s * D0;}
       return 1;
     }
 
@@ -498,27 +498,27 @@ BDSPolygon BDSPolygon::InterpolateWithNPoints(unsigned int nPointsNew) const
     {
     case BDSInterpolatorType::linear1d:
       {
-	for (unsigned int i = 0; i < nPointsNew; i++)
-	  {
-	    G4double newIndex = (G4double)i * ratio;
-	    BDSFieldValue localData[2];
-	    G4double xFrac;
-	    array.ExtractSection2(newIndex, localData, xFrac);
-	    result.emplace_back(ConvertBack(BDS::Linear1D(localData, xFrac)));
-	  }
-	break;
+        for (unsigned int i = 0; i < nPointsNew; i++)
+          {
+            G4double newIndex = (G4double)i * ratio;
+            BDSFieldValue localData[2];
+            G4double xFrac;
+            array.ExtractSection2(newIndex, localData, xFrac);
+            result.emplace_back(ConvertBack(BDS::Linear1D(localData, xFrac)));
+          }
+        break;
       }
     case BDSInterpolatorType::cubic1d:
       {
-	for (unsigned int i = 0; i < nPointsNew; i++)
-	  {
-	    G4double newIndex = (G4double)i * ratio;
-	    BDSFieldValue localData[4];
-	    G4double xFrac;
-	    array.ExtractSection4(newIndex, localData, xFrac);
-	    result.emplace_back(ConvertBack(BDS::Cubic1D(localData, xFrac)));
-	  }
-	break;
+        for (unsigned int i = 0; i < nPointsNew; i++)
+          {
+            G4double newIndex = (G4double)i * ratio;
+            BDSFieldValue localData[4];
+            G4double xFrac;
+            array.ExtractSection4(newIndex, localData, xFrac);
+            result.emplace_back(ConvertBack(BDS::Cubic1D(localData, xFrac)));
+          }
+        break;
       }
     default:
       {throw BDSException(__METHOD_NAME__, "invalid interpolation type \"" + interpolation.ToString() + "\"");}
@@ -546,20 +546,20 @@ void BDSPolygon::CalculateVertexNormals() const
   for (G4int i = 0; i < (G4int)points.size(); i++)
     {
       if (i == 0)
-	{
-	  v1 = points.back();
-	  v3 = points[i+1];
-	}
+        {
+          v1 = points.back();
+          v3 = points[i+1];
+        }
       else if (i == (G4int)points.size() - 1)
-	{
-	  v1 = points[i-1];
-	  v3 = points[0];
-	}
+        {
+          v1 = points[i-1];
+          v3 = points[0];
+        }
       else
-	{
-	  v1 = points[i-1];
-	  v3 = points[i+1];
-	}
+        {
+          v1 = points[i-1];
+          v3 = points[i+1];
+        }
       v2 = points[i];
       
       auto normal1 = v2 - v1;
