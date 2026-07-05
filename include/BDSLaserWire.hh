@@ -34,10 +34,11 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 class BDSLaserWire :public BDSAcceleratorComponent
 {
 public:
-  BDSLaserWire(G4String aName,
-	       G4double aLength,
-	       G4double aWavelength,
-	       G4ThreeVector aDirection);
+  BDSLaserWire(const G4String& nameIn,
+               G4double lengthIn,
+               G4double wavelengthIn,
+               const G4ThreeVector& directionIn,
+               BDSBeamPipeInfo2* beamPipeInfoIn);
   virtual ~BDSLaserWire();
 
   inline void SetLaserDirection(G4ThreeVector aDirection) {itsLaserDirection=aDirection;}
@@ -52,7 +53,7 @@ private:
 
   /// @{ Assignment and copy constructor not implemented nor used
   BDSLaserWire& operator=(const BDSLaserWire&) = delete;
-  BDSLaserWire(BDSLaserWire&);
+  BDSLaserWire(BDSLaserWire&) = delete;
   /// @}
 
   /// Construct geometry and assign with special "LaserVac" material.
