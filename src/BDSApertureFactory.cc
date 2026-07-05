@@ -52,6 +52,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4ThreeVector.hh"
 #include "G4Tubs.hh"
 #include "G4TwoVector.hh"
+#include "G4TwoVector.hh"
 #include "G4Types.hh"
 #include "G4VSolid.hh"
 
@@ -465,6 +466,29 @@ G4VSolid* BDSApertureFactory::CutSolid(const G4String& name,
   return cut;
 }
 
+BDSApertureFactory::Product BDSApertureFactory::ExtrudedCommon(std::vector<G4TwoVector>& points,
+                                                               G4double cutCylinderRadius) const
+{
+  G4TwoVector zOffsets(0,0); // the transverse offset of each plane from 0,0
+  G4double zScale = 1; // the scale at each end of the points = 1
+  if (!angledFaces)
+    {
+      G4VSolid* product = new G4ExtrudedSolid(productName+"_so", points, 0.5*productLength,
+                                              zOffsets, zScale,       // dx,dy offset for each face, scaling
+                                              zOffsets, zScale);      // dx,dy offset for each face, scaling
+      return {product, {}};
+    }
+  else
+    {
+      G4VSolid* straight = new G4ExtrudedSolid(productName+"_straight_so", points, 0.5*productLength + productLengthExtra,
+                                               zOffsets, zScale,       // dx,dy offset for each face, scaling
+                                               zOffsets, zScale);      // dx,dy offset for each face, scaling
+      G4VSolid* cut = CutSolid(productName + "_angled_so", 0.5*productLength, cutCylinderRadius);
+      G4VSolid* product = new G4IntersectionSolid(productName, straight, cut);
+      return {product, {straight, cut}};
+    }
+}
+
 BDSApertureFactory::Product BDSApertureFactory::CreateEllipse() const
 {
   const BDSApertureEllipse* ap = dynamic_cast<const BDSApertureEllipse*>(productApertureIn);
@@ -525,17 +549,13 @@ BDSApertureFactory::Product BDSApertureFactory::CreateRectCircle() const
     }
   else
     {
-      G4double maxRadius = ap->RadiusToEncompass();
-      G4VSolid* cut = CutSolid(productName + "_angled_so", 0.5*productLength, maxRadius);
-      // TODO use cuttubs
-      G4VSolid* circle = new G4Tubs(productName + "_circle_so", 0, ap->radius,
-                                    productLength + productLengthExtra,
-                                    0, CLHEP::twopi);
+      G4VSolid* circle = new G4CutTubs(productName + "_circle_so", 0, ap->radius,
+                                       0.5*productLength, 0, CLHEP::twopi,
+                                       productNormalIn, productNormalOut);
       G4VSolid* rect = new G4Box(productName + "_rect_so", ap->a, ap->b,
-                                 1.5*productLength + productLengthExtra);
-      G4VSolid* circleRect = new G4IntersectionSolid(productName+"_straight_so", circle, rect);
-      G4VSolid* product = new G4IntersectionSolid(productName+"_so", circleRect, cut);
-      return {product, {cut, circle, rect, circleRect}};
+                                 1.1*(productLength+productLengthExtra));
+      G4VSolid* product = new G4IntersectionSolid(productName+"_so", circle, rect);
+      return {product, {circle, rect}};
     }
 }
 
@@ -566,13 +586,70 @@ BDSApertureFactory::Product BDSApertureFactory::CreateRectEllipse() const
 }
 
 BDSApertureFactory::Product BDSApertureFactory::CreateRaceTrack() const
-{return CreateExtrudedSolid();} //TBC if this is the best way (not intersection?)
+{
+  const BDSApertureRaceTrack* ap = dynamic_cast<const BDSApertureRaceTrack*>(productApertureIn);
+  if (!ap)
+    {return {nullptr, {}};}
+
+  std::vector<G4TwoVector> vec;
+  G4double x = ap->x;
+  G4double y = ap->y;
+  G4double r = ap->radius;
+  G4int pointsPerTwoPi = (G4int)ap->RecommendedNumberOfPoints();
+  G4int pointsPerCurve = pointsPerTwoPi / 4;
+
+  AppendAngle(vec, 0,             0.5*CLHEP::pi,     r, pointsPerCurve, x, y);
+  AppendPoint(vec, x+r, y);
+  AppendAngle(vec, 0.5*CLHEP::pi, CLHEP::pi,         r, pointsPerCurve, x, -y);
+  AppendPoint(vec, x, -y-r);
+  AppendAngle(vec, CLHEP::pi,     (3./2.)*CLHEP::pi, r, pointsPerCurve, -x, -y);
+  AppendPoint(vec, -x-r, -y);
+  AppendAngle(vec, (3./2)*CLHEP::pi, CLHEP::twopi,   r, pointsPerCurve, -x, y);
+  AppendPoint(vec, -x, y+r);
+
+  return ExtrudedCommon(vec, ap->RadiusToEncompass());
+}
 
 BDSApertureFactory::Product BDSApertureFactory::CreateOctagonal() const
-{return CreateExtrudedSolid();}
+{
+  const BDSApertureOctagon* ap = dynamic_cast<const BDSApertureOctagon*>(productApertureIn);
+  if (!ap)
+    {return {nullptr, {}};}
+
+  std::vector<G4TwoVector> vec;
+  G4double x1 = ap->x;
+  G4double y1 = ap->y;
+  G4double x2 = ap->xEdge;
+  G4double y2 = ap->yEdge;
+
+  AppendPoint(vec, x1,  y2 );
+  AppendPoint(vec, x1,  -y2);
+  AppendPoint(vec, x2,  -y1);
+  AppendPoint(vec, -x2, -y1);
+  AppendPoint(vec, -x1, -y2);
+  AppendPoint(vec, -x1, y2 );
+  AppendPoint(vec, -x2, y1 );
+  AppendPoint(vec, x2,  y1 );
+
+  return ExtrudedCommon(vec, ap->RadiusToEncompass());
+}
 
 BDSApertureFactory::Product BDSApertureFactory::CreateClicPCL() const
-{return CreateExtrudedSolid();}
+{
+  const BDSApertureClicPCL* ap = dynamic_cast<const BDSApertureClicPCL*>(productApertureIn);
+  if (!ap)
+    {return {nullptr, {}};}
+
+  std::vector<G4TwoVector> vec;
+  G4int pointsPerTwoPi = (G4int)ap->RecommendedNumberOfPoints();
+  G4int nPoints = 0.5*pointsPerTwoPi;
+  AppendAngleEllipse(vec, -CLHEP::halfpi, CLHEP::halfpi, ap->x, ap->yTop, nPoints, 0, ap->ySep);
+  AppendPoint(vec, ap->x, ap->ySep);
+  AppendAngleEllipse(vec, CLHEP::halfpi, CLHEP::halfpi + CLHEP::pi, ap->x, ap->yBottom, nPoints);
+  AppendPoint(vec, -ap->x, 0);
+
+  return CreateExtrudedSolid();
+}
 
 BDSApertureFactory::Product BDSApertureFactory::CreateDifferentEnds() const
 {
@@ -811,4 +888,43 @@ std::pair<BDSApertureType,BDSApertureType> BDSApertureFactory::MakePair(BDSApert
                                                                         BDSApertureType a2) const
 {
   return std::make_pair(std::min(a1, a2), std::max(a1, a2));
+}
+
+void BDSApertureFactory::AppendPoint(std::vector<G4TwoVector>& vec,
+                                     G4double x,
+                                     G4double y) const
+{
+  vec.emplace_back(x,y);
+}
+
+void BDSApertureFactory::AppendAngle(std::vector<G4TwoVector>& vec,
+                                     G4double startAngle,
+                                     G4double finishAngle,
+                                     G4double radius,
+                                     G4int    nPoints,
+                                     G4double xOffset,
+                                     G4double yOffset) const
+{
+  AppendAngleEllipse(vec, startAngle, finishAngle, radius, radius,nPoints, xOffset, yOffset);
+}
+
+void BDSApertureFactory::AppendAngleEllipse(std::vector<G4TwoVector>& vec,
+                                            G4double startAngle,
+                                            G4double finishAngle,
+                                            G4double radiusA,
+                                            G4double radiusB,
+                                            G4int    nPoints,
+                                            G4double xOffset,
+                                            G4double yOffset) const
+{
+  G4double diff = finishAngle - startAngle;
+  G4double delta = diff / (G4double)nPoints;
+  G4double ang = startAngle;
+  for (G4int i = 0; i < nPoints; i++)
+    { // l for local
+      G4double xl = xOffset + radiusA*std::sin(ang);
+      G4double yl = yOffset + radiusB*std::cos(ang);
+      AppendPoint(vec, xl, yl);
+      ang += delta;
+    }
 }

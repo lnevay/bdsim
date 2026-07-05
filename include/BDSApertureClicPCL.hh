@@ -41,9 +41,9 @@ class BDSApertureClicPCL: public BDSApertureCurved
 public:
   BDSApertureClicPCL() = delete;
   BDSApertureClicPCL(G4double xIn,
-			         G4double yTopIn,
-			         G4double yBottomIn,
-			         G4double ySepIn,
+                     G4double yTopIn,
+                     G4double yBottomIn,
+                     G4double ySepIn,
                      unsigned int nPointsIn);
   virtual ~BDSApertureClicPCL(){;}
 

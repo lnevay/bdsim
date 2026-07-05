@@ -23,6 +23,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "G4String.hh"
 #include "G4ThreeVector.hh"
+#include "G4TwoVector.hh"
 #include "G4Types.hh"
 
 #include <map>
@@ -161,6 +162,9 @@ private:
                      G4double halfLength,
                      G4double radiusToEncompass) const;
 
+  Product ExtrudedCommon(std::vector<G4TwoVector>& points,
+                         G4double cutCylinderRadius) const;
+
   /// Create a solid as an extruded solid
   Product CreateExtrudedSolid() const;
 
@@ -199,6 +203,31 @@ private:
   /// a map of unique pairs.
   std::pair<BDSApertureType, BDSApertureType> MakePair(BDSApertureType a1,
                                                        BDSApertureType a2) const;
+
+  /// Utility funciton to append a point.
+  void AppendPoint(std::vector<G4TwoVector>& vec,
+                   G4double x,
+                   G4double y) const;
+
+  /// Generate 2-vector points (and append them) about a circle. Uses ellipse
+  /// code with equal radii.
+  void AppendAngle(std::vector<G4TwoVector>& vec,
+                   G4double startAngle,
+                   G4double finishAngle,
+                   G4double radius,
+                   G4int    nPoints = 10,
+                   G4double xOffset = 0,
+                   G4double yOffset = 0) const;
+
+  /// Generate 2-vector points (and append them) about an ellipse.
+  void AppendAngleEllipse(std::vector<G4TwoVector>& vec,
+                          G4double startAngle,
+                          G4double finishAngle,
+                          G4double radiusA,   // radius in horizontal
+                          G4double radiusB,   // radius in vertical
+                          G4int    nPoints = 10,
+                          G4double xOffset = 0,
+                          G4double yOffset = 0) const;
 
   /// Typedef for function pointers to simplify syntax.
   typedef Product(BDSApertureFactory::*Constructor)(void) const;
