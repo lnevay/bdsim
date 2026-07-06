@@ -111,7 +111,7 @@ const BDSApertureRhombus& BDSApertureRhombus::operator+=(G4double number)
   x += number;
   y += number;
   if (cornerRadius > 0)
-    {cornerRadius += number;}
+    {cornerRadius += 0.5*number;}
   return *this;
 }
 
@@ -169,16 +169,27 @@ BDSPolygon BDSApertureRhombus::PolygonNPoints(unsigned int nPointsIn) const
       // The rhombus may be asymmetric, in which case building a pi/2 range of curve
       // won't result in a smooth transition to the straight sections. We need to work
       // out what range of angle to cover to come to the right tangent.
-      // consider top curved point -> alpha = angle between the y-axis and (0,y1) -> (x1,0) line
-      G4double alpha = std::atan2(std::abs(x), std::abs(y));
-      G4double halfAngle = CLHEP::halfpi - alpha;
+      // consider top curved point -> halfAngle = angle between the y-axis and [(0,y1) -> (x1,0)] line
+      //   +
+      //   |\
+      //   |b\
+      // y |  \
+      //   |  a\
+      //   +----+
+      //     x
+      G4double b = std::atan2(std::abs(x), std::abs(y));
+      G4double a = CLHEP::halfpi - b;
       std::vector<G4TwoVector> topBit;
-      G4double nPointsTopDouble = (2*halfAngle/CLHEP::twopi) * nPointsIn;
+      G4double nPointsTopDouble = (2*a/CLHEP::twopi) * nPointsIn;
       G4int nPointsTop = std::max(4, (G4int)std::ceil(nPointsTopDouble)); // ensure at least 4 points
-      G4double currentAngle = -halfAngle;
-      G4double dAngle = 2*halfAngle / (G4double)nPointsTop;
-      G4TwoVector rotationPointTop(0, y-cornerRadius);
-      for (G4int i = 0; i <= nPointsTop; i++)
+      G4int nPointsRight = 0.5*nPoints - nPointsTop; // nPoints is a multiple of four so this always ends in an integer
+      G4double currentAngle = -a;
+      G4double dAngle = 2*a / ((G4double)nPointsTop-1);
+
+      G4double dy = cornerRadius / std::sin(b);
+      G4TwoVector rotationPointTop(0, y-dy);
+
+      for (G4int i = 0; i < nPointsTop; i++)
         {
           G4TwoVector r(0, cornerRadius);
           r.rotate(-currentAngle);
@@ -187,12 +198,13 @@ BDSPolygon BDSApertureRhombus::PolygonNPoints(unsigned int nPointsIn) const
         }
 
       std::vector<G4TwoVector> rightBit;
-      G4double nPointsRightDouble = (2*alpha/CLHEP::twopi) * nPointsIn;
-      G4int nPointsRight = std::max(4, (G4int)std::ceil(nPointsRightDouble)); // ensure at least 4 points
-      currentAngle = -alpha;
-      dAngle = 2*alpha / (G4double)nPointsRight;
-      G4TwoVector rotationPointRight(x-cornerRadius, 0);
-      for (G4int i = 0; i <= nPointsRight; i++)
+      currentAngle = -b;
+      dAngle = 2*b / ((G4double)nPointsRight-1);
+
+      G4double dx = cornerRadius / std::cos(b);
+      G4TwoVector rotationPointRight(x-dx, 0);
+
+      for (G4int i = 0; i < nPointsRight; i++)
         {
           G4TwoVector r(cornerRadius, 0);
           r.rotate(-currentAngle);
