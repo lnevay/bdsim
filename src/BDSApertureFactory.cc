@@ -333,7 +333,7 @@ G4double BDSApertureFactory::CalculateExtraLength(G4double lengthExtraForBoolean
       G4double a2 = productNormalOut.theta();
       G4double angle = std::max(std::abs(a1), std::abs(a2));
       G4double r1 = productApertureIn->RadiusToEncompass();
-      G4double r2 = productApertureOut->RadiusToEncompass();
+      G4double r2 = productApertureOut ? productApertureOut->RadiusToEncompass() : r1;
       G4double radius = std::max(std::abs(r1), std::abs(r2));
       lengthExtraForBoolean = RequiredLengthForBoolean(angle, radius);
       lengthExtraForBoolean = std::max(lengthExtraForBoolean, 0.1*productLength);
