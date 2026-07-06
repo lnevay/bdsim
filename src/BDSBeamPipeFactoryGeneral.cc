@@ -73,8 +73,7 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
   containerSolid = contProduct.product;
   allSolids.insert(contProduct.otherSolids.begin(), contProduct.otherSolids.end());
   
-  auto contSubProduct = fac.CreateSolid(name+"_cont_sub", length, apContSubIn, apContSubOut,
-                                              nullptr, nullptr, 0.2*length);
+  auto contSubProduct = fac.CreateSolid(name+"_cont_sub", 1.5*length, apContSubIn, apContSubOut, nullptr, nullptr);
   containerSubtractionSolid = contSubProduct.product;
   allSolids.insert(contSubProduct.otherSolids.begin(), contSubProduct.otherSolids.end());
   
