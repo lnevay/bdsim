@@ -182,7 +182,7 @@ BDSPolygon BDSApertureRhombus::PolygonNPoints(unsigned int nPointsIn) const
       std::vector<G4TwoVector> topBit;
       G4double nPointsTopDouble = (2*a/CLHEP::twopi) * nPointsIn;
       G4int nPointsTop = std::max(4, (G4int)std::ceil(nPointsTopDouble)); // ensure at least 4 points
-      G4int nPointsRight = 0.5*nPoints - nPointsTop; // nPoints is a multiple of four so this always ends in an integer
+      G4int nPointsRight = 0.5*nPointsIn - nPointsTop; // nPointsIn is a multiple of eight so this always ends in an integer
       G4double currentAngle = -a;
       G4double dAngle = 2*a / ((G4double)nPointsTop-1);
 
@@ -208,7 +208,7 @@ BDSPolygon BDSApertureRhombus::PolygonNPoints(unsigned int nPointsIn) const
         {
           G4TwoVector r(cornerRadius, 0);
           r.rotate(-currentAngle);
-          topBit.push_back(rotationPointRight + r);
+          rightBit.push_back(rotationPointRight + r);
           currentAngle += dAngle;
         }
 
