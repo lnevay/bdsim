@@ -102,6 +102,16 @@ std::vector<G4ThreeVector> BDSExtent::AllBoundaryPoints() const
   return result;
 }
 
+std::vector<G4TwoVector> BDSExtent::AllBoundaryPointsXY() const
+{
+  std::vector<G4TwoVector> result;
+  result.emplace_back(extXNeg, extYNeg);
+  result.emplace_back(extXNeg, extYPos);
+  result.emplace_back(extXPos, extYPos);
+  result.emplace_back(extXPos, extYNeg);
+  return result;
+}
+
 BDSExtent BDSExtent::TiltOffset(const BDSTiltOffset* tiltOffset) const
 {
   if (!tiltOffset)

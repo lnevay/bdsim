@@ -228,6 +228,21 @@ G4double BDSPolygon::RadiusToEncompass() const
   return radiusToEncompass;
 }
 
+G4bool BDSPolygon::EncompassesExtentXY(const BDSExtent& ext) const
+{
+  G4bool result = true;
+  auto pts = ext.AllBoundaryPointsXY();
+  for (const auto& p : pts)
+    {result |= Inside(p);}
+  return result;
+}
+
+G4bool BDSPolygon::FitsInside(const BDSExtent& ext) const
+{
+  auto polyExtent = Extent();
+  return polyExtent.TransverselyLessThan(ext);
+}
+
 G4int BDSPolygon::SegmentsIntersect(const G4TwoVector& p1,
                                     const G4TwoVector& p2,
                                     const G4TwoVector& q1,

@@ -69,14 +69,18 @@ public:
   BDSExtent Extent() const;           ///< Access the extent.
   G4double RadiusToEncompass() const; ///< Maximum radius of any point with no margin. Dynamically calculated on first access.
 
+  /// Return whether the axis-aligned bounding box given by ext lies fully within the polygon.
+  G4bool EncompassesExtentXY(const BDSExtent& ext) const;
+  /// Return whether the polygon will fit inside the axis-aligned bounding box ext.
+  G4bool FitsInside(const BDSExtent& ext) const;
+
   /// Return true if any segments that make this polgyon intersect with
   /// any others. Optional arguments for indices of lines that intersect.
   G4bool SelfIntersecting(G4int* const indexOfIntersectionA = nullptr,
-			  G4int* const indexOfIntersectionB = nullptr) const;
+                          G4int* const indexOfIntersectionB = nullptr) const;
   
   /// Return a copy with a tilt and offset applied.
   BDSPolygon ApplyTiltOffset(const BDSTiltOffset& to) const;
-  
   
   /// Expands the polygon points by 'value' along the direction of the
   /// vertex normal.
@@ -90,7 +94,6 @@ public:
   
   /// Same as above but apply in place to the points in this instance.
   void ScaleByValueInPlace(G4double scale);
-
   
   // Boolean operations
   /// Calculate the union of 'other' polygon with this one and return as a copy.

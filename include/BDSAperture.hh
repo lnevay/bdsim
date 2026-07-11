@@ -77,6 +77,9 @@ public:
   virtual void      CheckInfoOK()                      const = 0;
   virtual G4double  RadiusToEncompass()                const = 0; // was IndicativeRadius RCWD
   virtual BDSExtent Extent()                           const = 0;
+
+  /// Whether the transverse extent can be encompassed by this aperture instance.
+  virtual G4bool  EncompassesXY(const BDSExtent& ext);
   
   /// Minimal number of 2D points to represent the shape, e.g. 3 for a triangle; 4 for a rectangle etc.
   virtual unsigned int MinimumNumberOfPoints() const = 0;

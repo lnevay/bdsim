@@ -25,12 +25,16 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "globals.hh" // geant4 types / globals
 #include "G4ThreeVector.hh"
+#include "G4TwoVector.hh"
 
 class BDSParticleCoords;
 class BDSTiltOffset;
 
 /**
- * @brief Holder for +- extents in 3 dimensions.
+ * @brief Holder for +- extents in 3 dimensions. An axis-aligned bounding box.
+ *
+ * Rotation and translation provided but this class still provides an
+ * axis-aligned bounding box set of extents that may be asymmetric.
  * 
  * @author Laurie Nevay
  */
@@ -77,7 +81,8 @@ public:
 
   /// All 8 boundary points of the bounding box.
   std::vector<G4ThreeVector> AllBoundaryPoints() const;
-  /// @}
+  /// Return XNeg, XPos, YNeg, YPos boundary box.
+  std::vector<G4TwoVector> AllBoundaryPointsXY() const;
 
   /// @{ The difference in a dimension.
   inline G4double DX() const {return extXPos - extXNeg;}

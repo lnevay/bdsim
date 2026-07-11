@@ -56,6 +56,12 @@ BDSAperture& BDSAperture::operator=(const BDSAperture& other) noexcept
   return *this;
 }
 
+G4bool BDSAperture::EncompassesXY(const BDSExtent& ext)
+{
+  BDSPolygon poly = Polygon();
+  return poly.EncompassesExtentXY(ext);
+}
+
 void BDSAperture::CheckRequiredParametersSet(G4double aper1, G4bool aper1Set,
                                              G4double aper2, G4bool aper2Set,
                                              G4double aper3, G4bool aper3Set,
@@ -138,6 +144,6 @@ BDSPolygon BDSAperture::Polygon(unsigned int nPointsIn) const
       G4String msg = apertureType.ToString() + " -> number of points for aperture specified < " + std::to_string(mnp);
       throw BDSException(__METHOD_NAME__, msg);
     }
-  BDSPolygon r = PolygonNPoints(MinimumNumberOfPoints());
+  BDSPolygon r = PolygonNPoints(np);
   return r.ApplyTiltOffset(tiltOffset);
 }
