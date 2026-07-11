@@ -108,10 +108,11 @@ BDSApertureRhombus BDSApertureRhombus::operator+ (G4double number) const
 
 const BDSApertureRhombus& BDSApertureRhombus::operator+=(G4double number)
 {
-  x += number;
-  y += number;
+  G4double b = std::atan2(std::abs(x), std::abs(y));
+  x += number / std::cos(b);
+  y += number / std::sin(b);
   if (cornerRadius > 0)
-    {cornerRadius += 0.5*number;}
+    {cornerRadius += number;}
   return *this;
 }
 
