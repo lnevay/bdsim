@@ -77,11 +77,11 @@ BDSBeamPipeInfo2::~BDSBeamPipeInfo2()
 BDSExtent BDSBeamPipeInfo2::Extent() const
 {
   BDSExtent result = aperture->Extent();
-  result.ExpandBy(beamPipeThickness); // a slight underestimate as no lengthSafety
+  result = result.ExpandBy(beamPipeThickness); // a slight underestimate as no lengthSafety
   if (apertureOut && (apertureOut != aperture))
     {
       BDSExtent apOutExt = apertureOut->Extent();
-      apOutExt.ExpandBy(beamPipeThickness);
+      apOutExt = apOutExt.ExpandBy(beamPipeThickness);
       return std::max(result, apOutExt);
     }
   else
