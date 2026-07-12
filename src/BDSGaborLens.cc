@@ -108,7 +108,7 @@ BDSGaborLens::BDSGaborLens(const G4String& nameIn,
   if (electrodeThickness <= 0)
     {throw BDSException(__METHOD_NAME__,"option \"electrodeThickness\" is not defined or must be greater than 0 for element \"" + name + "\"");}
 
-  if ((anodeRadius + anodeThickness) > beamPipeInfo->ExtentInner().MinimumAbsTransverse())
+  if ((anodeRadius + anodeThickness) > beamPipeInfo->MinimumInscribedCircleRadius())
     {throw BDSException(__METHOD_NAME__,"\"anodeRadius\" must be smaller than the beam pipe aperture for element \"" + name + "\"");}
 
   if (anodeLength > vacuumLength)

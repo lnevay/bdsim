@@ -143,8 +143,8 @@ void BDSCollimatorCrystal::Build()
       // second stricter check - TODO - use aperture check in future
       /*
       beamPipeInfo->aperture->
-      BDSExtent innerRadius = BDSExtent(beamPipeInfo->IndicativeRadiusInner(),
-                                        beamPipeInfo->IndicativeRadiusInner(),
+      BDSExtent innerRadius = BDSExtent(beamPipeInfo->MinimumInscribedCircleRadius(),
+                                        beamPipeInfo->MinimumInscribedCircleRadius(),
                                         0.5*chordLength);*/
       G4bool safe2 = true; //innerRadius.Encompasses(extShifted);
       if (!safe || !safe2)
@@ -197,8 +197,8 @@ void BDSCollimatorCrystal::Build()
       G4bool safe = thisExtent.Encompasses(extShifted);
       // second stricter check - TODO - use aperture check in future
       /*
-      BDSExtent innerRadius = BDSExtent(beamPipeInfo->IndicativeRadiusInner(),
-                                        beamPipeInfo->IndicativeRadiusInner(),
+      BDSExtent innerRadius = BDSExtent(beamPipeInfo->MinimumInscribedCircleRadius(),
+                                        beamPipeInfo->MinimumInscribedCircleRadius(),
                                         0.5*chordLength);*/
       G4bool safe2 = true; //innerRadius.Encompasses(extShifted);
       if (!safe || !safe2)
