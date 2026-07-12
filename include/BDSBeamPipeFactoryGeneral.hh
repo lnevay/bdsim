@@ -22,7 +22,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSBeamPipeFactoryBase.hh"
 #include "BDSBeamPipe.hh"
 
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 
 /**
  * @brief General factory for beam pipes that follow a set pattern.
@@ -38,7 +38,7 @@ public:
 
   BDSBeamPipe* CreateBeamPipe(const G4String&   name,
                               G4double          length,
-                              const BDSBeamPipeInfo2* bpi) override;
+                              const BDSBeamPipeInfo* bpi) override;
 };
   
 #endif

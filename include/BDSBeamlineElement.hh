@@ -42,6 +42,8 @@ namespace CLHEP {
 typedef CLHEP::HepRotation G4RotationMatrix;
 class G4VPhysicalVolume;
 
+class BDSBeamPipeInfo;
+
 /**
  * @brief A class that holds a fully constructed BDSAcceleratorComponent
  * as well as any information relevant to its position within the beamline.
@@ -109,7 +111,7 @@ public:
   inline G4double          GetArcLength()                 const {return component->GetArcLength();}
   inline G4double          GetChordLength()               const {return component->GetChordLength();}
   inline G4double          GetAngle()                     const {return component->GetAngle();}
-  inline BDSBeamPipeInfo2* GetBeamPipeInfo()              const {return component->GetBeamPipeInfo();}
+  inline BDSBeamPipeInfo*  GetBeamPipeInfo()              const {return component->GetBeamPipeInfo();}
   inline BDSExtent         GetExtent()                    const {return component->GetExtent();}
   inline G4String          GetPlacementName()             const {return placementName;}
   inline G4int             GetCopyNo()                    const {return copyNumber;}

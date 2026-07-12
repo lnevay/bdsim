@@ -23,7 +23,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAperture.hh"
 #include "BDSBeamline.hh"
 #include "BDSBeamlineElement.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSMagnet.hh"
 #include "BDSMagnetStrength.hh"
 #include "BDSPhysicalVolumeInfoRegistry.hh"
@@ -333,7 +333,7 @@ void BDSOutputROOTEventModel::Fill(const std::vector<G4int>&                coll
       endS.push_back((float)((*i)->GetSPositionEnd()    / CLHEP::m));
       
       // beam pipe
-      BDSBeamPipeInfo2* beampipeinfo = (*i)->GetBeamPipeInfo();
+      BDSBeamPipeInfo* beampipeinfo = (*i)->GetBeamPipeInfo();
       
       if (beampipeinfo)
         {

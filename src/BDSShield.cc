@@ -18,7 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSDebug.hh"
 #include "BDSSDType.hh"
 #include "BDSShield.hh"
@@ -41,7 +41,7 @@ BDSShield::BDSShield(const G4String&  nameIn,
                      G4double         ySizeIn,
                      G4Material*      materialIn,
                      G4Colour*        colourIn,
-                     BDSBeamPipeInfo2* beamPipeInfoIn):
+                     BDSBeamPipeInfo* beamPipeInfoIn):
   BDSAcceleratorComponent(nameIn, lengthIn, 0, "shield", beamPipeInfoIn),
   horizontalWidth(horizontalWidthIn),
   xSize(xSizeIn),

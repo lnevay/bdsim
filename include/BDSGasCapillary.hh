@@ -38,7 +38,7 @@ class BDSGasCapillary: public BDSAcceleratorComponent
 public:
     BDSGasCapillary(const G4String&  name,
                     G4double         length,
-                    BDSBeamPipeInfo2* beamPipeInfo,
+                    BDSBeamPipeInfo* beamPipeInfo,
                     G4double         horizontalWidth,
                     G4Material*      capillaryOuterMaterial,
                     G4Material*      capillaryGasMaterial,

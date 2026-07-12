@@ -29,7 +29,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSBeamlineIntegral.hh"
 #include "BDSBeamlinePlacementBuilder.hh"
 #include "BDSBeamlineSet.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSBLM.hh"
 #include "BDSBLMRegistry.hh"
 #include "BDSBOptrMultiParticleChangeCrossSection.hh"

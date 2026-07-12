@@ -42,7 +42,7 @@ class BDSLaserWireNew: public BDSAcceleratorComponent
 public:
   BDSLaserWireNew(G4String         nameIn,
 		  G4double         lengthIn,
-		  BDSBeamPipeInfo2* beamPipeInfoIn,
+		  BDSBeamPipeInfo* beamPipeInfoIn,
 		  BDSLaser*        laserIn,
 		  G4double         wireDiameterIn,
 		  G4double         wireLengthIn,

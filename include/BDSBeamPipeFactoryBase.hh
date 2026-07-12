@@ -33,7 +33,7 @@ class G4PVPlacement;
 class G4UserLimits;
 class G4VSolid;
 
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 
 /**
  * @brief Abstract base class for beampipe factory classes.
@@ -61,7 +61,7 @@ class BDSBeamPipeFactoryBase: public BDSFactoryBase
 public:
   virtual BDSBeamPipe* CreateBeamPipe(const G4String&   name,
                                       G4double          length,
-                                      const BDSBeamPipeInfo2* bpi) = 0;
+                                      const BDSBeamPipeInfo* bpi) = 0;
   
   /// Virtual base destructor
   virtual ~BDSBeamPipeFactoryBase(){;}

@@ -21,7 +21,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAcceleratorComponent.hh"
 #include "BDSAperture.hh"
 #include "BDSApertureFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
@@ -41,7 +41,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSLaserWireNew::BDSLaserWireNew(G4String         nameIn,
 				 G4double         lengthIn,
-				 BDSBeamPipeInfo2* beamPipeInfoIn,
+				 BDSBeamPipeInfo* beamPipeInfoIn,
 				 BDSLaser*        laserIn,
 				 G4double         wireDiameterIn,
 				 G4double         wireLengthIn,

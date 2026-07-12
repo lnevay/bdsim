@@ -26,7 +26,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4ThreeVector.hh"
 #include "G4Types.hh"
 
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 class G4Material;
 class G4LogicalVolume;
 class G4PVPlacement;
@@ -46,7 +46,7 @@ public:
   
   BDSBeamPipe* CreateBeamPipe(const G4String&   name,
                               G4double          length,
-                              const BDSBeamPipeInfo2* bpi) override;
+                              const BDSBeamPipeInfo* bpi) override;
 
   /// Access cooling pipe information from factory for parameter tests
   G4double GetFullWidthOfCoolingPipe();
@@ -64,7 +64,7 @@ private:
 
   BDSBeamPipe* CreateBeamPipeAngled(const G4String&   name,
                                     G4double          length,
-                                    const BDSBeamPipeInfo2* bpi,
+                                    const BDSBeamPipeInfo* bpi,
                                     const G4ThreeVector& inputFaceNormalIn,
                                     const G4ThreeVector& outputFaceNormalIn);
   

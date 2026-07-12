@@ -26,7 +26,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 class BDSBeamPipe;
 class BDSBeamPipeInfo;
-class BDSBeamPipeInfo2;
 class BDSMagnetOuter;
 class BDSMagnetOuterInfo;
 class BDSMagnetStrength;
@@ -50,7 +49,7 @@ public:
   BDSMagnet(BDSMagnetType       type,
 	    const G4String&     name, 
 	    G4double            length,
-	    BDSBeamPipeInfo2*    beamPipeInfo,
+	    BDSBeamPipeInfo*    beamPipeInfo,
 	    BDSMagnetOuterInfo* magnetOuterInfo,
 	    BDSFieldInfo*       vacuumFieldInfoIn,
 	    G4double            angle            = 0,

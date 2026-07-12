@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAcceleratorModel.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSGasCapillary.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
@@ -44,7 +44,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSGasCapillary::BDSGasCapillary(const G4String&  nameIn,
                                  G4double         lengthIn,
-                                 BDSBeamPipeInfo2* beamPipeInfoIn,
+                                 BDSBeamPipeInfo* beamPipeInfoIn,
                                  G4double         horizontalWidthIn,
                                  G4Material*      capillaryOuterMaterialIn,
                                  G4Material*      capillaryGasMaterialIn,

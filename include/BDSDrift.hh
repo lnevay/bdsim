@@ -38,9 +38,9 @@ class BDSBeamPipeInfo2;
 class BDSDrift: public BDSAcceleratorComponent
 {
 public:
-  BDSDrift(G4String          name, 
-	   G4double          length,
-	   BDSBeamPipeInfo2* beamPipeInfo);
+  BDSDrift(G4String         name,
+           G4double         length,
+	         BDSBeamPipeInfo* beamPipeInfo);
   virtual ~BDSDrift();
 
   /// Override base class version and return beam pipe material if it exists.

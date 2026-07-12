@@ -28,7 +28,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 class BDSFieldInfo;
 class BDSSimpleComponent;
 class G4LogicalVolume;
@@ -97,7 +97,7 @@ public:
 			  G4double             arcLength,
 			  G4double             angle,
 			  const G4String&      type,
-			  BDSBeamPipeInfo2*    beamPipeInfo       = nullptr,
+			  BDSBeamPipeInfo*     beamPipeInfo       = nullptr,
 			  const G4ThreeVector& inputFaceNormalIn  = G4ThreeVector(0,0,-1),
 			  const G4ThreeVector& outputFaceNormalIn = G4ThreeVector(0,0, 1),
 			  BDSFieldInfo*        fieldInfoIn        = nullptr);
@@ -169,7 +169,7 @@ public:
   /// Access beam pipe information, which is stored in this class to provide
   /// aperture information when making a survey of the beamline consisting of
   /// accelerator components.
-  inline BDSBeamPipeInfo2* GetBeamPipeInfo() const {return beamPipeInfo;}
+  inline BDSBeamPipeInfo* GetBeamPipeInfo() const {return beamPipeInfo;}
 
   /// @{ Access face normal unit vector. This is w.r.t. the incoming / outgoing reference
   /// trajectory and NOT the local geometry of the component. Ie for an SBend with no
@@ -266,7 +266,7 @@ protected:
   ///@}
 
   /// Optional beam pipe recipe that is written out to the survey if it exists.
-  BDSBeamPipeInfo2* beamPipeInfo;
+  BDSBeamPipeInfo* beamPipeInfo;
 
   /// @{ Useful variable often used in construction.
   static G4double    lengthSafety;

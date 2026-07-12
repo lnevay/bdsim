@@ -20,7 +20,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAperture.hh"
 #include "BDSBeamline.hh"
 #include "BDSBeamlineElement.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSDebug.hh"
 #include "BDSMagnet.hh"
 #include "BDSMagnetStrength.hh"
@@ -122,7 +122,7 @@ void BDSSurvey::Write(BDSBeamlineElement* beamlineElement)
   G4double sEnd        = beamlineElement->GetSPositionEnd()   /CLHEP::m;
   G4ThreeVector pos    = beamlineElement->GetPositionMiddle();
 
-  BDSBeamPipeInfo2* beamPipeInfo = acceleratorComponent->GetBeamPipeInfo();
+  BDSBeamPipeInfo* beamPipeInfo = acceleratorComponent->GetBeamPipeInfo();
   std::array<G4double,7> apNums = {0, 0, 0, 0, 0, 0, 0};
   if (beamPipeInfo)
     {

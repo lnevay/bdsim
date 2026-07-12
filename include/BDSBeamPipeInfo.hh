@@ -16,8 +16,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef BDSBEAMPIPEINFO2_H
-#define BDSBEAMPIPEINFO2_H
+#ifndef BDSBEAMPIPEINFO_H
+#define BDSBEAMPIPEINFO_H
 
 #include "BDSBeamPipeType.hh"
 
@@ -38,26 +38,26 @@ class G4Material;
  * @author Laurie Nevay
  */
 
-class BDSBeamPipeInfo2
+class BDSBeamPipeInfo
 {
 public:
   /// No default constructor to ensure one of supplied constructors is used.
-  BDSBeamPipeInfo2() = delete;
+  BDSBeamPipeInfo() = delete;
   /// Constructor to assign all members at once
-  BDSBeamPipeInfo2(BDSBeamPipeType beamPipeTypeIn,
-                   BDSAperture*    apertureIn,
-                   G4Material*     vacuumMaterialIn,
-                   G4double        beamPipeThicknessIn,
-                   G4Material*     beamPipeMaterialIn,
-                   G4bool          vacuumOnly         = false,
-                   BDSAperture*    apertureOutIn      = nullptr,
-                   G4ThreeVector*  inputFaceNormalIn  = nullptr,
-                   G4ThreeVector*  outputFaceNormalIn = nullptr);
+  BDSBeamPipeInfo(BDSBeamPipeType beamPipeTypeIn,
+                  BDSAperture*    apertureIn,
+                  G4Material*     vacuumMaterialIn,
+                  G4double        beamPipeThicknessIn,
+                  G4Material*     beamPipeMaterialIn,
+                  G4bool          vacuumOnly         = false,
+                  BDSAperture*    apertureOutIn      = nullptr,
+                  G4ThreeVector*  inputFaceNormalIn  = nullptr,
+                  G4ThreeVector*  outputFaceNormalIn = nullptr);
 
-  BDSBeamPipeInfo2(const BDSBeamPipeInfo2& other);
-  BDSBeamPipeInfo2& operator=(const BDSBeamPipeInfo2& other) = delete;
+  BDSBeamPipeInfo(const BDSBeamPipeInfo& other);
+  BDSBeamPipeInfo& operator=(const BDSBeamPipeInfo& other) = delete;
 
-  ~BDSBeamPipeInfo2();
+  ~BDSBeamPipeInfo();
   
   /// This gives the maximal extent of both the entrance and exit faces.
   BDSExtent Extent() const;

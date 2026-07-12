@@ -67,7 +67,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSApertureFactory.hh"
 #include "BDSBeamlineIntegral.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeType.hh"
 #include "BDSBeamPipeToApertureType.hh"
 #include "BDSBendBuilder.hh"
@@ -562,7 +562,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateDrift(G4double angleIn, G4do
 
   const G4double length = element->l*CLHEP::m;
 
-  BDSBeamPipeInfo2* beamPipeInfo = PrepareBeamPipeInfo2(element, inputFaceNormal, outputFaceNormal);
+  BDSBeamPipeInfo* beamPipeInfo = PrepareBeamPipeInfo(element, inputFaceNormal, outputFaceNormal);
   const BDSExtent extent = beamPipeInfo->Extent();
   G4bool facesWillIntersect = BDS::WillIntersect(inputFaceNormal, outputFaceNormal, length, extent, extent);
 
@@ -823,7 +823,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateRBend()
   G4double outgoingFaceAngle = OutgoingFaceAngle(element);
 
   // Check the faces won't overlap due to too strong an angle with too short a magnet
-  auto bp = PrepareBeamPipeInfo2(element);
+  auto bp = PrepareBeamPipeInfo(element);
   BDSMagnetOuterInfo* oiCheck = PrepareMagnetOuterInfo("checking", element,
                                                        -incomingFaceAngle, -outgoingFaceAngle,
                                                        bp, element->yokeOnInside);
@@ -1112,7 +1112,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateKicker(KickerType type)
     {vacuumField->SetFieldAsThin();}
 
   G4bool yokeOnLeft = YokeOnLeft(element, st);
-  auto bpInf = PrepareBeamPipeInfo2(element);
+  auto bpInf = PrepareBeamPipeInfo(element);
   
   // Decide on a default horizontalWidth for the kicker - try 0.3x ie smaller kicker
   // than typical magnet, but if that would not fit around the beam pipe - go back to
@@ -1264,10 +1264,10 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateMultipole()
 BDSAcceleratorComponent* BDSComponentFactory::CreateThinMultipole(G4double angleIn)
 {
   BDSMagnetStrength* st = PrepareMagnetStrengthForMultipoles(element);
-  BDSBeamPipeInfo2* beamPipeInfo = PrepareBeamPipeInfo2(element, angleIn, -angleIn);
+  BDSBeamPipeInfo* beamPipeInfo = PrepareBeamPipeInfo(element, angleIn, -angleIn);
   beamPipeInfo->beamPipeType = BDSBeamPipeType::circularvacuum;
   BDSMagnetOuterInfo* magnetOuterInfo = PrepareMagnetOuterInfo(elementName, element,
-							       -angleIn, angleIn, beamPipeInfo);
+                                                               -angleIn, angleIn, beamPipeInfo);
   magnetOuterInfo->geometryType = BDSMagnetGeometryType::none;
 
   BDSIntegratorType intType = integratorSet->multipoleThin;
@@ -1390,7 +1390,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateSolenoid()
 
   auto modulator = ModulatorDefinition(element, true);
 
-  BDSBeamPipeInfo2* bpInfo = PrepareBeamPipeInfo2(element);
+  BDSBeamPipeInfo* bpInfo = PrepareBeamPipeInfo(element);
   G4double bpRadius = bpInfo->aperture->RadiusToEncompass();
   if (buildIncomingFringe)
     {
@@ -1488,7 +1488,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateBeamMaskCollimator()
   {circularOuter = true;}
   return new BDSCollimatorBeamMask(elementName,
                                    element->l*CLHEP::m,
-                                   PrepareBeamPipeInfo2(element),
+                                   PrepareBeamPipeInfo(element),
                                    PrepareHorizontalWidth(element, 0.15*CLHEP::m),
                                    PrepareMaterial(element),
                                    PrepareVacuumMaterial(element),
@@ -1519,7 +1519,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateGasCapillary()
 
   return new BDSGasCapillary(elementName,
                              element->l*CLHEP::m,
-                             PrepareBeamPipeInfo2(element),
+                             PrepareBeamPipeInfo(element),
                              PrepareHorizontalWidth(element, 0.15*CLHEP::m),
                              BDSMaterials::Instance()->GetMaterial(materials[0]),
                              BDSMaterials::Instance()->GetMaterial(materials[1]),
@@ -1536,7 +1536,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateGasJet()
 
   return new BDSGasJet(elementName,
                        element->l*CLHEP::m,
-                       PrepareBeamPipeInfo2(element),
+                       PrepareBeamPipeInfo(element),
                        PrepareMaterial(element),
                        element->xdir*CLHEP::m,
                        element->ydir*CLHEP::m,
@@ -1659,7 +1659,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateMuonSpoiler()
       if (ul != defaultUL)
         {outerField->SetUserLimits(ul);}
     }
-  auto bpInfo = PrepareBeamPipeInfo2(element);
+  auto bpInfo = PrepareBeamPipeInfo(element);
   
   return new BDSMagnet(BDSMagnetType::muonspoiler,
 		       elementName,
@@ -1677,7 +1677,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateMuonCooler()
     {return nullptr;}
 
   GMAD::CoolingChannel def = BDSParser::Instance()->GetCoolingChannel(element->coolingDefinition);
-  auto beamPipeInfo = PrepareBeamPipeInfo2(element);
+  auto beamPipeInfo = PrepareBeamPipeInfo(element);
   auto result = BDS::BuildMuonCooler(elementName,
                                      element->l * CLHEP::m,
                                      element->horizontalWidth * CLHEP::m,
@@ -1692,7 +1692,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateShield()
   if (!HasSufficientMinimumLength(element))
     {return nullptr;}
 
-  BDSBeamPipeInfo2* bpInfo = PrepareBeamPipeInfo2(element);
+  BDSBeamPipeInfo* bpInfo = PrepareBeamPipeInfo(element);
 
   G4Colour* colour = PrepareColour(element);
   G4Material* material = PrepareMaterial(element, "concrete");
@@ -1738,7 +1738,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateDegrader()
 
   // include base thickness in each wedge so it covers the whole beam aperture when set to the thickest
   // possible amount of material, otherwise a fraction of the beam wouldn't pass through the wedges.
-  auto bpi = PrepareBeamPipeInfo2(element);
+  auto bpi = PrepareBeamPipeInfo(element);
   G4double baseWidth = bpi->aperture->RadiusToEncompass();
   delete bpi;
   auto material = PrepareMaterial(element);
@@ -1769,7 +1769,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateWireScanner()
   
   return (new BDSWireScanner(elementName,
                              element->l*CLHEP::m,
-                             PrepareBeamPipeInfo2(element),
+                             PrepareBeamPipeInfo(element),
                              PrepareMaterial(element),
                              element->wireDiameter*CLHEP::m,
                              element->wireLength*CLHEP::m,
@@ -1784,7 +1784,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateUndulator()
 
   const BDSFieldType undField = BDSFieldType::undulator;
 
-  BDSBeamPipeInfo2* bpInfo = PrepareBeamPipeInfo2(element);
+  BDSBeamPipeInfo* bpInfo = PrepareBeamPipeInfo(element);
   BDSIntegratorType intType = integratorSet->Integrator(undField);
   G4Transform3D fieldTrans  = CreateFieldTransform(element);
   BDSMagnetStrength* st = new BDSMagnetStrength();
@@ -1907,7 +1907,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateCrystalCollimator()
   
   return (new BDSCollimatorCrystal(elementName,
 				   element->l*CLHEP::m,
-				   PrepareBeamPipeInfo2(element),
+				   PrepareBeamPipeInfo(element),
 				   left,
 				   right,
 				   element->xsize*CLHEP::m, // symmetric for now
@@ -1928,7 +1928,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateLaser()
   G4ThreeVector direction = G4ThreeVector(element->xdir,element->ydir,element->zdir);
   G4ThreeVector position  = G4ThreeVector(0,0,0);
 
-  auto bpi = PrepareBeamPipeInfo2(element);
+  auto bpi = PrepareBeamPipeInfo(element);
   return (new BDSLaserWire(elementName, length, lambda, direction, bpi) );
 }
 
@@ -1944,7 +1944,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateScreen()
   
   BDSScreen* theScreen = new BDSScreen( elementName,
 					element->l*CLHEP::m,
-					PrepareBeamPipeInfo2(element),
+					PrepareBeamPipeInfo(element),
 					size,
 					element->angle); 
   if (element->layerThicknesses.size() != element->layerMaterials.size())
@@ -2117,9 +2117,9 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateThinRMatrix(G4double        
   BDSAperture* ap = apertureFactory.CreateAperture(BDSApertureType::circle, beamPipeRadius, 0, 0, 0);
   G4Material* vacMat = PrepareVacuumMaterial(element);
   auto faces = BDS::CalculateFaces(angleIn, -angleIn);
-  BDSBeamPipeInfo2* beamPipeInfo = new BDSBeamPipeInfo2(BDSBeamPipeType::circularvacuum, ap, vacMat, 0, nullptr, true,
-                                                        nullptr, new G4ThreeVector(faces.first),
-                                                        new G4ThreeVector(faces.second));
+  BDSBeamPipeInfo* beamPipeInfo = new BDSBeamPipeInfo(BDSBeamPipeType::circularvacuum, ap, vacMat, 0, nullptr, true,
+                                                      nullptr, new G4ThreeVector(faces.first),
+                                                      new G4ThreeVector(faces.second));
 
   BDSMagnetOuterInfo* magnetOuterInfo = PrepareMagnetOuterInfo(name, element, -angleIn, angleIn, beamPipeInfo);
   magnetOuterInfo->geometryType = BDSMagnetGeometryType::none;
@@ -2169,7 +2169,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateGaborLens()
   if (!HasSufficientMinimumLength(element))
     {return nullptr;}
   // force circular vacuum volume
-  BDSBeamPipeInfo2* bpInfo = PrepareBeamPipeInfo2Straight(element, "circularvacuum");
+  BDSBeamPipeInfo* bpInfo = PrepareBeamPipeInfoStraight(element, "circularvacuum");
 
   const BDSFieldType gaborLensField = BDSFieldType::gaborlens;
   BDSIntegratorType intType = integratorSet->Integrator(gaborLensField);
@@ -2234,7 +2234,7 @@ BDSAcceleratorComponent* BDSComponentFactory::CreateLaserwire(G4double syncrhono
   
   return (new BDSLaserWireNew(elementName,
                               element->l*CLHEP::m,
-                              PrepareBeamPipeInfo2(element),
+                              PrepareBeamPipeInfo(element),
                               laser,
                               30.0*laser->Sigma0(),
                               element->wireLength*CLHEP::m,
@@ -2251,7 +2251,7 @@ BDSMagnet* BDSComponentFactory::CreateMagnet(const GMAD::Element* el,
 					     G4double             angle,
 					     const G4String&      nameSuffix) const
 {
-  BDSBeamPipeInfo2* bpInfo = PrepareBeamPipeInfo2(element);
+  BDSBeamPipeInfo* bpInfo = PrepareBeamPipeInfo(element);
   BDSIntegratorType intType = integratorSet->Integrator(fieldType);
   G4Transform3D fieldTrans  = CreateFieldTransform(element);
   (*st)["synchronousT0"] = synchronousTAtMiddleOfThisComponent;
@@ -2352,7 +2352,7 @@ G4double BDSComponentFactory::ScalingFieldOuter(const GMAD::Element* ele)
 
 BDSFieldInfo* BDSComponentFactory::PrepareMagnetOuterFieldInfo(const BDSMagnetStrength*  vacuumSt,
 							       const BDSFieldType&       fieldType,
-							       const BDSBeamPipeInfo2*   bpInfo,
+							       const BDSBeamPipeInfo*   bpInfo,
 							       const BDSMagnetOuterInfo* outerInfo,
 							       const G4Transform3D&      fieldTransform,
 							       const BDSIntegratorSet*   integratorSetIn,
@@ -2424,7 +2424,7 @@ BDSFieldInfo* BDSComponentFactory::PrepareMagnetOuterFieldInfo(const BDSMagnetSt
 BDSMagnetOuterInfo* BDSComponentFactory::PrepareMagnetOuterInfo(const G4String& elementNameIn,
 								const Element* el,
 								const BDSMagnetStrength* st,
-								const BDSBeamPipeInfo2* beamPipe,
+								const BDSBeamPipeInfo* beamPipe,
 								G4double defaultHorizontalWidth,
 								G4double defaultVHRatio,
 								G4double defaultCoilWidthFraction,
@@ -2454,7 +2454,7 @@ BDSMagnetOuterInfo* BDSComponentFactory::PrepareMagnetOuterInfo(const G4String& 
 								const Element*  el,
 								const G4double  angleIn,
 								const G4double  angleOut,
-								const BDSBeamPipeInfo2* beamPipe,
+								const BDSBeamPipeInfo* beamPipe,
 								const G4bool    yokeOnLeft,
 								G4double        defaultHorizontalWidth,
 								G4double        defaultVHRatio,
@@ -2561,18 +2561,18 @@ G4Material* BDSComponentFactory::PrepareVacuumMaterial(Element const* el) const
   return result;
 }
 
-BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2Straight(Element const* el,
+BDSBeamPipeInfo* BDSComponentFactory::PrepareBeamPipeInfoStraight(Element const* el,
                                                                     const G4String& overrideBeamPipeType) const
 {
-  return PrepareBeamPipeInfo2(el, {0, 0, -1}, {0, 0, 1}, overrideBeamPipeType);
+  return PrepareBeamPipeInfo(el, {0, 0, -1}, {0, 0, 1}, overrideBeamPipeType);
 }
 
-BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
+BDSBeamPipeInfo* BDSComponentFactory::PrepareBeamPipeInfo(Element const* el,
                                                             const G4ThreeVector& inputFaceNormalIn,
                                                             const G4ThreeVector& outputFaceNormalIn,
                                                             const G4String& overrideBeamPipeType) const
 {
-  BDSBeamPipeInfo2* result;
+  BDSBeamPipeInfo* result;
   if (!BDSGlobalConstants::Instance()->IgnoreLocalAperture())
     {
       BDSAperture* ap = nullptr;
@@ -2628,24 +2628,24 @@ BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
       
       G4double thickness = BDS::IsFinite(el->beampipeThickness) ? el->beampipeThickness*CLHEP::m : defaultBeamPipe->beamPipeThickness;
       G4Material* bpm = el->beampipeMaterial.empty() ? defaultBeamPipe->beamPipeMaterial : BDSMaterials::Instance()->GetMaterial(el->beampipeMaterial);
-      result = new BDSBeamPipeInfo2(bpt, ap, PrepareVacuumMaterial(el), thickness, bpm);
+      result = new BDSBeamPipeInfo(bpt, ap, PrepareVacuumMaterial(el), thickness, bpm);
     }
   else
     {// ignore the aperture model from the element and use the global one
-      result = new BDSBeamPipeInfo2(*defaultBeamPipe);
+      result = new BDSBeamPipeInfo(*defaultBeamPipe);
     }
   result->inputFaceNormal  = new G4ThreeVector(inputFaceNormalIn);
   result->outputFaceNormal = new G4ThreeVector(outputFaceNormalIn);
   return result;
 }
 
-BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
+BDSBeamPipeInfo* BDSComponentFactory::PrepareBeamPipeInfo(Element const* el,
                                                             G4double angleIn,
                                                             G4double angleOut,
                                                             const G4String& overrideBeamPipeType) const
 {
   auto faces = BDS::CalculateFaces(angleIn, angleOut);
-  BDSBeamPipeInfo2* info = PrepareBeamPipeInfo2(el, faces.first, faces.second, overrideBeamPipeType);
+  BDSBeamPipeInfo* info = PrepareBeamPipeInfo(el, faces.first, faces.second, overrideBeamPipeType);
   return info;
 }
 
@@ -2708,7 +2708,7 @@ void BDSComponentFactory::PrepareApertures()
   G4double thickness = globals->BeamPipeThickness();
   G4Material* bpm = BDSMaterials::Instance()->GetMaterial(globals->BeamPipeMaterial());
 
-  defaultBeamPipe = new BDSBeamPipeInfo2(bpt, defaultAperture, vac, thickness, bpm);
+  defaultBeamPipe = new BDSBeamPipeInfo(bpt, defaultAperture, vac, thickness, bpm);
 
   G4double horizontalWidth = globals->HorizontalWidth();
   if (horizontalWidth < 2*defaultBeamPipe->Extent().MaximumAbsTransverse())
@@ -2898,7 +2898,7 @@ BDSCavityInfo* BDSComponentFactory::PrepareCavityModelInfoForElement(Element con
 								     G4double frequency) const
 {
   /// prepare aperture information for this element to base default cavity on.
-  BDSBeamPipeInfo2* bpi = PrepareBeamPipeInfo2(el);
+  BDSBeamPipeInfo* bpi = PrepareBeamPipeInfo(el);
 
   G4double aper1 = bpi->aperture->RadiusToEncompass();
   G4double horizontalWidth = PrepareHorizontalWidth(el);

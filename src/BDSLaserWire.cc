@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSAperture.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSGlobalConstants.hh" 
 #include "BDSLaserWire.hh"
 #include "BDSMaterials.hh"
@@ -30,7 +30,7 @@ BDSLaserWire::BDSLaserWire(const G4String&      nameIn,
                            G4double             lengthIn,
                            G4double             wavelengthIn,
                            const G4ThreeVector& directionIn,
-                           BDSBeamPipeInfo2*    beamPipeInfoIn):
+                           BDSBeamPipeInfo*     beamPipeInfoIn):
   BDSAcceleratorComponent(nameIn, lengthIn, 0, "laserwire", beamPipeInfoIn),
   itsLaserDirection(directionIn),
   itsLaserWavelength(wavelengthIn)

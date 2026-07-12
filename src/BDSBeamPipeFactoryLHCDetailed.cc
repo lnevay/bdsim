@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSApertureRectCircle.hh"
 #include "BDSBeamPipeFactoryBase.hh"
 #include "BDSBeamPipeFactoryLHCDetailed.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
@@ -176,7 +176,7 @@ G4bool BDSBeamPipeFactoryLHCDetailed::AngledFaces(const G4ThreeVector& v1,
 
 BDSBeamPipe* BDSBeamPipeFactoryLHCDetailed::CreateBeamPipe(const G4String& name,
                                                            G4double length,
-                                                           const BDSBeamPipeInfo2* bpi)
+                                                           const BDSBeamPipeInfo* bpi)
 {
   // clean up after last usage
   CleanUp();
@@ -352,7 +352,7 @@ BDSBeamPipe* BDSBeamPipeFactoryLHCDetailed::CreateBeamPipe(const G4String& name,
 
 BDSBeamPipe* BDSBeamPipeFactoryLHCDetailed::CreateBeamPipeAngled(const G4String& name,
                                                                  G4double length,
-                                                                 const BDSBeamPipeInfo2* bpi,
+                                                                 const BDSBeamPipeInfo* bpi,
                                                                  const G4ThreeVector& inputFaceNormalIn,
                                                                  const G4ThreeVector& outputFaceNormalIn)
 {

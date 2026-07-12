@@ -23,7 +23,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "globals.hh" // geant4 types / globals
 
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 
 class G4Colour;
 class G4Material;
@@ -46,7 +46,7 @@ public:
             G4double         ySize,
             G4Material*      materialIn,
             G4Colour*        colourIn,
-            BDSBeamPipeInfo2* beamPipeInfoIn = nullptr);
+            BDSBeamPipeInfo* beamPipeInfoIn = nullptr);
   virtual ~BDSShield();
 
 protected:

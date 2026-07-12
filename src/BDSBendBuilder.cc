@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "globals.hh" // geant4 globals / types
 
 #include "BDSAcceleratorComponent.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSBendBuilder.hh"
 #include "BDSComponentFactory.hh"
 #include "BDSDebug.hh"
@@ -161,7 +161,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(BDSComponentFactory*    factory,
       BDSFieldInfo* vacuumField = nullptr;
       BDSFieldInfo* outerField = nullptr;
       // prepare one sbend segment
-      auto bpInfo = factory->PrepareBeamPipeInfo2(element, -incomingFaceAngle, -outgoingFaceAngle);
+      auto bpInfo = factory->PrepareBeamPipeInfo(element, -incomingFaceAngle, -outgoingFaceAngle);
       auto mgInfo = factory->PrepareMagnetOuterInfo(baseName, element,
                                                     -incomingFaceAngle,
                                                     -outgoingFaceAngle,
@@ -257,7 +257,7 @@ BDSAcceleratorComponent* BDS::BuildSBendLine(BDSComponentFactory*    factory,
   BDSIntegratorType intType = BDS::GetDipoleIntegratorType(integratorSet, element);
   BDSFieldInfo* semiVacuumField = nullptr;
   BDSFieldInfo* semiOuterField = nullptr;
-  auto bpInfo = factory->PrepareBeamPipeInfo2(element, 0.5*semiAngle, 0.5*semiAngle);
+  auto bpInfo = factory->PrepareBeamPipeInfo(element, 0.5*semiAngle, 0.5*semiAngle);
   auto mgInfo = factory->PrepareMagnetOuterInfo(centralName, element,
                                                 0.5*semiAngle, 0.5*semiAngle, bpInfo,
                                                 yokeOnLeft);
@@ -508,7 +508,7 @@ BDSMagnet* BDS::BuildSingleSBend(BDSComponentFactory* factory,
                                  const BDSFieldInfo*      outerFieldIn,
                                  BDSModulatorInfo*        fieldModulator)
 {
-  auto bpInfo = factory->PrepareBeamPipeInfo2(element, angleIn, angleOut);
+  auto bpInfo = factory->PrepareBeamPipeInfo(element, angleIn, angleOut);
   
   BDSMagnetStrength* strengthCopy = new BDSMagnetStrength(*strength); // the copy is crucial to copy the field strength
   auto  magnetOuterInfo = factory->PrepareMagnetOuterInfo(name, element, angleIn, angleOut, bpInfo, yokeOnLeft);
@@ -737,7 +737,7 @@ BDSLine* BDS::BuildRBendLine(BDSComponentFactory* factory,
   BDSIntegratorType intType = BDS::GetDipoleIntegratorType(integratorSet, element);
   BDSFieldInfo* vacuumField = nullptr;
   BDSFieldInfo* outerField = nullptr;
-  auto bpInfo = factory->PrepareBeamPipeInfo2(element, centralInputFaceAngle, centralOutputFaceAngle);
+  auto bpInfo = factory->PrepareBeamPipeInfo(element, centralInputFaceAngle, centralOutputFaceAngle);
   auto mgInfo = factory->PrepareMagnetOuterInfo(elementName, element, centralInputFaceAngle,
                                                 centralOutputFaceAngle, bpInfo, yokeOnLeft);
   mgInfo->name = elementName;
@@ -811,7 +811,7 @@ BDSMagnet* BDS::BuildDipoleFringe(BDSComponentFactory* factory,
                                   BDSFieldType             dipoleFieldType,
                                   BDSModulatorInfo*        fieldModulator)
 {
-  BDSBeamPipeInfo2* beamPipeInfo = factory->PrepareBeamPipeInfo2(element, angleIn, angleOut);
+  BDSBeamPipeInfo* beamPipeInfo = factory->PrepareBeamPipeInfo(element, angleIn, angleOut);
   beamPipeInfo->beamPipeType = BDSBeamPipeType::circularvacuum;
   auto magnetOuterInfo = factory->PrepareMagnetOuterInfo(name, element,
                                                          angleIn, angleOut, beamPipeInfo);

@@ -18,7 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSAperture.hh"
 #include "BDSApertureFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeToApertureType.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"

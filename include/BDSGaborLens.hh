@@ -22,6 +22,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "globals.hh"
 #include "BDSAcceleratorComponent.hh"
 
+class BDSBeamPipeInfo;
 class G4Colour;
 class G4Material;
 
@@ -47,7 +48,7 @@ public:
           G4double electrodeThicknessIn,
           G4Material* outerMaterialIn,
           G4Colour* colourIn,
-          BDSBeamPipeInfo2* beamPipeInfoIn = nullptr,
+          BDSBeamPipeInfo* beamPipeInfoIn = nullptr,
           BDSFieldInfo* vacuumFieldInfoIn = nullptr);
     virtual ~BDSGaborLens();
   

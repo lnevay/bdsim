@@ -24,7 +24,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "globals.hh"
 
 class G4Material;
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 class BDSFieldInfo;
 
 /**
@@ -45,7 +45,7 @@ public:
                G4double         magnetHeightIn,
                G4double         magnetWidthIn,
                G4double         undulatorGapIn,
-               BDSBeamPipeInfo2* beamPipeInfoIn,
+               BDSBeamPipeInfo*  beamPipeInfoIn,
                BDSFieldInfo*    vacuumFieldInfoIn,
                BDSFieldInfo*    outerFieldInfoIn,
                G4Material*      materialIn);

@@ -18,7 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeType.hh"
 #include "BDSFieldBuilder.hh"
 #include "BDSFieldInfo.hh"
@@ -50,7 +50,7 @@ class G4Userlimits;
 BDSMagnet::BDSMagnet(BDSMagnetType       typeIn,
 		     const G4String&     nameIn,
 		     G4double            lengthIn,
-		     BDSBeamPipeInfo2*   beamPipeInfoIn,
+		     BDSBeamPipeInfo*    beamPipeInfoIn,
 		     BDSMagnetOuterInfo* magnetOuterInfoIn,
 		     BDSFieldInfo*       vacuumFieldInfoIn,
 		     G4double            angleIn,

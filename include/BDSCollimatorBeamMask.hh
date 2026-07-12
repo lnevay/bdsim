@@ -23,6 +23,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BDSAcceleratorComponent.hh"
 
+class BDSBeamPipeInfo;
 class G4Colour;
 class G4Material;
 
@@ -40,7 +41,7 @@ public:
   BDSCollimatorBeamMask() = delete;
   BDSCollimatorBeamMask(const G4String&  name,
                         G4double         length,
-                        BDSBeamPipeInfo2* beamPipeInfoIn,
+                        BDSBeamPipeInfo* beamPipeInfoIn,
                         G4double         horizontalWidth,
                         G4Material*      collimatorMaterial,
                         G4Material*      vacuumMaterial,

@@ -45,7 +45,7 @@ namespace GMAD
   struct Element;
 }
 class BDSAcceleratorComponent;
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 class BDSCavityInfo;
 class BDSComponentFactoryUser;
 class BDSCrystalInfo;
@@ -113,18 +113,18 @@ public:
   /// from the curvilinear coordinates for the tilt and offset of the magnet.
   static G4Transform3D CreateFieldTransform(GMAD::Element const* el);
 
-  BDSBeamPipeInfo2* PrepareBeamPipeInfo2Straight(GMAD::Element const* el,
-                                                 const G4String& overrideBeamPipeType = "") const;
+  BDSBeamPipeInfo* PrepareBeamPipeInfoStraight(GMAD::Element const* el,
+                                               const G4String& overrideBeamPipeType = "") const;
 
-  BDSBeamPipeInfo2* PrepareBeamPipeInfo2(GMAD::Element const* el,
-                                         const G4ThreeVector& inputFaceNormalIn  = G4ThreeVector(0,0,-1),
-                                         const G4ThreeVector& outputFaceNormalIn = G4ThreeVector(0,0,1),
-                                         const G4String& overrideBeamPipeType = "") const;
+  BDSBeamPipeInfo* PrepareBeamPipeInfo(GMAD::Element const* el,
+                                       const G4ThreeVector& inputFaceNormalIn  = G4ThreeVector(0,0,-1),
+                                       const G4ThreeVector& outputFaceNormalIn = G4ThreeVector(0,0,1),
+                                       const G4String& overrideBeamPipeType = "") const;
   
-  BDSBeamPipeInfo2* PrepareBeamPipeInfo2(GMAD::Element const* el,
-                                         G4double angleIn,
-                                         G4double angleOut,
-                                         const G4String& overrideBeamPipeType = "") const;
+  BDSBeamPipeInfo* PrepareBeamPipeInfo(GMAD::Element const* el,
+                                       G4double angleIn,
+                                       G4double angleOut,
+                                       const G4String& overrideBeamPipeType = "") const;
 
   /// Determine which side the yoke of an asymmetric bend should go on based on the angle
   /// of the bend and the overriding setting in the element.
@@ -141,7 +141,7 @@ public:
   /// Prepare the field definition for the yoke of a magnet.
   static BDSFieldInfo* PrepareMagnetOuterFieldInfo(const BDSMagnetStrength*  vacuumSt,
 						   const BDSFieldType&       fieldType,
-						   const BDSBeamPipeInfo2*   bpInfo,
+						   const BDSBeamPipeInfo*    bpInfo,
 						   const BDSMagnetOuterInfo* outerInfo,
 						   const G4Transform3D&      fieldTransform,
 						   const BDSIntegratorSet*   integratorSetIn,
@@ -155,7 +155,7 @@ public:
   BDSMagnetOuterInfo* PrepareMagnetOuterInfo(const G4String&          elementNameIn,
 						    const GMAD::Element*     el,
 						    const BDSMagnetStrength* st,
-						    const BDSBeamPipeInfo2*   beamPipe,
+						    const BDSBeamPipeInfo*   beamPipe,
 						    G4double defaultHorizontalWidth    = -1,
 						    G4double defaultVHRatio            = 1.0,
 						    G4double defaultCoilWidthFraction  = -1,
@@ -172,7 +172,7 @@ public:
 						    const GMAD::Element*   el,
 						    const G4double         angleIn,
 						    const G4double         angleOut,
-						    const BDSBeamPipeInfo2* beamPipe,
+						    const BDSBeamPipeInfo* beamPipe,
 						    const G4bool   yokeOnLeft                = false,
 						    G4double       defaultHorizontalWidth    = -1,
 						    G4double       defaultVHRatio            = -1,
@@ -242,7 +242,7 @@ private:
   G4double thinElementLength; ///< Length of a thin element.
   G4bool includeFringeFields; ///< Cache of whether to include fringe fields.
   G4bool yokeFields;          ///< Cache of whether to include yoke magnetic fields.
-  BDSBeamPipeInfo2* defaultBeamPipe;
+  BDSBeamPipeInfo* defaultBeamPipe;
   BDSModulatorInfo* defaultModulator; ///< Default modulator for all components.
   BDSBeamlineIntegral* integralUpToThisComponent; ///< To save passing it through many functions arguments.
   G4double synchronousTAtMiddleOfThisComponent;

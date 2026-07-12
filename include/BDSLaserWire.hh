@@ -19,8 +19,12 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BDSLASERWIRE_H
 #define BDSLASERWIRE_H
 
-#include "globals.hh"  // geant4 types / globals
 #include "BDSAcceleratorComponent.hh"
+
+#include "G4ThreeVector.hh"
+#include "G4Types.hh"
+
+class BDSBeamPipeInfo;
 
 /**
  * @brief A laser wire scanner.
@@ -38,7 +42,7 @@ public:
                G4double lengthIn,
                G4double wavelengthIn,
                const G4ThreeVector& directionIn,
-               BDSBeamPipeInfo2* beamPipeInfoIn);
+               BDSBeamPipeInfo* beamPipeInfoIn);
   virtual ~BDSLaserWire();
 
   inline void SetLaserDirection(G4ThreeVector aDirection) {itsLaserDirection=aDirection;}

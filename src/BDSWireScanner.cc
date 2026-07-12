@@ -24,7 +24,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSExtent.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSUtilities.hh"
 #include "BDSWireScanner.hh"
 
@@ -42,7 +42,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSWireScanner::BDSWireScanner(const G4String&      nameIn,
                                G4double             lengthIn,
-                               BDSBeamPipeInfo2*    beamPipeInfoIn,
+                               BDSBeamPipeInfo*     beamPipeInfoIn,
                                G4Material*          wireMaterialIn,
                                G4double             wireDiameterIn,
                                G4double             wireLengthIn,

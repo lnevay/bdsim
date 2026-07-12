@@ -20,7 +20,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSBeamPipeFactoryBase.hh"
 #include "BDSBeamPipeFactoryGeneral.hh"
 #include "BDSBeamPipeFactoryLHCDetailed.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeType.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
@@ -70,7 +70,7 @@ BDSBeamPipeFactoryBase* BDSBeamPipeFactory::GetAppropriateFactory(BDSBeamPipeTyp
 
 BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipe(const G4String&  name,
                                                 G4double         length,
-                                                BDSBeamPipeInfo2* bpi)
+                                                BDSBeamPipeInfo*  bpi)
 {
   BDSBeamPipeFactoryBase* factory = GetAppropriateFactory(bpi->beamPipeType);
   return factory->CreateBeamPipe(name, length, bpi);

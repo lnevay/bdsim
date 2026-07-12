@@ -27,7 +27,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 class BSDFieldInfo;
 class G4Material;
 
@@ -48,7 +48,7 @@ public:
                 const std::vector<BDS::MuonCoolerDipoleInfo>&   dipoleInfosIn,
                 const std::vector<BDS::MuonCoolerCavityInfo>&   cavityInfosIn,
                 const std::vector<BDS::MuonCoolerAbsorberInfo>& absorberInfosIn,
-                BDSBeamPipeInfo2*                               beamPipeTemplateIn,
+                BDSBeamPipeInfo*                                beamPipeTemplateIn,
                 BDSFieldInfo*                                   outerFieldRecipeIn);
   virtual ~BDSMuonCooler();
 
@@ -72,7 +72,7 @@ private:
   std::vector<BDS::MuonCoolerDipoleInfo> dipoleInfos;
   std::vector<BDS::MuonCoolerCavityInfo> cavityInfos;
   std::vector<BDS::MuonCoolerAbsorberInfo> absorberInfos;
-  BDSBeamPipeInfo2* beamPipeTemplate;
+  BDSBeamPipeInfo* beamPipeTemplate;
   BDSFieldInfo* outerFieldRecipe;
 };
 

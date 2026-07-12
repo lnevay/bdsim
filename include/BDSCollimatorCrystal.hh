@@ -23,7 +23,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BDSAcceleratorComponent.hh"
 
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 class BDSCrystal;
 class BDSCrystalInfo;
 
@@ -38,7 +38,7 @@ class BDSCollimatorCrystal: public BDSAcceleratorComponent
 public:
   BDSCollimatorCrystal(const G4String&   name,
 		       G4double          length,
-		       BDSBeamPipeInfo2* beamPipeInfoIn,
+		       BDSBeamPipeInfo*  beamPipeInfoIn,
 		       BDSCrystalInfo*   crystalInfoLeftIn,
 		       BDSCrystalInfo*   crystalInfoRightIn = nullptr,
 		       G4double          halfGapLeftIn      = 0,

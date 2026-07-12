@@ -20,7 +20,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSApertureFactory.hh"
 #include "BDSBeamPipeFactoryGeneral.hh"
 #include "BDSBeamPipe.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSExtent.hh"
 
 #include "G4String.hh"
@@ -34,7 +34,7 @@ BDSBeamPipeFactoryGeneral::BDSBeamPipeFactoryGeneral()
 
 BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
                                                        G4double length,
-                                                       const BDSBeamPipeInfo2* bpi)
+                                                       const BDSBeamPipeInfo* bpi)
 {
   CleanUp();
   

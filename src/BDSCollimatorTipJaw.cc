@@ -18,7 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSAcceleratorModel.hh"
 #include "BDSCollimatorTipJaw.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
@@ -57,7 +57,7 @@ BDSCollimatorTipJaw::BDSCollimatorTipJaw(const G4String&    nameIn,
                                          G4Colour*   colourIn,
                                          G4Colour*   tipColourIn):
 BDSTipCollimator(nameIn, lengthIn, horizontalWidthIn, "jcoltip", collimatorMaterialIn, collimatorTipMaterialIn, vacuumMaterialIn,
-              xHalfGapIn, yHalfHeightIn, xHalfGapIn, yHalfHeightIn, colourIn, tipColourIn, tipThicknessIn),
+                 xHalfGapIn, yHalfHeightIn, xHalfGapIn, yHalfHeightIn, colourIn, tipColourIn, tipThicknessIn),
   jawSolid(nullptr),
   xSizeLeft(xSizeLeftIn),
   xSizeRight(xSizeRightIn),

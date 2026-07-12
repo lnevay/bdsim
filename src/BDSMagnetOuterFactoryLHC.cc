@@ -21,7 +21,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSApertureType.hh"
 #include "BDSAppropriateTubs.hh"
 #include "BDSBeamPipe.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeType.hh"
 #include "BDSBeamPipeFactory.hh"
 #include "BDSColours.hh"
@@ -910,25 +910,14 @@ BDSMagnetOuter* BDSMagnetOuterFactoryLHC::CreateLHCDipole(const G4String&    nam
                                          1.714*CLHEP::cm,
                                          2.202*CLHEP::cm,
                                          0,0,0,0,0);
-  BDSBeamPipeInfo2* bpi2;
+  BDSBeamPipeInfo* bpi2;
   if (flatFaces)
-    {
-      bpi2 = new BDSBeamPipeInfo2(BDSBeamPipeType::lhcdetailed,
-                                                ap,
-                                                vacuumMaterial,
-                                                1*CLHEP::mm,
-                                                stainlesssteel_316LN_2K);
-    }
+    {bpi2 = new BDSBeamPipeInfo(BDSBeamPipeType::lhcdetailed, ap, vacuumMaterial, 1*CLHEP::mm, stainlesssteel_316LN_2K);}
   else
     {
-      bpi2 = new BDSBeamPipeInfo2(BDSBeamPipeType::lhcdetailed,
-                                                ap,
-                                                vacuumMaterial,
-                                                1*CLHEP::mm,
-                                                stainlesssteel_316LN_2K,
-                                                false, nullptr,
-                                                new G4ThreeVector(inputFaceNormal),
-                                                new G4ThreeVector(outputFaceNormal));
+      bpi2 = new BDSBeamPipeInfo(BDSBeamPipeType::lhcdetailed, ap, vacuumMaterial, 1*CLHEP::mm,
+                                 stainlesssteel_316LN_2K, false, nullptr,
+                                 new G4ThreeVector(inputFaceNormal), new G4ThreeVector(outputFaceNormal));
     }
   BDSBeamPipeFactory factory;
   BDSBeamPipe* secondBP = factory.CreateBeamPipe(name, 2*secondBPHalfLength-lengthSafetyLarge, bpi2);
@@ -1518,11 +1507,7 @@ BDSMagnetOuter* BDSMagnetOuterFactoryLHC::CreateQuadrupole(G4String      name,
                                          1.714*CLHEP::cm,
                                          2.202*CLHEP::cm,
                                          0,0,0,0,0);
-  BDSBeamPipeInfo2* bpi2 = new BDSBeamPipeInfo2(BDSBeamPipeType::lhcdetailed,
-                                                ap,
-                                                vacuumMaterial,
-                                                1*CLHEP::mm,
-                                                stainlesssteel_316LN_2K);
+  BDSBeamPipeInfo* bpi2 = new BDSBeamPipeInfo(BDSBeamPipeType::lhcdetailed, ap, vacuumMaterial, 1*CLHEP::mm, stainlesssteel_316LN_2K);
   BDSBeamPipeFactory factory;
   BDSBeamPipe* secondBP = factory.CreateBeamPipe(name, length-2*lengthSafety, bpi2);
   

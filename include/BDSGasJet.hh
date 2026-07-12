@@ -23,6 +23,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BDSAcceleratorComponent.hh"
 
+class BDSBeamPipeInfo;
 class G4Colour;
 class G4Material;
 class G4VSolid;
@@ -38,7 +39,7 @@ class BDSGasJet: public BDSAcceleratorComponent
 public:
     BDSGasJet(const G4String&  name,
               G4double         length,
-              BDSBeamPipeInfo2* beamPipeInfoIn,
+              BDSBeamPipeInfo* beamPipeInfoIn,
               G4Material*      gasMaterial,
               G4double         xSize     = 0,
               G4double         ySize     = 0,

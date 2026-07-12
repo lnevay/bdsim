@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAcceleratorComponent.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
@@ -44,7 +44,7 @@ BDSUndulator::BDSUndulator(const G4String&  nameIn,
                            G4double         undulatorMagnetHeightIn,
                            G4double         horizontalWidthIn,
                            G4double         undulatorGapIn,
-                           BDSBeamPipeInfo2* beamPipeInfoIn,
+                           BDSBeamPipeInfo* beamPipeInfoIn,
                            BDSFieldInfo*    vacuumFieldInfoIn,
                            BDSFieldInfo*    outerFieldInfoIn,
                            G4Material*      materialIn):

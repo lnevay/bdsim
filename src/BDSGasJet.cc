@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSGasJet.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
@@ -38,7 +38,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSGasJet::BDSGasJet(const G4String& nameIn,
                      G4double    lengthIn,
-                     BDSBeamPipeInfo2* beamPipeInfoIn,
+                     BDSBeamPipeInfo* beamPipeInfoIn,
                      G4Material* gasMaterialIn,
                      G4double    xSizeIn,
                      G4double    ySizeIn,

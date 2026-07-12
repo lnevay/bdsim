@@ -21,7 +21,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAperture.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSCollimatorCrystal.hh"
 #include "BDSCrystalFactory.hh"
 #include "BDSCrystalInfo.hh"
@@ -42,7 +42,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSCollimatorCrystal::BDSCollimatorCrystal(const G4String&   nameIn, 
                                            G4double          lengthIn,
-                                           BDSBeamPipeInfo2* beamPipeInfoIn,
+                                           BDSBeamPipeInfo*  beamPipeInfoIn,
                                            BDSCrystalInfo*   crystalInfoLeftIn,
                                            BDSCrystalInfo*   crystalInfoRightIn,
                                            G4double          halfGapLeftIn,

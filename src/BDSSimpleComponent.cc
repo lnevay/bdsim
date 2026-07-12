@@ -27,7 +27,7 @@ BDSSimpleComponent::BDSSimpleComponent(const G4String&       nameIn,
                                        G4double              angleIn,
                                        const G4ThreeVector&  inputFaceNormalIn,
                                        const G4ThreeVector&  outputFaceNormalIn,
-                                       BDSBeamPipeInfo2*     beamPipeInfoIn):
+                                       BDSBeamPipeInfo*      beamPipeInfoIn):
   BDSAcceleratorComponent(nameIn, arcLengthIn, angleIn, "simpleComponent", beamPipeInfoIn,
                           inputFaceNormalIn, outputFaceNormalIn)
 {
@@ -47,7 +47,7 @@ BDSSimpleComponent::BDSSimpleComponent(const G4String&       nameIn,
                                        const BDSExtent&      extentIn,
                                        const G4ThreeVector&  inputFaceNormalIn,
                                        const G4ThreeVector&  outputFaceNormalIn,
-                                       BDSBeamPipeInfo2*     beamPipeInfoIn):
+                                       BDSBeamPipeInfo*      beamPipeInfoIn):
   BDSAcceleratorComponent(nameIn, arcLengthIn, angleIn, "simpleComponent", beamPipeInfoIn,
                           inputFaceNormalIn, outputFaceNormalIn)
 {

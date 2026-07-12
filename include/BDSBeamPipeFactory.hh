@@ -27,7 +27,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 class G4Material;
 
 class BDSBeamPipe;
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 class BDSBeamPipeFactoryBase;
 
 /**
@@ -42,16 +42,9 @@ public:
   BDSBeamPipeFactory();
   ~BDSBeamPipeFactory();
   
-  /// Create a circular vacuum volume that's smaller than the aperture definition
-  /// by length safety large suitable for intersections with something that should
-  /// fit in the vacuum of a beam pipe that would be created with the same recipe.
-  //BDSBeamPipe* CreateBeamPipeForVacuumIntersection(const G4String&  name,
-	//					   G4double         length,
-	//					   BDSBeamPipeInfo2* info);
-  
   BDSBeamPipe* CreateBeamPipe(const G4String& name,
                               G4double length,
-                              BDSBeamPipeInfo2* bpi);
+                              BDSBeamPipeInfo* bpi);
 
 private:
   /// Return the appropriate factory singleton pointer given a type.
@@ -62,7 +55,5 @@ private:
   BDSBeamPipeFactoryBase* lhcdetailed;
   /// @}
 };
-
-
 
 #endif

@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSCollimatorBeamMask.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
@@ -43,7 +43,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSCollimatorBeamMask::BDSCollimatorBeamMask(const G4String& nameIn,
                                              G4double    lengthIn,
-                                             BDSBeamPipeInfo2* beamPipeInfoIn,
+                                             BDSBeamPipeInfo* beamPipeInfoIn,
                                              G4double    horizontalWidthIn,
                                              G4Material* collimatorMaterialIn,
                                              G4Material* vacuumMaterialIn,

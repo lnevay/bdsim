@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAcceleratorComponent.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSCavity.hh"
 #include "BDSCavityFactory.hh"
 #include "BDSCavityInfo.hh"
@@ -64,7 +64,7 @@ BDSMuonCooler::BDSMuonCooler(const G4String& nameIn,
                              const std::vector<BDS::MuonCoolerDipoleInfo>&   dipoleInfosIn,
                              const std::vector<BDS::MuonCoolerCavityInfo>&   cavityInfosIn,
                              const std::vector<BDS::MuonCoolerAbsorberInfo>& absorberInfosIn,
-                             BDSBeamPipeInfo2* beamPipeTemplateIn,
+                             BDSBeamPipeInfo* beamPipeTemplateIn,
                              BDSFieldInfo*    outerFieldRecipeIn):
   BDSAcceleratorComponent(nameIn, lengthIn, 0, "muoncooler", nullptr),
   containerRadius(containerRadiusIn),
@@ -257,7 +257,7 @@ void BDSMuonCooler::BuildCavities()
 {
   struct DriftSpec
   {
-    BDSBeamPipeInfo2* bpRecipe;
+    BDSBeamPipeInfo* bpRecipe;
     G4ThreeVector position;
   };
   std::vector<DriftSpec> beampipeInfos;

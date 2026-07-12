@@ -42,7 +42,7 @@ class BDSWireScanner: public BDSAcceleratorComponent
 public:
   BDSWireScanner(const G4String&      nameIn,
                  G4double             lengthIn,
-                 BDSBeamPipeInfo2*    beamPipeInfoIn,
+                 BDSBeamPipeInfo*     beamPipeInfoIn,
                  G4Material*          wireMaterialIn,
                  G4double             wireDiameterIn,
                  G4double             wireLengthIn,

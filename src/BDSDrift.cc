@@ -20,14 +20,14 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSDrift.hh"
 #include "BDSBeamPipe.hh"
 #include "BDSBeamPipeFactory.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 
 #include "globals.hh" // geant4 globals / types
 #include "G4Material.hh"
 
-BDSDrift::BDSDrift(G4String          nameIn, 
-                   G4double          lengthIn,
-                   BDSBeamPipeInfo2* beamPipeInfoIn):
+BDSDrift::BDSDrift(G4String         nameIn,
+                   G4double         lengthIn,
+                   BDSBeamPipeInfo* beamPipeInfoIn):
   BDSAcceleratorComponent(nameIn, lengthIn, 0, "drift", beamPipeInfoIn)
 {;}
 

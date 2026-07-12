@@ -21,7 +21,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 class BDSMuonCooler;
 namespace GMAD
 {
@@ -45,7 +45,7 @@ namespace BDS
                                  G4double chordLength,
                                  G4double horizontalWidth,
                                  const GMAD::CoolingChannel& definition,
-                                 BDSBeamPipeInfo2* beamPipeInfo,
+                                 BDSBeamPipeInfo* beamPipeInfo,
                                  G4double designRigidity);
   
   /// Loop over parser definition variables and construct a set of infos. Tolerate

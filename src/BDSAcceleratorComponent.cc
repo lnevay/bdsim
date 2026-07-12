@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSAcceleratorComponent.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
 #include "BDSFieldBuilder.hh"
@@ -50,7 +50,7 @@ BDSAcceleratorComponent::BDSAcceleratorComponent(const G4String&      nameIn,
 						 G4double             arcLengthIn,
 						 G4double             angleIn,
 						 const G4String&      typeIn,
-						 BDSBeamPipeInfo2*    beamPipeInfoIn,
+						 BDSBeamPipeInfo*     beamPipeInfoIn,
 						 const G4ThreeVector& inputFaceNormalIn,
 						 const G4ThreeVector& outputFaceNormalIn,
 						 BDSFieldInfo*        fieldInfoIn):

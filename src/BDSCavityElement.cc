@@ -18,7 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSAcceleratorComponent.hh"
 #include "BDSApertureCircle.hh"
-#include "BDSBeamPipeInfo2.hh"
+#include "BDSBeamPipeInfo.hh"
 #include "BDSBeamPipeType.hh"
 #include "BDSCavity.hh"
 #include "BDSCavityElement.hh"
@@ -44,10 +44,10 @@ BDSCavityElement::BDSCavityElement(const G4String&       nameIn,
   vacuumMaterial(vacuumMaterialIn)
 {
   auto ap = new BDSApertureCircle(cavityInfoIn->irisRadius);
-  beamPipeInfo = new BDSBeamPipeInfo2(BDSBeamPipeType::circular,
-  ap,vacuumMaterialIn,
-                                      cavityInfo->thickness,
-                                      cavityInfo->material);
+  beamPipeInfo = new BDSBeamPipeInfo(BDSBeamPipeType::circular,
+                                     ap,vacuumMaterialIn,
+                                     cavityInfo->thickness,
+                                     cavityInfo->material);
 }
 
 BDSCavityElement::~BDSCavityElement()
