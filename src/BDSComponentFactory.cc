@@ -2601,17 +2601,28 @@ BDSBeamPipeInfo2* BDSComponentFactory::PrepareBeamPipeInfo2(Element const* el,
       else
         {
           G4bool atMissing = el->apertureType.empty();
-          G4bool elVarsMissing = !BDS::IsFinite(el->aper1);
+          G4bool elVarsMissing = !BDS::IsFinite(el->aper1); // required for every aperture type
           G4bool elListMissing = el->aperture.empty();
-          bpt = el->apertureType.empty() ? defaultBeamPipe->beamPipeType : BDS::DetermineBeamPipeType(el->apertureType);
-          if (atMissing && (elVarsMissing || elListMissing))
+          bpt = atMissing ? defaultBeamPipe->beamPipeType : BDS::DetermineBeamPipeType(el->apertureType);
+          G4bool defaultIsPointsFile = atMissing && bpt == BDSBeamPipeType::pointsfile;
+          if ((atMissing && elVarsMissing && elListMissing) || defaultIsPointsFile) // no per-element information at all
             {ap = defaultBeamPipe->aperture->Clone();}
           else if (!atMissing && (elVarsMissing && elListMissing) && bpt != BDSBeamPipeType::pointsfile)
             {throw BDSException(__METHOD_NAME__, "apertureType specified in element definition but no aperture parameters given");}
           else
             {
-              G4bool useElementVars = BDS::IsFinite(el->aper1);
-              ap = apertureFactory.CreateAperture(bpt, *el, useElementVars);
+              if (elListMissing)
+                {// update whichever parameters are set
+                  std::array<G4double,7> apnum = defaultBeamPipe->aperture->ApertureNumbers();
+                  G4double a1 = BDS::IsFinite(el->aper1) ? el->aper1*CLHEP::m : apnum[0];
+                  G4double a2 = BDS::IsFinite(el->aper2) ? el->aper2*CLHEP::m : apnum[1];
+                  G4double a3 = BDS::IsFinite(el->aper3) ? el->aper3*CLHEP::m : apnum[2];
+                  G4double a4 = BDS::IsFinite(el->aper4) ? el->aper4*CLHEP::m : apnum[3];
+                  BDSApertureType apt = BDS::ApertureTypeFromBeamPipeType(bpt);
+                  ap = apertureFactory.CreateAperture(apt, a1, a2, a3, a4, 0, 0, 0, 0, el->apertureType);
+                }
+              else
+                {ap = apertureFactory.CreateAperture(bpt, *el, elListMissing);}
             }
         }
       
