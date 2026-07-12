@@ -85,7 +85,7 @@ public:
     void Extend(const Product& other)
     {
       otherSolids.insert(other.product);
-      otherSolids.insert(otherSolids.end(), other.otherSolids.begin());
+      otherSolids.insert(other.otherSolids.begin(), other.otherSolids.end());
     }
   };
 
