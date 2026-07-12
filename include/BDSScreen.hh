@@ -39,10 +39,10 @@ class BDSScreen: public BDSDrift
 {
 public:
   BDSScreen(const G4String&  name,
-	    G4double         chordLengthIn,   // Length of the drift section containing the screen
-	    BDSBeamPipeInfo*  beamPipeInfo,   // Beam pipe specifications.
-	    G4TwoVector      size        = G4TwoVector(), // X Y dimensions of screen
-	    G4double         screenAngle = 0);// Phi angle of screen
+            G4double         chordLengthIn,
+            BDSBeamPipeInfo* beamPipeInfo,
+            G4TwoVector      size        = G4TwoVector(),
+            G4double         screenAngle = 0);
 
   virtual ~BDSScreen();
 

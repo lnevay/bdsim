@@ -48,14 +48,14 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 class G4Userlimits;
 
 BDSMagnet::BDSMagnet(BDSMagnetType       typeIn,
-		     const G4String&     nameIn,
-		     G4double            lengthIn,
-		     BDSBeamPipeInfo*    beamPipeInfoIn,
-		     BDSMagnetOuterInfo* magnetOuterInfoIn,
-		     BDSFieldInfo*       vacuumFieldInfoIn,
-		     G4double            angleIn,
-		     BDSFieldInfo*       outerFieldInfoIn,
-		     G4bool              isThinIn):
+                     const G4String&     nameIn,
+                     G4double            lengthIn,
+                     BDSBeamPipeInfo*    beamPipeInfoIn,
+                     BDSMagnetOuterInfo* magnetOuterInfoIn,
+                     BDSFieldInfo*       vacuumFieldInfoIn,
+                     G4double            angleIn,
+                     BDSFieldInfo*       outerFieldInfoIn,
+                     G4bool              isThinIn):
   BDSAcceleratorComponent(nameIn, lengthIn, angleIn, typeIn.ToString(), beamPipeInfoIn),
   magnetType(typeIn),
   magnetOuterInfo(magnetOuterInfoIn),
@@ -152,8 +152,8 @@ void BDSMagnet::BuildBeampipe()
 {
   BDSBeamPipeFactory factory;
   beampipe = factory.CreateBeamPipe(name+"_bp",
-							    chordLength - 2*lengthSafety,
-							    beamPipeInfo);
+                                    chordLength - 2*lengthSafety,
+                                    beamPipeInfo);
 
   beamPipePlacementTransform = beampipe->GetPlacementTransform().inverse();
   

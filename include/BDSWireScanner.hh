@@ -25,7 +25,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4Material.hh"
 #include "G4ThreeVector.hh"
 
-class BDSBeamPipeInfo2;
+class BDSBeamPipeInfo;
 class G4Colour;
 class G4LogicalVolume;
 class G4Material;

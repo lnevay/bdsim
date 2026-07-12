@@ -53,8 +53,8 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 
 BDSLinkOpaqueBox::BDSLinkOpaqueBox(BDSAcceleratorComponent* acceleratorComponentIn,
-				   BDSTiltOffset* tiltOffsetIn,
-				   G4double outputSamplerRadiusIn):
+                                   BDSTiltOffset* tiltOffsetIn,
+                                   G4double outputSamplerRadiusIn):
   BDSGeometryComponent(nullptr, nullptr),
   component(acceleratorComponentIn),
   outputSamplerRadius(outputSamplerRadiusIn),
@@ -77,22 +77,22 @@ BDSLinkOpaqueBox::BDSLinkOpaqueBox(BDSAcceleratorComponent* acceleratorComponent
   G4double mr = std::max({mx, my, outputSamplerRadius});
   G4double mz = extent.MaximumZ();
   G4Box* terminatorBoxOuter = new G4Box(name + "_terminator_box_outer_solid",
-					mr + gap + opaqueBoxThickness,
-					mr + gap + opaqueBoxThickness,
-					mz + gap + opaqueBoxThickness);
+                                        mr + gap + opaqueBoxThickness,
+                                        mr + gap + opaqueBoxThickness,
+                                        mz + gap + opaqueBoxThickness);
   RegisterSolid(terminatorBoxOuter);
   G4Box* terminatorBoxInner = new G4Box(name + "_terminator_box_inner_solid",
-					mr + gap,
-					mr + gap,
-					mz + gap);
+                                        mr + gap,
+                                        mr + gap,
+                                        mz + gap);
   RegisterSolid(terminatorBoxInner);
   G4SubtractionSolid* opaqueBox = new G4SubtractionSolid(name + "_opaque_box_solid",
-							 terminatorBoxOuter,
-							 terminatorBoxInner);
+                                                         terminatorBoxOuter,
+                                                         terminatorBoxInner);
   RegisterSolid(opaqueBox);
   G4LogicalVolume* opaqueBoxLV = new G4LogicalVolume(opaqueBox,
-						     BDSMaterials::Instance()->GetMaterial("G4_Galactic"),
-						     name + "_opaque_box_lv");
+                                                     BDSMaterials::Instance()->GetMaterial("G4_Galactic"),
+                                                     name + "_opaque_box_lv");
   RegisterLogicalVolume(opaqueBoxLV);
 
   G4UserLimits* termUL = new G4UserLimits();
@@ -111,24 +111,24 @@ BDSLinkOpaqueBox::BDSLinkOpaqueBox(BDSAcceleratorComponent* acceleratorComponent
   G4double ysize = mr + margin;
   G4double zsize = mz + margin;
   containerSolid = new G4Box(name + "_opaque_box_vacuum_solid",
-			     xsize,
-			     ysize,
-			     zsize);
+                             xsize,
+                             ysize,
+                             zsize);
   
   containerLogicalVolume = new G4LogicalVolume(containerSolid,
-					       BDSMaterials::Instance()->GetMaterial("G4_Galactic"),
-					       name + "_container_lv");
+                                               BDSMaterials::Instance()->GetMaterial("G4_Galactic"),
+                                               name + "_container_lv");
   containerLogicalVolume->SetVisAttributes(BDSGlobalConstants::Instance()->ContainerVisAttr());
 
   // auto boxPlacement = 
   new G4PVPlacement(nullptr,
-		    G4ThreeVector(),
-		    opaqueBoxLV,
-		    name + "_opaque_box_pv",
-		    containerLogicalVolume,
-		    false,
-		    1,
-		    true);
+                    G4ThreeVector(),
+                    opaqueBoxLV,
+                    name + "_opaque_box_pv",
+                    containerLogicalVolume,
+                    false,
+                    1,
+                    true);
 
   G4ThreeVector of = G4ThreeVector(ox,oy,0);
   G4RotationMatrix* rm = new G4RotationMatrix();
@@ -140,12 +140,12 @@ BDSLinkOpaqueBox::BDSLinkOpaqueBox(BDSAcceleratorComponent* acceleratorComponent
   delete rm;
 
   new G4PVPlacement(*placementTransform,
-		    component->GetContainerLogicalVolume(),
-		    component->GetName() + "_pv",
-		    containerLogicalVolume,
-		    false,
-		    1,
-		    true);
+                    component->GetContainerLogicalVolume(),
+                    component->GetName() + "_pv",
+                    containerLogicalVolume,
+                    false,
+                    1,
+                    true);
   
   outerExtent = BDSExtent(xsize, ysize, zsize);
 
@@ -166,8 +166,8 @@ G4int BDSLinkOpaqueBox::PlaceOutputSampler()
 
   BDSApertureFactory apFac;
   BDSAperture* circularAp = apFac.CreateAperture(BDSApertureType::circle,
-						 outputSamplerRadius, 0, 0, 0,
-						 0, 0, 0, 0);
+                                                 outputSamplerRadius, 0, 0, 0,
+                                                 0, 0, 0, 0);
   sampler = new BDSSamplerCustom(samplerName, circularAp);
   sampler->GetContainerLogicalVolume()->SetSensitiveDetector(BDSSDManager::Instance()->SamplerLink());
   sampler->MakeMaterialValidForUseInMassWorld();
@@ -190,12 +190,12 @@ G4int BDSLinkOpaqueBox::PlaceOutputSampler()
   
   G4int samplerID = BDSSamplerRegistry::Instance()->RegisterSampler(info);
   new G4PVPlacement(rm,
-		    position,
-		    sampler->GetContainerLogicalVolume(),
-		    samplerName + "_pv",
-		    containerLogicalVolume,
-		    false,
-		    samplerID,
-		    true);
+                    position,
+                    sampler->GetContainerLogicalVolume(),
+                    samplerName + "_pv",
+                    containerLogicalVolume,
+                    false,
+                    samplerID,
+                    true);
   return samplerID;
 }

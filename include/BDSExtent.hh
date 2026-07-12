@@ -58,7 +58,7 @@ public:
   BDSExtent(G4ThreeVector extInNeg, G4ThreeVector extInPos);
   /// Symmetric from three vector.
   explicit BDSExtent(G4ThreeVector extIn);
-	    
+
   virtual ~BDSExtent();
 
   /// @{ Accessor

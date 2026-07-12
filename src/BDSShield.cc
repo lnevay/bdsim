@@ -136,7 +136,7 @@ void BDSShield::BuildBeamPipe()
   
   // check beam pipe fits
   if (beamPipeInfo->Extent().TransverselyGreaterEquals(BDSExtent(xSize,ySize,0)))
-    {//TBC
+    {
       G4cout << __METHOD_NAME__ << "Shield will not fit around beam pipe - not building beam pipe!" << G4endl << G4endl;
       return;
     }

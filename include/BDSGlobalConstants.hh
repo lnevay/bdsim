@@ -45,7 +45,6 @@ class G4UserLimits;
 class G4VisAttributes;
 
 class BDSAperture;
-class BDSBeamPipeInfo2;
 class BDSTunnelInfo;
 
 /**

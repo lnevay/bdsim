@@ -45,7 +45,7 @@ public:
                G4double         magnetHeightIn,
                G4double         magnetWidthIn,
                G4double         undulatorGapIn,
-               BDSBeamPipeInfo*  beamPipeInfoIn,
+               BDSBeamPipeInfo* beamPipeInfoIn,
                BDSFieldInfo*    vacuumFieldInfoIn,
                BDSFieldInfo*    outerFieldInfoIn,
                G4Material*      materialIn);

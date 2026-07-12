@@ -30,7 +30,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BDSAcceleratorModel.hh"
 #include "BDSAperturePointsLoader.hh"
-#include "BDSBeamPipeFactory.hh"
 #include "BDSBunch.hh"
 #include "BDSBunchFactory.hh"
 #include "BDSLinkBunch.hh"
@@ -426,7 +425,6 @@ BDSIMLink::~BDSIMLink()
   try
     {
       // order important here because of singletons relying on each other
-      //delete BDSBeamPipeFactory::Instance();
       delete BDSCavityFactory::Instance();
       delete BDSGeometryFactory::Instance();
       delete BDSAcceleratorModel::Instance();
