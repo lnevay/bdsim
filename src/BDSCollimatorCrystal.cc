@@ -41,14 +41,14 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 BDSCollimatorCrystal::BDSCollimatorCrystal(const G4String&   nameIn, 
-					   G4double          lengthIn,
-					   BDSBeamPipeInfo2* beamPipeInfoIn,
-					   BDSCrystalInfo*   crystalInfoLeftIn,
-					   BDSCrystalInfo*   crystalInfoRightIn,
-					   G4double          halfGapLeftIn,
-					   G4double          halfGapRightIn,
-					   G4double          angleYAxisLeftIn,
-					   G4double          angleYAxisRightIn):
+                                           G4double          lengthIn,
+                                           BDSBeamPipeInfo2* beamPipeInfoIn,
+                                           BDSCrystalInfo*   crystalInfoLeftIn,
+                                           BDSCrystalInfo*   crystalInfoRightIn,
+                                           G4double          halfGapLeftIn,
+                                           G4double          halfGapRightIn,
+                                           G4double          angleYAxisLeftIn,
+                                           G4double          angleYAxisRightIn):
   BDSAcceleratorComponent(nameIn, lengthIn, 0, "crystalcol", beamPipeInfoIn),
   crystalInfoLeft(crystalInfoLeftIn),
   crystalInfoRight(crystalInfoRightIn),
@@ -82,8 +82,8 @@ void BDSCollimatorCrystal::Build()
   // we don't need to set user limits because that is done in the beam pipe factory
   BDSBeamPipeFactory factory;
   BDSBeamPipe* pipe = factory.CreateBeamPipe(name,
-					     chordLength,
-					     beamPipeInfo);
+                                             chordLength,
+                                             beamPipeInfo);
 
   RegisterDaughter(pipe);
   
@@ -124,16 +124,16 @@ void BDSCollimatorCrystal::Build()
       G4ThreeVector placementOffsetL = objectOffset + colOffsetL; // 'L' in p offset to avoid class with BDSGeometry Component member
       G4RotationMatrix* placementRot = crystalLeft->GetPlacementRotation();
       if (BDS::IsFinite(angleYAxisLeft))
-	{
-	  if (!placementRot)
-	    {
-	      placementRot = new G4RotationMatrix();
-	      RegisterRotationMatrix(placementRot);
-	    }
-	  G4ThreeVector localUnitY = G4ThreeVector(0,1,0).transform(*placementRot);
-	  placementRot->rotate(-angleYAxisLeft, localUnitY); // rotate about local unitY
-	  // note minus sign to rotate *away* from centre
-	}
+        {
+          if (!placementRot)
+            {
+              placementRot = new G4RotationMatrix();
+              RegisterRotationMatrix(placementRot);
+            }
+          G4ThreeVector localUnitY = G4ThreeVector(0,1,0).transform(*placementRot);
+          placementRot->rotate(-angleYAxisLeft, localUnitY); // rotate about local unitY
+          // note minus sign to rotate *away* from centre
+        }
 
       // check if it'll fit..
       // use the collOffsetL as the specific solid might require a large offset (e.g. cylinder or torus)
@@ -148,7 +148,7 @@ void BDSCollimatorCrystal::Build()
                                         0.5*chordLength);*/
       G4bool safe2 = true; //innerRadius.Encompasses(extShifted);
       if (!safe || !safe2)
-	      {BDS::Warning(__METHOD_NAME__, "Left crystal potential overlap in component \"" + name +"\"");}
+              {BDS::Warning(__METHOD_NAME__, "Left crystal potential overlap in component \"" + name +"\"");}
       LongitudinalOverlap(crystalLeft->GetExtent(), angleYAxisLeft, "Left");
 
 #ifdef USE_SIXTRACKLINK
@@ -161,13 +161,13 @@ void BDSCollimatorCrystal::Build()
       
       G4LogicalVolume* vac = *(GetAcceleratorVacuumLogicalVolumes().begin()); // take the first one
       auto cL = new G4PVPlacement(placementRot,
-				  placementOffsetL,
-				  crystalLeft->GetContainerLogicalVolume(),
-				  name + "_crystal_left_pv",
-				  vac,
-				  false,
-				  0,
-				  true); // always check
+                                  placementOffsetL,
+                                  crystalLeft->GetContainerLogicalVolume(),
+                                  name + "_crystal_left_pv",
+                                  vac,
+                                  false,
+                                  0,
+                                  true); // always check
       RegisterPhysicalVolume(cL);
 #ifdef USE_SIXTRACKLINK
       G4cout << "Placement of left crystal " << placementOffsetL << G4endl;
@@ -181,15 +181,15 @@ void BDSCollimatorCrystal::Build()
       G4ThreeVector placementOffsetL = objectOffset + colOffsetR;
       G4RotationMatrix* placementRot = crystalRight->GetPlacementRotation();
       if (BDS::IsFinite(angleYAxisRight))
-	{
-	  if (!placementRot)
-	    {
-	      placementRot = new G4RotationMatrix();
-	      RegisterRotationMatrix(placementRot);
-	    }
-	  G4ThreeVector localUnitY = G4ThreeVector(0,1,0).transform(*placementRot);
-	  placementRot->rotate(angleYAxisRight, localUnitY); // rotate about local unitY
-	}
+        {
+          if (!placementRot)
+            {
+              placementRot = new G4RotationMatrix();
+              RegisterRotationMatrix(placementRot);
+            }
+          G4ThreeVector localUnitY = G4ThreeVector(0,1,0).transform(*placementRot);
+          placementRot->rotate(angleYAxisRight, localUnitY); // rotate about local unitY
+        }
       
       // check if it'll fit..
       BDSExtent extShifted = (crystalRight->GetExtent()).Translate(colOffsetR);
@@ -215,13 +215,13 @@ void BDSCollimatorCrystal::Build()
 
       G4LogicalVolume* vac = *(GetAcceleratorVacuumLogicalVolumes().begin()); // take the first one
       auto cR = new G4PVPlacement(placementRot,
-				  placementOffsetL,
-				  crystalRight->GetContainerLogicalVolume(),
-				  name + "_crystal_right_pv",
-				  vac,
-				  false,
-				  0,
-				  true); // always check
+                                  placementOffsetL,
+                                  crystalRight->GetContainerLogicalVolume(),
+                                  name + "_crystal_right_pv",
+                                  vac,
+                                  false,
+                                  0,
+                                  true); // always check
       RegisterPhysicalVolume(cR);
     }
   if (!crystalLeft && !crystalRight)
@@ -238,8 +238,8 @@ G4String BDSCollimatorCrystal::Material() const
 }
 
 void BDSCollimatorCrystal::LongitudinalOverlap(const BDSExtent& extCrystal,
-					       G4double         crystalAngle,
-					       const G4String&  side) const
+                                               G4double         crystalAngle,
+                                               const G4String&  side) const
 {
   G4double zExt = extCrystal.MaximumZ();
   G4double dz   = zExt*std::tan(crystalAngle);
@@ -249,8 +249,8 @@ void BDSCollimatorCrystal::LongitudinalOverlap(const BDSExtent& extCrystal,
   if (overlap)
     {
       G4cout << "Crystal of length " << 2*zExt/CLHEP::mm << " mm is at angle "
-	     << crystalAngle / CLHEP::mrad << " mrad and container is "
-	     << chordLength/CLHEP::m << " m long." << G4endl;
+             << crystalAngle / CLHEP::mrad << " mrad and container is "
+             << chordLength/CLHEP::m << " m long." << G4endl;
       throw BDSException(__METHOD_NAME__, side + " crystal won't fit in collimator due to rotation.");
     }
 }
@@ -267,8 +267,8 @@ void BDSCollimatorCrystal::RegisterCrystalLVs(const BDSCrystal* crystal) const
 }
 
 G4double BDSCollimatorCrystal::TransverseOffsetToEdge(const BDSCrystal* crystal,
-						      G4double          placementAngle,
-						      G4bool            left) const
+                                                      G4double          placementAngle,
+                                                      G4bool            left) const
 {
   const BDSCrystalInfo* recipe = crystal->recipe;
   G4double result = 0;
@@ -277,44 +277,44 @@ G4double BDSCollimatorCrystal::TransverseOffsetToEdge(const BDSCrystal* crystal,
     {
     case BDSCrystalType::box:
       {
-	result =  0.5*recipe->lengthZ * std::sin(placementAngle);
-	result += 0.5*recipe->lengthX * std::cos(placementAngle);
-	break;
+        result =  0.5*recipe->lengthZ * std::sin(placementAngle);
+        result += 0.5*recipe->lengthX * std::cos(placementAngle);
+        break;
       }
     case BDSCrystalType::cylinder:
     case BDSCrystalType::torus:
       {
-	G4double halfAngle = 0.5 * recipe->bendingAngleYAxis;
-	if (!BDS::IsFinite(halfAngle)) // like a box
-	  {
-	    result =  0.5*recipe->lengthZ * std::sin(placementAngle);
-	    result += 0.5*recipe->lengthX * std::cos(placementAngle);
-	  }
-	else
-	  {
-	    // use 2-vectors to do all the maths for us
-	    // 2d vector from centre of curvature to middle of crystal
-	    G4TwoVector a(recipe->BendingRadiusHorizontal(), 0);
-	    G4TwoVector b(a); // copy it
-	    b.rotate(-halfAngle); // rotate to the front face centre
-	    // difference between these two is the vector from centre of crystal frame (which is the
-	    // middle of the crystal half way along z) to the front centre face
-	    G4TwoVector dxy = b - a;
-	    // construct a perpendicular vector for the width along the front face
-	    // 'factor' is because for the left crystal we want the right inside front face and the left inside
-	    // front face for the right crystal
-	    G4TwoVector frontFaceX = dxy.orthogonal() * factor;
-	    // 1/2 the width x this unit vector gives a vector from the centre of the front face
-	    // to the inside front edge
-	    G4TwoVector frontCentreToEdge = frontFaceX.unit() * 0.5*recipe->lengthX;
-	    // add this to the one from the middle of the crystal
-	    G4TwoVector resultV = dxy + frontCentreToEdge;
-	    // update by placement angle
-	    resultV.rotate(-factor*placementAngle);
-	    // result is horizontal (x) component of this - the sign should be right throughout
-	    result = -factor * resultV.x();
-	  }
-	break;
+        G4double halfAngle = 0.5 * recipe->bendingAngleYAxis;
+        if (!BDS::IsFinite(halfAngle)) // like a box
+          {
+            result =  0.5*recipe->lengthZ * std::sin(placementAngle);
+            result += 0.5*recipe->lengthX * std::cos(placementAngle);
+          }
+        else
+          {
+            // use 2-vectors to do all the maths for us
+            // 2d vector from centre of curvature to middle of crystal
+            G4TwoVector a(recipe->BendingRadiusHorizontal(), 0);
+            G4TwoVector b(a); // copy it
+            b.rotate(-halfAngle); // rotate to the front face centre
+            // difference between these two is the vector from centre of crystal frame (which is the
+            // middle of the crystal half way along z) to the front centre face
+            G4TwoVector dxy = b - a;
+            // construct a perpendicular vector for the width along the front face
+            // 'factor' is because for the left crystal we want the right inside front face and the left inside
+            // front face for the right crystal
+            G4TwoVector frontFaceX = dxy.orthogonal() * factor;
+            // 1/2 the width x this unit vector gives a vector from the centre of the front face
+            // to the inside front edge
+            G4TwoVector frontCentreToEdge = frontFaceX.unit() * 0.5*recipe->lengthX;
+            // add this to the one from the middle of the crystal
+            G4TwoVector resultV = dxy + frontCentreToEdge;
+            // update by placement angle
+            resultV.rotate(-factor*placementAngle);
+            // result is horizontal (x) component of this - the sign should be right throughout
+            result = -factor * resultV.x();
+          }
+        break;
       }
     default:
       {break;}
