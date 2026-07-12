@@ -44,7 +44,7 @@ class BDSAperturePoints: public BDSAperture
 public:
   BDSAperturePoints() = delete;
   BDSAperturePoints(const G4String& pointsFileNameIn,
-		    const G4String& unitsStrIn);
+                    const G4String& unitsStrIn);
   BDSAperturePoints(const BDSAperturePoints& other);
   virtual ~BDSAperturePoints() noexcept;
 

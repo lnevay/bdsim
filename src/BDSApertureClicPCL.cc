@@ -33,13 +33,13 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <array>
 #include <vector>
 
-BDSApertureClicPCL::BDSApertureClicPCL(G4double xIn,
+BDSApertureClicPCL::BDSApertureClicPCL(G4double xHalfWidthIn,
                                        G4double yTopIn,
                                        G4double yBottomIn,
                                        G4double ySepIn,
                                        unsigned int nPointsIn):
   BDSApertureCurved(BDSApertureType::clicpcl, nPointsIn),
-  x(xIn),
+  x(xHalfWidthIn),
   yTop(yTopIn),
   yBottom(yBottomIn),
   ySep(ySepIn)
@@ -57,9 +57,9 @@ G4bool BDSApertureClicPCL::Equals(const BDSAperture* other) const
     {
       const BDSApertureClicPCL* oc = dynamic_cast<const BDSApertureClicPCL*>(other);
       return BDS::DoublesAreEqual(oc->x, x) &&
-	         BDS::DoublesAreEqual(oc->yTop, yTop) &&
-	         BDS::DoublesAreEqual(oc->yBottom, yBottom) &&
-             BDS::DoublesAreEqual(oc->ySep, ySep);
+             BDS::DoublesAreEqual(oc->yTop, yTop) &&
+             BDS::DoublesAreEqual(oc->yBottom, yBottom) &&
+	           BDS::DoublesAreEqual(oc->ySep, ySep);
     }
 }
 

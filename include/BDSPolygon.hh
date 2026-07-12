@@ -141,24 +141,24 @@ public:
   /// parameterised it in a different way that's relative to the first point with gradients
   /// and don't fully explain their input parameters.
   static G4int SegmentsIntersect(const G4TwoVector& p1,
-				 const G4TwoVector& p2,
-				 const G4TwoVector& q1,
-				 const G4TwoVector& q2,
-				 G4TwoVector* intersectionPoint = nullptr);
+                                 const G4TwoVector& p2,
+                                 const G4TwoVector& q1,
+                                 const G4TwoVector& q2,
+                                 G4TwoVector* intersectionPoint = nullptr);
 
 protected:
   /// Simple structure of a 2D point (by pointer to avoid copy) and a label as defiend by enum.
   struct LabelledPoint
   {
     const G4TwoVector* point;
-    BDSPolygon::PointIs label;
+    PointIs label;
   };
 
   /// Generate a list of labelled points as to whether each point in 'test' is in 'reference'.
   /// If the optional G4int* is given, the number is updated with the number inside reference.
   static std::list<LabelledPoint> GenerateLabelled(const BDSPolygon& reference,
-						   const BDSPolygon& test,
-						   G4int* nInside = nullptr);
+                                                   const BDSPolygon& test,
+                                                   G4int* nInside = nullptr);
   
 private:
   /// Shared traversal kernel for Union and Intersection. Builds the augmented
