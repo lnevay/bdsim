@@ -79,8 +79,8 @@ BDSBeamPipe* BDSBeamPipeFactoryGeneral::CreateBeamPipe(const G4String& name,
   
   CommonConstruction(name, bpi->vacuumMaterial, bpi->beamPipeMaterial, length);
   
-  BDSExtent ext = std::max(apContIn->Extent(), apContOut->Extent());
-
+  BDSExtent et = std::max(apContIn->Extent(), apContOut->Extent());
+  BDSExtent ext = BDSExtent(et.XNeg(), et.XPos(), et.YNeg(), et.YPos(), -0.5*length, 0.5*length);
   G4bool simpleCircular = !variedAperture && apVacIn->Circular();
   G4double cr = std::max(apContIn->RadiusToEncompass(), apContOut->RadiusToEncompass());
 
