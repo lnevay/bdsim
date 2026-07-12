@@ -27,6 +27,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSSurvey.hh"
 #include "BDSVersion.hh"
 
+#include <array>
 #include <fstream>
 #include <iomanip>
 #include <ctime>
@@ -122,8 +123,12 @@ void BDSSurvey::Write(BDSBeamlineElement* beamlineElement)
   G4ThreeVector pos    = beamlineElement->GetPositionMiddle();
 
   BDSBeamPipeInfo2* beamPipeInfo = acceleratorComponent->GetBeamPipeInfo();
-  BDSAperture* apIn = beamPipeInfo->aperture; // TBC
-  auto apNums = apIn->ApertureNumbers();
+  std::array<G4double,7> apNums = {0, 0, 0, 0, 0, 0, 0};
+  if (beamPipeInfo)
+    {
+      BDSAperture* apIn = beamPipeInfo->aperture;
+      apNums = apIn->ApertureNumbers();
+    }
   G4String ty = acceleratorComponent->GetType();
   if (ty.empty())
     {ty = "unknown";}
