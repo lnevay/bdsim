@@ -171,6 +171,71 @@ int main()
       Check(Near(polyR.RadiusToEncompass(), std::sqrt(128.0)), "RadiusToEncompass: recalculated after scale");
 
       // ---------------------------------------------------------------
+      // MinimumInscribedCricleRadius — minimum distance from origin to the boundary
+      // ---------------------------------------------------------------
+
+      // Unit square with sides at x=±1, y=±1: all four sides are at distance 1.
+      // Vertices are at distance √2, so the segment formula drives the result.
+      {
+        BDSPolygon sq(std::vector<G4TwoVector>{{1,-1},{1,1},{-1,1},{-1,-1}});
+        Check(Near(sq.MinimumInscribedCricleRadius(), 1.0), "MinimumInscribedCricleRadius: unit square");
+      }
+
+      // Rectangle 2×1: y=±1 sides (distance 1) are closer than x=±2 sides (distance 2).
+      {
+        BDSPolygon rect(std::vector<G4TwoVector>{{2,-1},{2,1},{-2,1},{-2,-1}});
+        Check(Near(rect.MinimumInscribedCricleRadius(), 1.0), "MinimumInscribedCricleRadius: 2x1 rectangle → short dimension");
+      }
+
+      // Regular hexagon with circumradius 1: apothem = cos(30°) = √3/2 ≈ 0.866.
+      {
+        const G4double c = 0.5, s = std::sqrt(3.0)/2;
+        BDSPolygon hex(std::vector<G4TwoVector>{{1,0},{c,s},{-c,s},{-1,0},{-c,-s},{c,-s}});
+        Check(Near(hex.MinimumInscribedCricleRadius(), std::sqrt(3.0)/2, 1e-9),
+              "MinimumInscribedCricleRadius: unit hexagon → apothem");
+      }
+
+      // Equilateral triangle with circumradius 2: inradius = R/2 = 1.
+      // Vertices at (2,0), (-1,√3), (-1,-√3).
+      {
+        const G4double s3 = std::sqrt(3.0);
+        BDSPolygon tri(std::vector<G4TwoVector>{{2,0},{-1,s3},{-1,-s3}});
+        Check(Near(tri.MinimumInscribedCricleRadius(), 1.0, 1e-9),
+              "MinimumInscribedCricleRadius: equilateral triangle circumradius=2");
+      }
+
+      // Cache must be invalidated after ScaleByValueInPlace.
+      // Prime the cache on the unit square (MinimumInscribedCricleRadius=1), then scale by 3 (expect 3).
+      {
+        BDSPolygon scPoly(std::vector<G4TwoVector>{{1,-1},{1,1},{-1,1},{-1,-1}});
+        (void)scPoly.MinimumInscribedCricleRadius(); // prime cache
+        scPoly.ScaleByValueInPlace(3.0);
+        Check(Near(scPoly.MinimumInscribedCricleRadius(), 3.0),
+              "MinimumInscribedCricleRadius: recalculated after ScaleByValueInPlace");
+      }
+
+      // Cache must be invalidated after ExpandByValueUsingVertexNormalsInPlace.
+      // Unit square expanded by 1 → half-width 2 (approx; exact depends on corner normals).
+      {
+        BDSPolygon expPoly(std::vector<G4TwoVector>{{1,-1},{1,1},{-1,1},{-1,-1}});
+        (void)expPoly.MinimumInscribedCricleRadius(); // prime cache
+        expPoly.ExpandByValueUsingVertexNormalsInPlace(1.0);
+        // Each vertex normal for a square corner is (±1,±1)/√2, so the new sides are still
+        // at distance 1 + 1/√2·√2 = 2 from the origin (the full side shifts by 1).
+        // Regardless of the exact value, it must differ from 1.0.
+        Check(!Near(expPoly.MinimumInscribedCricleRadius(), 1.0),
+              "MinimumInscribedCricleRadius: recalculated after ExpandByValueUsingVertexNormalsInPlace");
+      }
+
+      // ScaleByValue (non-in-place) returns a new polygon; its MinimumInscribedCricleRadius must be correct.
+      {
+        BDSPolygon base2(std::vector<G4TwoVector>{{1,-1},{1,1},{-1,1},{-1,-1}});
+        BDSPolygon scaled2 = base2.ScaleByValue(4.0);
+        Check(Near(scaled2.MinimumInscribedCricleRadius(), 4.0),
+              "MinimumInscribedCricleRadius: correct on polygon returned by ScaleByValue");
+      }
+
+      // ---------------------------------------------------------------
       // ExpandByValueUsingVertexNormals / InPlace
       // ---------------------------------------------------------------
       BDSPolygon expanded = polyA.ExpandByValueUsingVertexNormals(1.0);

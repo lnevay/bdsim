@@ -41,6 +41,8 @@ BDSPolygon::BDSPolygon(const std::vector<G4TwoVector>& pointsIn):
   extent(nullptr),
   radiusToEncompass(0),
   recalculateRadiusToEncompass(true),
+  radiusInterior(0),
+  recalculateRadiusInterior(true),
   interpolation(BDSInterpolatorType::linear1d)
 {
   if (points.size() < 3)
@@ -68,6 +70,8 @@ BDSPolygon::BDSPolygon(const BDSPolygon& other):
   extent(nullptr),
   radiusToEncompass(other.radiusToEncompass),
   recalculateRadiusToEncompass(other.recalculateRadiusToEncompass),
+  radiusInterior(other.radiusInterior),
+  recalculateRadiusInterior(other.recalculateRadiusInterior),
   interpolation(other.interpolation)
 {
   if (other.vertexNormals)
@@ -165,13 +169,14 @@ void BDSPolygon::ExpandByValueUsingVertexNormalsInPlace(G4double value)
 {
   if (!vertexNormals)
     {CalculateVertexNormals();}
-  
+
   for (G4int i = 0; i < (G4int)points.size(); i++)
     {
       G4TwoVector newValue = points[i] + (*vertexNormals)[i] * value;
       points[i] = newValue;
     }
   recalculateRadiusToEncompass = true;
+  recalculateRadiusInterior = true;
 }
 
 BDSPolygon BDSPolygon::ScaleByValue(G4double scale) const
@@ -191,6 +196,7 @@ void BDSPolygon::ScaleByValueInPlace(G4double scale)
       points[i] = newValue;
     }
   recalculateRadiusToEncompass = true;
+  recalculateRadiusInterior = true;
 }
 
 BDSExtent BDSPolygon::Extent() const
@@ -226,6 +232,33 @@ G4double BDSPolygon::RadiusToEncompass() const
     }
   recalculateRadiusToEncompass = false;
   return radiusToEncompass;
+}
+
+G4double BDSPolygon::MinimumInscribedCricleRadius() const
+{
+
+  if (recalculateRadiusInterior)
+    {
+      // first find the minimum radius of any point on the polygon
+      auto min = std::min_element(points.begin(), points.end(), [](const G4TwoVector& a, const G4TwoVector& b) {return a.mag() < b.mag();});
+      radiusInterior = min->mag();
+
+      // then also take the minimum from the minimum approach to the 0,0 point
+      // of any segment - see https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
+      auto nPoints = (G4int)points.size();
+      for (G4int i = 0; i < nPoints; i++)
+        {
+          G4TwoVector p0 = points[i];
+          G4TwoVector p1 = points[(i+1)%nPoints];
+          G4double nom = std::abs(p1.x()*p0.y() - p1.y()*p0.x());
+          G4double dist = (p1-p0).mag();
+          G4double minApproach = nom/dist;
+          radiusInterior = std::min(radiusInterior, minApproach);
+        }
+      }
+
+  recalculateRadiusInterior = false;
+  return radiusInterior;
 }
 
 G4bool BDSPolygon::EncompassesExtentXY(const BDSExtent& ext) const

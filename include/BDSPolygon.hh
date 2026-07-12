@@ -68,6 +68,7 @@ public:
   
   BDSExtent Extent() const;           ///< Access the extent.
   G4double RadiusToEncompass() const; ///< Maximum radius of any point with no margin. Dynamically calculated on first access.
+  G4double MinimumInscribedCricleRadius() const;  ///< Minimum radius of a circle that will fit inside the polygon.
 
   /// Return whether the axis-aligned bounding box given by ext lies fully within the polygon.
   G4bool EncompassesExtentXY(const BDSExtent& ext) const;
@@ -187,6 +188,10 @@ private:
   /// Cache of maximum radius of any point.
   mutable G4double radiusToEncompass;
   mutable bool     recalculateRadiusToEncompass;
+
+  /// Cache of minimum radius of any point.
+  mutable G4double radiusInterior;
+  mutable bool     recalculateRadiusInterior;
 
   /// Which interpolation scheme to use if interpolating between points.
   BDSInterpolatorType interpolation;
