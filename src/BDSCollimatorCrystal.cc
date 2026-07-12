@@ -135,20 +135,14 @@ void BDSCollimatorCrystal::Build()
           // note minus sign to rotate *away* from centre
         }
 
-      // check if it'll fit..
+      // check if it will fit.
       // use the collOffsetL as the specific solid might require a large offset (e.g. cylinder or torus)
       BDSExtent extShifted = (crystalLeft->GetExtent()).Translate(colOffsetL);
       BDSExtent thisExtent = GetExtent(); // actually outer extent of beam pipe
       G4bool safe = thisExtent.Encompasses(extShifted);
-      // second stricter check - TODO - use aperture check in future
-      /*
-      beamPipeInfo->aperture->
-      BDSExtent innerRadius = BDSExtent(beamPipeInfo->MinimumInscribedCircleRadius(),
-                                        beamPipeInfo->MinimumInscribedCircleRadius(),
-                                        0.5*chordLength);*/
-      G4bool safe2 = true; //innerRadius.Encompasses(extShifted);
+      G4bool safe2 = beamPipeInfo->aperture->EncompassesXY(extShifted);
       if (!safe || !safe2)
-              {BDS::Warning(__METHOD_NAME__, "Left crystal potential overlap in component \"" + name +"\"");}
+        {BDS::Warning(__METHOD_NAME__, "Left crystal potential overlap in component \"" + name +"\"");}
       LongitudinalOverlap(crystalLeft->GetExtent(), angleYAxisLeft, "Left");
 
 #ifdef USE_SIXTRACKLINK
@@ -195,12 +189,7 @@ void BDSCollimatorCrystal::Build()
       BDSExtent extShifted = (crystalRight->GetExtent()).Translate(colOffsetR);
       BDSExtent thisExtent = GetExtent();
       G4bool safe = thisExtent.Encompasses(extShifted);
-      // second stricter check - TODO - use aperture check in future
-      /*
-      BDSExtent innerRadius = BDSExtent(beamPipeInfo->MinimumInscribedCircleRadius(),
-                                        beamPipeInfo->MinimumInscribedCircleRadius(),
-                                        0.5*chordLength);*/
-      G4bool safe2 = true; //innerRadius.Encompasses(extShifted);
+      G4bool safe2 = beamPipeInfo->aperture->EncompassesXY(extShifted);
       if (!safe || !safe2)
         {BDS::Warning(__METHOD_NAME__, "Right crystal potential overlap in component \"" + name +"\"");}
       LongitudinalOverlap(crystalRight->GetExtent(), angleYAxisRight, "Right");
