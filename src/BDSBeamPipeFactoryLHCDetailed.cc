@@ -43,7 +43,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cmath>
 #include <set>
-#include <utility>                         // for std::pair
+#include <utility>
 
 BDSBeamPipeFactoryLHCDetailed::BDSBeamPipeFactoryLHCDetailed()
 {

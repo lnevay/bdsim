@@ -26,7 +26,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4String.hh"
 #include "G4LogicalVolume.hh"
 
-
 BDSSampler::BDSSampler(const G4String& nameIn,
                        G4int filterSetIDIn):
   BDSGeometryComponent(nullptr, nullptr),

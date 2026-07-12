@@ -902,7 +902,7 @@ BDSMagnetOuter* BDSMagnetOuterFactoryLHC::CreateLHCDipole(const G4String&    nam
 
   // copy the other pipe vacuum material
   G4Material* vacuumMaterial = beamPipe->GetVacuumLogicalVolume()->GetMaterial();
-  
+
   //use beampipe factories to create another beampipe (note no magnetic field for now...)
   BDSApertureFactory apFac;
   BDSAperture* ap = apFac.CreateAperture(BDSApertureType::rectcircle,
@@ -910,26 +910,29 @@ BDSMagnetOuter* BDSMagnetOuterFactoryLHC::CreateLHCDipole(const G4String&    nam
                                          1.714*CLHEP::cm,
                                          2.202*CLHEP::cm,
                                          0,0,0,0,0);
-  BDSBeamPipeInfo2* bpi2 = new BDSBeamPipeInfo2(BDSBeamPipeType::lhcdetailed,
+  BDSBeamPipeInfo2* bpi2;
+  if (flatFaces)
+    {
+      bpi2 = new BDSBeamPipeInfo2(BDSBeamPipeType::lhcdetailed,
                                                 ap,
                                                 vacuumMaterial,
                                                 1*CLHEP::mm,
                                                 stainlesssteel_316LN_2K);
+    }
+  else
+    {
+      bpi2 = new BDSBeamPipeInfo2(BDSBeamPipeType::lhcdetailed,
+                                                ap,
+                                                vacuumMaterial,
+                                                1*CLHEP::mm,
+                                                stainlesssteel_316LN_2K,
+                                                false, nullptr,
+                                                new G4ThreeVector(inputFaceNormal),
+                                                new G4ThreeVector(outputFaceNormal));
+    }
   BDSBeamPipeFactory factory;
-  BDSBeamPipe* secondBP = factory.CreateBeamPipe(name, 2*secondBPHalfLength-2*lengthSafety, bpi2);
-  delete bpi2;/*
-    BDSBeamPipeType::lhcdetailed,
-									 name,
-									 2*secondBPHalfLength-2*lengthSafety,
-									 inputFaceNormal,
-									 outputFaceNormal,
-									 2.202*CLHEP::cm,
-									 1.714*CLHEP::cm,
-									 2.202*CLHEP::cm,
-									 0,
-									 vacuumMaterial,
-									 1*CLHEP::mm,
-									 beamPipeMaterial);*/
+  BDSBeamPipe* secondBP = factory.CreateBeamPipe(name, 2*secondBPHalfLength-lengthSafetyLarge, bpi2);
+  delete bpi2;
   
   secondBPLV = secondBP->GetContainerLogicalVolume();
   secondBPPV = new G4PVPlacement(nullptr,   // no rotation
@@ -1522,18 +1525,6 @@ BDSMagnetOuter* BDSMagnetOuterFactoryLHC::CreateQuadrupole(G4String      name,
                                                 stainlesssteel_316LN_2K);
   BDSBeamPipeFactory factory;
   BDSBeamPipe* secondBP = factory.CreateBeamPipe(name, length-2*lengthSafety, bpi2);
-  /*
-  BDSBeamPipe* secondBP = factory.CreateBeamPipe(BDSBeamPipeType::lhcdetailed,
-									 name,
-									 length-2*lengthSafety,
-									 2.202*CLHEP::cm,   // aper1
-									 1.714*CLHEP::cm,   // aper2
-									 2.202*CLHEP::cm,   // aper3
-									 0,                 // aper4
-									 vacuumMaterial,    // vacuum material
-									 1*CLHEP::mm,       // beampipeThickness
-									 stainlesssteel_316LN_2K); // beampipe material
-   */
   
   G4LogicalVolume* secondBPLV = secondBP->GetContainerLogicalVolume();
   G4PVPlacement* secondBPPV = new G4PVPlacement(nullptr,   // no rotation
