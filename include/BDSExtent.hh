@@ -46,12 +46,12 @@ public:
   BDSExtent();
   /// Construct with pairs of extents
   BDSExtent(const std::pair<G4double, G4double>& extXIn,
-	    const std::pair<G4double, G4double>& extYIn,
-	    const std::pair<G4double, G4double>& extZIn);
+            const std::pair<G4double, G4double>& extYIn,
+            const std::pair<G4double, G4double>& extZIn);
   /// Construct with individual extents
   BDSExtent(G4double extXNegIn, G4double extXPosIn,
-	    G4double extYNegIn, G4double extYPosIn,
-	    G4double extZNegIn, G4double extZPosIn);
+            G4double extYNegIn, G4double extYPosIn,
+            G4double extZNegIn, G4double extZPosIn);
   /// Symmetric variant - assumed to be +/- same amount
   BDSExtent(G4double extXIn, G4double extYIn, G4double extZIn);
   /// Threevectors of positive and negative extents
@@ -73,11 +73,8 @@ public:
   inline G4double ZNeg() const {return extZNeg;}
   inline G4double ZPos() const {return extZPos;}
   
-  inline G4ThreeVector ExtentPositive() const
-  {return G4ThreeVector(extXPos, extYPos, extZPos);}
-
-  inline G4ThreeVector ExtentNegative() const
-  {return G4ThreeVector(extXNeg, extYNeg, extZNeg);}
+  inline G4ThreeVector ExtentPositive() const {return G4ThreeVector(extXPos, extYPos, extZPos);}
+  inline G4ThreeVector ExtentNegative() const {return G4ThreeVector(extXNeg, extYNeg, extZNeg);}
 
   /// All 8 boundary points of the bounding box.
   std::vector<G4ThreeVector> AllBoundaryPoints() const;
@@ -118,8 +115,8 @@ public:
 
   /// Return whether the extent encompasses the point.  Similar, but with separate x,y,z coordinates.
   G4bool Encompasses(G4double x,
-		     G4double y,
-		     G4double z) const {return Encompasses(G4ThreeVector(x,y,z));}
+                     G4double y,
+                     G4double z) const {return Encompasses(G4ThreeVector(x,y,z));}
 
   G4bool Encompasses(const BDSParticleCoords& coords) const;
   
