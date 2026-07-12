@@ -29,6 +29,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "G4Types.hh"
 
+#include <algorithm>
 #include <array>
 
 BDSApertureRectEllipse::BDSApertureRectEllipse(G4double rectangleAIn,
@@ -74,6 +75,11 @@ BDSExtent BDSApertureRectEllipse::Extent() const
 {
   BDSExtent simpleExtent(std::min(rectangleA, ellipseA), std::min(rectangleB, ellipseB), 0);
   return ExtentOffsetTilt(simpleExtent);
+}
+
+G4double BDSApertureRectEllipse::MinimumInscribedCircleRadius() const
+{
+  return std::min({rectangleA, rectangleB, ellipseA, ellipseB});
 }
 
 BDSApertureRectEllipse BDSApertureRectEllipse::operator+ (G4double number) const

@@ -54,7 +54,8 @@ public:
   void      CheckInfoOK()                    const override;
   G4double  RadiusToEncompass()              const override;
   BDSExtent Extent()                         const override;
-  unsigned int MinimumNumberOfPoints()          const override {return 8;}
+  G4double  MinimumInscribedCircleRadius()   const override;
+  unsigned int MinimumNumberOfPoints()       const override {return 8;}
 
   BDSApertureOctagon        operator+ (G4double number) const;
   const BDSApertureOctagon& operator+=(G4double number);

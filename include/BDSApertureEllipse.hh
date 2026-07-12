@@ -31,7 +31,9 @@ class BDSExtent;
 class BDSPolygon;
 
 /**
- * @brief Elliptical aperture.
+ * @brief Elliptical aperture defined by half-widths a (horizontal) and b (vertical).
+ *
+ * a and b are the distance from the centre to the boundary on the x and y axes respectively.
  *
  * @author Laurie Nevay
  */
@@ -54,6 +56,7 @@ public:
   /// Note this is true even if the ellipse is rotated.
   G4double  RadiusToEncompass()     const override {return std::max(a,b) + tiltOffset.Radius();}
   BDSExtent Extent()                const override;
+  G4double  MinimumInscribedCircleRadius() const override {return std::min(a, b);}
   unsigned int MinimumNumberOfPoints() const override {return nPoints;}
 
   BDSApertureEllipse        operator+ (G4double number) const;

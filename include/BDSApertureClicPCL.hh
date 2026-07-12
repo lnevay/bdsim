@@ -31,7 +31,10 @@ class BDSExtent;
 class BDSPolygon;
 
 /**
- * @brief Rectcircle aperture.
+ * @brief CLIC Post-collision line aperture.
+ *
+ * The shape is composed of an upper and lower ellipse joined together. Both have the
+ * same horizontal width. The upper ellipse may be displaced upwards.
  *
  * @author Laurie Nevay
  */
@@ -40,7 +43,7 @@ class BDSApertureClicPCL: public BDSApertureCurved
 {
 public:
   BDSApertureClicPCL() = delete;
-  BDSApertureClicPCL(G4double xIn,
+  BDSApertureClicPCL(G4double xHalfWidthIn,
                      G4double yTopIn,
                      G4double yBottomIn,
                      G4double ySepIn,
@@ -56,6 +59,7 @@ public:
   void      CheckInfoOK()                    const override;
   G4double  RadiusToEncompass()              const override {return std::max({yBottom, ySep+yTop, x}) + tiltOffset.Radius();}
   BDSExtent Extent()                         const override;
+  G4double  MinimumInscribedCircleRadius()   const override;
   unsigned int MinimumNumberOfPoints()       const override {return 10;}
 
   BDSApertureClicPCL        operator+ (G4double number) const;

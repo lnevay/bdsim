@@ -94,6 +94,13 @@ BDSExtent BDSApertureRhombus::Extent() const
   return ExtentOffsetTilt(simpleExtent);
 }
 
+G4double BDSApertureRhombus::MinimumInscribedCircleRadius() const
+{
+  auto simpleRhombus = BDSApertureRhombus(x, y);
+  auto p = simpleRhombus.Polygon();
+  return p.MinimumInscribedCricleRadius();
+}
+
 unsigned int BDSApertureRhombus::MinimumNumberOfPoints() const
 {
   return nPointsMinimum;

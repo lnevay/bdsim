@@ -45,7 +45,7 @@ public:
   BDSApertureRhombus() = delete;
   BDSApertureRhombus(G4double xIn,
                      G4double yIn,
-                     G4double cornerRadiusIn,
+                     G4double cornerRadiusIn = 0,
                      unsigned int nPointsPerTwoPiIn = 0);
   virtual ~BDSApertureRhombus(){;}
 
@@ -57,6 +57,7 @@ public:
   void      CheckInfoOK()                    const override;
   G4double  RadiusToEncompass()              const override;
   BDSExtent Extent()                         const override;
+  G4double  MinimumInscribedCircleRadius()   const override;
   unsigned int MinimumNumberOfPoints()       const override;
 
   BDSApertureRhombus        operator+ (G4double number) const;

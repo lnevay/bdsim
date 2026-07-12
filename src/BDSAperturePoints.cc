@@ -90,6 +90,11 @@ BDSExtent BDSAperturePoints::Extent() const
   return points->Extent();
 }
 
+G4double  BDSAperturePoints::MinimumInscribedCircleRadius() const
+{
+  return points->MinimumInscribedCricleRadius();
+}
+
 unsigned int BDSAperturePoints::MinimumNumberOfPoints() const
 {
   return points->size();

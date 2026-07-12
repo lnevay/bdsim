@@ -80,6 +80,11 @@ BDSExtent BDSApertureClicPCL::Extent() const
   return ExtentOffsetTilt(simpleExtent);
 }
 
+G4double BDSApertureClicPCL::MinimumInscribedCircleRadius() const
+{
+  return std::min({x, ySep+yTop, yBottom});
+}
+
 BDSApertureClicPCL BDSApertureClicPCL::operator+ (G4double number) const
 {
   BDSApertureClicPCL result = BDSApertureClicPCL(*this);

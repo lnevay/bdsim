@@ -24,6 +24,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "G4Types.hh"
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 
@@ -51,6 +52,7 @@ public:
   void      CheckInfoOK()                    const override;
   G4double  RadiusToEncompass()              const override {return std::hypot(a,b) + tiltOffset.Radius();}
   BDSExtent Extent()                         const override;
+  G4double  MinimumInscribedCircleRadius()   const override {return std::min(a, b);}
   unsigned int MinimumNumberOfPoints()       const override {return 4;}
 
   BDSApertureRectangle        operator+ (G4double number) const;
