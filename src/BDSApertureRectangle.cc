@@ -122,7 +122,7 @@ BDSPolygon BDSApertureRectangle::PolygonNPoints(unsigned int nPointsIn) const
   r.emplace_back(-a, -b);
   r.emplace_back( a, -b);
 
-  if (nPointsIn == 8)
+  if (nPointsIn == 4)
     {return BDSPolygon(r);}
   else
     {
