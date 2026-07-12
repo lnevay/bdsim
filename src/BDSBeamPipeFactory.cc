@@ -75,23 +75,3 @@ BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipe(const G4String&  name,
   BDSBeamPipeFactoryBase* factory = GetAppropriateFactory(bpi->beamPipeType);
   return factory->CreateBeamPipe(name, length, bpi);
 }
-
-/*
-BDSBeamPipe* BDSBeamPipeFactory::CreateBeamPipeForVacuumIntersection(const G4String&  name,
-								     G4double         length,
-								     BDSBeamPipeInfo2* bpi)
-{
-  BDSBeamPipeInfo2 copy = BDSBeamPipeInfo2(*bpi);
-  copy.ShrinkBy(BDSGlobalConstants::Instance()->LengthSafetyLarge());
-  return CreateBeamPipe(BDSBeamPipeType::circularvacuum,
-			name,
-			length,
-			bpi->aper1,
-			bpi->aper2,
-			bpi->aper3,
-			bpi->aper4,
-			bpi->vacuumMaterial,
-			bpi->beamPipeThickness,
-			bpi->beamPipeMaterial);
-}
-*/
