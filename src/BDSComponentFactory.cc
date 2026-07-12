@@ -2702,9 +2702,9 @@ void BDSComponentFactory::PrepareApertures()
   G4double horizontalWidth = globals->HorizontalWidth();
   if (horizontalWidth < 2*defaultBeamPipe->Extent().MaximumAbsTransverse())
     {
-      G4cerr << __METHOD_NAME__ << "Error: option \"horizontalWidth\" " << horizontalWidth
-             << " must be greater than 2x (\"aper1\" + \"beampipeThickness\") ("
-             << def.aper1 << " + " << thickness/CLHEP::m << ")" << G4endl;
+      G4cerr << __METHOD_NAME__ << "Error: option \"horizontalWidth\" " << horizontalWidth/CLHEP::m
+             << "m must be greater than 2x (\"aper1\" + \"beampipeThickness\") ("
+             << def.aper1/CLHEP::m << "m + " << thickness/CLHEP::m << "m)" << G4endl;
       throw BDSException(__METHOD_NAME__,"error in beam pipe defaults");
     }
 }
