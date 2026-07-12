@@ -22,6 +22,8 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSApertureRectangle.hh"
 #include "BDSApertureRectCircle.hh"
 #include "BDSApertureType.hh"
+#include "BDSDebug.hh"
+#include "BDSException.hh"
 #include "BDSExtent.hh"
 #include "BDSPolygon.hh"
 #include "BDSTiltOffset.hh"
@@ -29,7 +31,9 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "G4Types.hh"
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 
 BDSApertureRectCircle::BDSApertureRectCircle(G4double aIn,
                                              G4double bIn,
@@ -64,6 +68,12 @@ void BDSApertureRectCircle::CheckInfoOK() const
   CheckParameterIsPositive(a, "a");
   CheckParameterIsPositive(b, "b");
   CheckParameterIsPositive(radius, "radius");
+  
+  if (radius <= std::min(a, b)) // error if just a circle
+    {throw BDSException(__METHOD_NAME__, "\"aper3\" is smaller than \"aper1\" and \"aper2\" - the result is only a circle");}
+  
+  if (std::hypot(a, b) <= radius) // error if rectangle only
+    {throw BDSException(__METHOD_NAME__, "\"aper3\" is bigger than both \"aper1\" and \"aper2\" - result is a rectangle");}
 }
 
 BDSExtent BDSApertureRectCircle::Extent() const
