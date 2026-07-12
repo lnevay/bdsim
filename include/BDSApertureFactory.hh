@@ -28,7 +28,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <map>
 #include <utility>
-#include <vector>
+#include <set>
 
 class BDSAperture;
 class G4VSolid;
@@ -80,12 +80,12 @@ public:
   struct Product
   {
     G4VSolid* product;
-    std::vector<G4VSolid*> otherSolids;
+    std::set<G4VSolid*> otherSolids;
 
     void Extend(const Product& other)
     {
-      otherSolids.push_back(other.product);
-      otherSolids.insert(otherSolids.end(), other.otherSolids.begin(), other.otherSolids.end());
+      otherSolids.insert(other.product);
+      otherSolids.insert(otherSolids.end(), other.otherSolids.begin());
     }
   };
 
