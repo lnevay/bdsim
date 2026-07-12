@@ -20,8 +20,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSApertureCurved.hh"
 #include "BDSApertureRaceTrack.hh"
 #include "BDSApertureType.hh"
-#include "BDSDebug.hh"
-#include "BDSException.hh"
 #include "BDSExtent.hh"
 #include "BDSPolygon.hh"
 #include "BDSTiltOffset.hh"
@@ -68,8 +66,6 @@ void BDSApertureRaceTrack::CheckInfoOK() const
   CheckParameterIsPositive(x, "x");
   CheckParameterIsPositive(y, "y");
   CheckParameterIsPositive(radius, "radius");
-  if (radius > x || radius > y)
-    {throw BDSException(__METHOD_NAME__, "radius must be less than both x and y");}
 }
 
 BDSExtent BDSApertureRaceTrack::Extent() const
