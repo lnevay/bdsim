@@ -1049,7 +1049,14 @@ BDSExtent BDSDetectorConstruction::CalculateExtentOfSamplerPlacement(const GMAD:
   if (sp.apertureModel.empty())
     {
       BDSApertureFactory fac;
-      BDSAperture* aperture = fac.CreateAperture(sp);
+      BDSAperture* aperture;
+      try
+        {aperture = fac.CreateAperture(sp);}
+      catch (BDSException& e)
+        {
+          e.AppendToMessage("\nProblem in samplerplacement \""+sp.name+"\"");
+          throw e;
+        }
       apertureExtent = aperture->Extent();
     }
   else
