@@ -488,6 +488,7 @@ void BDS::PrintPrimaryParticleProcesses(const G4String& primaryParticleName)
 G4GenericBiasingPhysics* BDS::BuildAndAttachBiasWrapper(const GMAD::FastList<GMAD::PhysicsBiasing>& biases)
 {
   std::set<const G4ParticleDefinition*> particlesToBias;
+  std::map<G4String, std::vector<G4String>> particlesToProcesses;
   for (const auto& b : biases)
     {
       const G4ParticleDefinition* particle = nullptr;
@@ -496,7 +497,11 @@ G4GenericBiasingPhysics* BDS::BuildAndAttachBiasWrapper(const GMAD::FastList<GMA
       particle = G4ParticleTable::GetParticleTable()->FindParticle(particleName);
       
       if (particle)
-        {particlesToBias.insert(particle);}
+        {
+          particlesToBias.insert(particle);
+          std::vector<G4String> res(b.processList.begin(), b.processList.end());
+          particlesToProcesses[particleName] = res;
+        }
       else
         {throw BDSException(__METHOD_NAME__, "Unknown particle type for biasing: \"" + particleName + "\"");}
     }
@@ -509,7 +514,7 @@ G4GenericBiasingPhysics* BDS::BuildAndAttachBiasWrapper(const GMAD::FastList<GMA
     {
       const G4String& particleName = part->GetParticleName();
       G4cout << __METHOD_NAME__ << "wrapping \"" << particleName << "\" for biasing" << G4endl;
-      physBias->Bias(particleName);
+      physBias->Bias(particleName, particlesToProcesses[particleName]);
     }
   return physBias;
 }
