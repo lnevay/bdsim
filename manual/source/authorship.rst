@@ -14,15 +14,15 @@ contact us to get involved!
 Current BDSIM Collaboration
 ---------------------------
 
-* Laurie Nevay (*CERN, lead developer*)
-* Stewart Boogert (*Cockcroft, lead developer*)
+* Laurie Nevay (*CERN, lead developer, RHUL*)
+* Stewart Boogert (*Cockcroft, lead developer, RHUL*)
 * William Shields (*RHUL, lead developer*)
 * Siobhan Alden (*RHUL*)
 * Stephen Gibson (*RHUL*)
 * Fabian Metzger (*CERN*)
 * Jochem Snuverink (*PSI, RHUL*)
 * Robin Tesse (*ULB*)
-* Stuart Walker (*DESY*)
+* Stuart Walker (*DESY, RHUL*)
 
 
 Past Authors
@@ -45,6 +45,6 @@ Past Authors
 * John Carter (*RHUL*)
 * Ilya Agapov (*RHUL*)
 * Joshua Albrecht (*RHUL*)
-* Andrey Abramov (*CERN*)
-* Cedric Hernalsteens(*CERN*)
+* Andrey Abramov (*CERN, RHUL*)
+* Cedric Hernalsteens(*CERN, ULB*)
 * Eliott Ramoisiaux (*ULB*)
