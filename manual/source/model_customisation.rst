@@ -1178,8 +1178,8 @@ material used for that element. It is used differently depending on the element.
 in the case of a magnet, it is used for the yoke and for a collimator for the collimator
 block.
 
-Single Element
-^^^^^^^^^^^^^^
+Use a Single Element
+^^^^^^^^^^^^^^^^^^^^
 
 In the case of an element, the chemical symbol can be specified::
 
@@ -1200,15 +1200,21 @@ command with the following syntax::
 
   materialname : matdef, Z=<int>, A=<double>, density=<double>, T=<double>, P=<double>, state=<char*>;
 
-=========  ========================== =============
-Parameter  Description                Default
-Z          Atomic number
-A          Mass number [g/mol]
-density    Density in [g/cm3]
-T          Temperature in [K]         300
-P          Pressure [atm]             1
-state      "solid", "liquid" or "gas" "solid"
-=========  ========================== =============
++-----------+------------------------------+-----------+--------------+
+| Parameter | Description                  | Units     | Default      |
++===========+==============================+===========+==============+
+| Z         | Atomic number                |           |              |
++-----------+------------------------------+-----------+--------------+
+| A         | Mass number                  | g/mol     |              |
++-----------+------------------------------+-----------+--------------+
+| density   | Density                      | g/cm3     |              |
++-----------+------------------------------+-----------+--------------+
+| T         | Temperature                  | K         | 300          |
++-----------+------------------------------+-----------+--------------+
+| P         | Pressure                     | atm       | 1            |
++-----------+------------------------------+-----------+--------------+
+| state     | "solid", "liquid" or "gas"   |           |              |
++-----------+------------------------------+-----------+--------------+
 
 Example::
 
@@ -1216,8 +1222,12 @@ Example::
 
 A compound material can be specified in two manners:
 
-Compound Material by Atoms
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Compound Material
+^^^^^^^^^^^^^^^^^
+
+By Atoms
+********
+
 If the number of atoms of each component in a material unit is known,
 the following syntax can be used::
 
@@ -1225,19 +1235,29 @@ the following syntax can be used::
                 state=<char*>, components=<[list<char*>]>,
                 componentsWeights=<{list<int>}>;
 
-================= ===================================================
-Parameter         Description
-density           Density in [g/cm3]
-components        List of symbols for material components
-componentsWeights Number of atoms for each component in material unit
-================= ===================================================
++-------------------+-----------------------------------------------------+
+| Parameter         | Description                                         |
++===================+=====================================================+
+| density           | Density (g/cm3)                                     |
++-------------------+-----------------------------------------------------+
+| T                 | Temperature (K)                                     |
++-------------------+-----------------------------------------------------+
+| P                 | Pressure (atm)                                      |
++-------------------+-----------------------------------------------------+
+| state             | "solid", "liquid", "gas"                            |
++-------------------+-----------------------------------------------------+
+| components        | List of symbols for material components             |
++-------------------+-----------------------------------------------------+
+| componentsWeights | Number of atoms for each component in material unit |
++-------------------+-----------------------------------------------------+
 
 Example::
 
   NbTi : matdef, density=5.6, T=4.0, components=["Nb","Ti"], componentsWeights={1,1};
 
-Compound Material by Mass Fraction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By Mass Fraction
+****************
 
 On the other hand, if the mass fraction of each component is known, the
 following syntax can be used::
@@ -1246,15 +1266,28 @@ following syntax can be used::
                 state=<char*>, components=<[list<char*>]>,
                 componentsFractions=<{list<double>}>;
 
-=================== ================================================
-Parameter           Description
-components          List of symbols for material components
-componentsFractions Mass fraction of each component in material unit
-=================== ================================================
+
+
++---------------------+-----------------------------------------------------+
+| Parameter           | Description                                         |
++=====================+=====================================================+
+| density             | Density (g/cm3)                                     |
++---------------------+-----------------------------------------------------+
+| T                   | Temperature (K)                                     |
++---------------------+-----------------------------------------------------+
+| P                   | Pressure (atm)                                      |
++---------------------+-----------------------------------------------------+
+| state               | "solid", "liquid", "gas"                            |
++---------------------+-----------------------------------------------------+
+| components          | List of symbols for material components             |
++---------------------+-----------------------------------------------------+
+| componentsFractions | Mass fraction of each component in material unit    |
++---------------------+-----------------------------------------------------+
 
 Example::
 
   SmCo : matdef, density=8.4, T=300.0, components=["Sm","Co"], componentsFractions = {0.338,0.662};
+
 
 The second syntax can also be used to define materials which are composed by
 other materials (and not by atoms).
