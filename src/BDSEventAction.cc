@@ -508,6 +508,7 @@ BDSTrajectoriesToStore* BDSEventAction::IdentifyTrajectoriesForStorage(const G4E
               depth++;
             }
           depthMap[tr] = depth;
+          tr->SetDepth(depth);
           tr->SetParent(trackIDMap[tr->GetParentID()]);
         }
       
