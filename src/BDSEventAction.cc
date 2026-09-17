@@ -485,10 +485,10 @@ BDSTrajectoriesToStore* BDSEventAction::IdentifyTrajectoriesForStorage(const G4E
                      [](G4VTrajectory* a) { return static_cast<BDSTrajectory*>(a); });
       
       // build trackID map
-      std::map<int, BDSTrajectory*> trackIDMap;
+      std::map<int, BDSTrajectory*> trackIDToTrajectory;
       for (auto* tr : trajVecBDS)
-        {trackIDMap[tr->GetTrackID()] = tr;}
-      trackIDMap[0] = nullptr; // primary has no parent
+        {trackIDToTrajectory[tr->GetTrackID()] = tr;}
+      trackIDToTrajectory[0] = nullptr; // primary has no parent
 
 #ifdef BDSDEBUG
       for (auto* tr : trajVecBDS)
@@ -504,12 +504,12 @@ BDSTrajectoriesToStore* BDSEventAction::IdentifyTrajectoriesForStorage(const G4E
           // recurse up to a primary trackID and count the number of parents
           while (ct->GetParentID() != 0)
             {
-              ct = trackIDMap[ct->GetParentID()];
+              ct = trackIDToTrajectory[ct->GetParentID()];
               depth++;
             }
           depthMap[tr] = depth;
           tr->SetDepth(depth);
-          tr->SetParent(trackIDMap[tr->GetParentID()]);
+          tr->SetParent(trackIDToTrajectory[tr->GetParentID()]);
         }
       
       // loop over trajectories and determine if it should be stored
@@ -583,7 +583,7 @@ BDSTrajectoriesToStore* BDSEventAction::IdentifyTrajectoriesForStorage(const G4E
                     {           
                       if (dS >= v.first && dS <= v.second)
                         {
-                          BDSTrajectory* trajToStore = trackIDMap[hit->GetTrackID()];
+                          BDSTrajectory* trajToStore = trackIDToTrajectory[hit->GetTrackID()];
                           if (!interestingTraj[trajToStore])
                             {// was marked as not storing - update counters
                               nYes++;
@@ -608,7 +608,7 @@ BDSTrajectoriesToStore* BDSEventAction::IdentifyTrajectoriesForStorage(const G4E
                     {           
                       if (dS >= v.first && dS <= v.second)
                         {
-                          BDSTrajectory* trajToStore = trackIDMap[hit->GetTrackID()];
+                          BDSTrajectory* trajToStore = trackIDToTrajectory[hit->GetTrackID()];
                           if (!interestingTraj[trajToStore])
                             {// was marked as not storing - update counters
                               nYes++;
@@ -635,7 +635,7 @@ BDSTrajectoriesToStore* BDSEventAction::IdentifyTrajectoriesForStorage(const G4E
                   if (std::find(trajectorySamplerID.begin(), trajectorySamplerID.end(), samplerIndex) !=
                       trajectorySamplerID.end())
                     {
-                      BDSTrajectory* trajToStore = trackIDMap[(*SampHC)[i]->trackID];
+                      BDSTrajectory* trajToStore = trackIDToTrajectory[(*SampHC)[i]->trackID];
                       if (!interestingTraj[trajToStore])
                         {// was marked as not storing - update counters
                           nYes++;
@@ -669,7 +669,7 @@ BDSTrajectoriesToStore* BDSEventAction::IdentifyTrajectoriesForStorage(const G4E
         }
       
       // Connect trajectory graphs
-      if (trajConnect && trackIDMap.size() > 1)
+      if (trajConnect && trackIDToTrajectory.size() > 1)
         {
           for (auto i : interestingTraj)
             {
