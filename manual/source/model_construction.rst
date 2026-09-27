@@ -1325,8 +1325,8 @@ Notes:
   half the `horizontalWidth`, no jaws will be built and BDSIM will exit.
 * To preserve the longitudinal dimensions, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
   uses parallelepipeds instead of boxes for the collimator jaws. Relative to using angled boxes, this can introduce and
-  error in the material traversed by incident particles, which scales as $b\tan(\alpha)$, where b is
-  the impact parameter (depth of impact) and $\alpha$ is the jaw tilt angle.
+  error in the material traversed by incident particles, which scales as :math:`b \tan(\alpha)`, where b is
+  the impact parameter (depth of impact) and :math:`\alpha` is the jaw tilt angle.
 * The parameter `minimumKineticEnergy` (GeV by default) may be specified to artificially kill
   particles below this kinetic energy in the collimator. This is useful to match other simulations
   where collimators can be assumed to be infinite absorbers. If this behaviour is required, the
@@ -1408,8 +1408,8 @@ Notes:
   half the `horizontalWidth`, no jaws will be built and BDSIM will exit.
 * To preserve the longitudinal dimensions, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
   uses parallelepipeds instead of boxes for the collimator jaws. Relative to using angled boxes, this can introduce and
-  error in the material traversed by incident particles, which scales as $b\tan(\alpha)$, where b is
-  the impact parameter (depth of impact) and $\alpha$ is the jaw tilt angle.
+  error in the material traversed by incident particles, which scales as :math:`b\tan(\alpha)`, where b is
+  the impact parameter (depth of impact) and :math:`\alpha` is the jaw tilt angle.
 * The parameter `minimumKineticEnergy` (GeV by default) may be specified to artificially kill
   particles below this kinetic energy in the collimator. This is useful to match other simulations
   where collimators can be assumed to be infinite absorbers. If this behaviour is required, the
