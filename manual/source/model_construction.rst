@@ -1316,17 +1316,14 @@ Notes:
 * A positive tilt angle rotates either jaw to the left on the downstream side. So, a positive jawTiltLeft
   increases the left jaw aperture on the downstream side. A positive jawTiltRight decreases the right
   aperture on the downstream side. Left positive and righ negative give diverging jaws.
-* To prevent the jaws overlapping with one another, a jaw cannot be constructed that crosses the
-  X axis of the element (i.e supplying a negative `xsizeLeft` or `xsizeRight` will not work). Should
-  you require this, please offset the element using the element parameters `offsetX` and `offsetY` instead.
 * To construct a collimator jaws with one jaw closed (i.e. an offset of 0), the horizontal half aperture
-  must be set to 0, with the other jaws half aperture set as appropriate.
+  (`xsize`) must be set to 0.
 * If `xsize`, `xsizeLeft` and `xsizeRight` are not specified, the collimator will be constructed
   as a box with no aperture.
 * For **only one jaw**, specifying a jaw aperture which is larger than half the `horizontalWidth` value
   will result in that jaw not being constructed. If both jaw apertures are greater than
   half the `horizontalWidth`, no jaws will be built and BDSIM will exit.
-* To preserve the longitudinal dimensions, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
+* To preserve the length strictly, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
   uses parallelepipeds instead of boxes for the collimator jaws. Relative to using angled boxes, this can introduce and
   error in the material traversed by incident particles, which scales as :math:`b \tan(\alpha)`, where b is
   the impact parameter (depth of impact) and :math:`\alpha` is the jaw tilt angle.
@@ -1402,17 +1399,14 @@ Notes:
 * A positive tilt angle rotates either jaw to the left on the downstream side. So, a positive jawTiltLeft
   increases the left jaw aperture on the downstream side. A positive jawTiltRight decreases the right
   aperture on the downstream side. Left positive and righ negative give diverging jaws.
-* To prevent the jaws overlapping with one another, a jaw cannot be constructed that crosses the
-  X axis of the element (i.e supplying a negative `xsizeLeft` or `xsizeRight` will not work). Should
-  you require this, please offset the element using the element parameters `offsetX` and `offsetY` instead.
 * To construct a collimator jaws with one jaw closed (i.e. an offset of 0), the horizontal half aperture
-  must be set to 0, with the other jaws half aperture set as appropriate.
+  (`xsize`) must be set to 0.
 * If `xsize`, `xsizeLeft` and `xsizeRight` are not specified, the collimator will be constructed
-  as a box with no aperture.
+  as a box with no aperture and a box of the `tipMaterial` placed inside it. It will be around 0.1 microns shorter.
 * For **only one jaw**, specifying a jaw aperture which is larger than half the `horizontalWidth` value
   will result in that jaw not being constructed. If both jaw apertures are greater than
   half the `horizontalWidth`, no jaws will be built and BDSIM will exit.
-* To preserve the longitudinal dimensions, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
+* To preserve the length strictly, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
   uses parallelepipeds instead of boxes for the collimator jaws. Relative to using angled boxes, this can introduce and
   error in the material traversed by incident particles, which scales as :math:`b\tan(\alpha)`, where b is
   the impact parameter (depth of impact) and :math:`\alpha` is the jaw tilt angle.
