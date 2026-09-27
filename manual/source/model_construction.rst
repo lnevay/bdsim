@@ -1313,6 +1313,9 @@ This feature can be useful for example in aligning the jaws to the beam envelope
 Notes: 
 
 * The `horizontalWidth` must be greater than 2x `xsize`.
+* A positive tilt angle rotates either jaw to the left on the downstream side. So, a positive jawTiltLeft
+  increases the left jaw aperture on the downstream side. A positive jawTiltRight decreases the right
+  aperture on the downstream side. Left positive and righ negative give diverging jaws.
 * To prevent the jaws overlapping with one another, a jaw cannot be constructed that crosses the
   X axis of the element (i.e supplying a negative `xsizeLeft` or `xsizeRight` will not work). Should
   you require this, please offset the element using the element parameters `offsetX` and `offsetY` instead.
@@ -1396,6 +1399,9 @@ The tip thickness and material are defined using `tipThickness` and `tipMaterial
 Notes: 
 
 * The `horizontalWidth` must be greater than 2x `xsize`.
+* A positive tilt angle rotates either jaw to the left on the downstream side. So, a positive jawTiltLeft
+  increases the left jaw aperture on the downstream side. A positive jawTiltRight decreases the right
+  aperture on the downstream side. Left positive and righ negative give diverging jaws.
 * To prevent the jaws overlapping with one another, a jaw cannot be constructed that crosses the
   X axis of the element (i.e supplying a negative `xsizeLeft` or `xsizeRight` will not work). Should
   you require this, please offset the element using the element parameters `offsetX` and `offsetY` instead.
