@@ -50,8 +50,9 @@ BDSCollimatorJaw::BDSCollimatorJaw(const G4String&    nameIn,
                                    G4bool      buildRightJawIn,
                                    G4Material* collimatorMaterialIn,
                                    G4Material* vacuumMaterialIn,
-                                   G4Colour*   colourIn):
-BDSCollimator(nameIn, lengthIn, horizontalWidthIn, "jcol", collimatorMaterialIn, vacuumMaterialIn,
+                                   G4Colour*   colourIn,
+                                   const G4String& objectType):
+BDSCollimator(nameIn, lengthIn, horizontalWidthIn, objectType, collimatorMaterialIn, vacuumMaterialIn,
               xHalfGapIn, yHalfHeightIn, xHalfGapIn, yHalfHeightIn, colourIn),
   jawSolid(nullptr),
   xSizeLeft(xSizeLeftIn),
@@ -63,13 +64,49 @@ BDSCollimator(nameIn, lengthIn, horizontalWidthIn, "jcol", collimatorMaterialIn,
   yHalfHeight(yHalfHeightIn),
   buildLeftJaw(buildLeftJawIn),
   buildRightJaw(buildRightJawIn),
-  buildAperture(true)
+  buildAperture(true),
+  leftJawHalfGap(0),
+  rightJawHalfGap(0),
+  leftJawWidth(0),
+  rightJawWidth(0),
+  vacuumWidth(0)
 {
   jawHalfWidth = 0.5 * (0.5*horizontalWidth - lengthSafetyLarge - xHalfGap);
+
+  if (!BDS::IsFinite(xHalfGap) && !BDS::IsFinite(xSizeLeft) && !BDS::IsFinite(xSizeRight))
+    {buildAperture = false;}
 }
 
 BDSCollimatorJaw::~BDSCollimatorJaw()
 {;}
+
+void BDSCollimatorJaw::Calculations()
+{
+  // set each jaws half gap default to aperture half size
+  leftJawHalfGap = xHalfGap;
+  rightJawHalfGap = xHalfGap;
+
+  // update jaw half gap with offsets
+  // if one jaw is not constructed, set the opening to xSize/2 for the aperture vacuum volume creation
+  if (BDS::IsFinite(xSizeLeft))
+    {leftJawHalfGap = buildLeftJaw ? xSizeLeft : 0.5 * horizontalWidth;}
+  if (BDS::IsFinite(xSizeRight))
+    {rightJawHalfGap = buildRightJaw ? xSizeRight : 0.5 * horizontalWidth;}
+
+  // jaws have to fit inside containerLogicalVolume so calculate full jaw widths given offsets
+  leftJawWidth = 0.5 * horizontalWidth - leftJawHalfGap;
+  rightJawWidth = 0.5 * horizontalWidth - rightJawHalfGap;
+  vacuumWidth = 0.5 * (leftJawHalfGap + rightJawHalfGap);
+
+  // centre of jaw and vacuum volumes for placements
+  G4double leftJawCentre = 0.5*leftJawWidth + leftJawHalfGap;
+  G4double rightJawCentre = 0.5*rightJawWidth + rightJawHalfGap;
+  G4double vacuumCentre = 0.5*(leftJawHalfGap - rightJawHalfGap);
+
+  leftJawPos = G4ThreeVector(leftJawCentre, 0, 0);
+  rightJawPos = G4ThreeVector(-rightJawCentre, 0, 0);
+  vacuumOffset = G4ThreeVector(vacuumCentre, 0, 0);
+}
 
 void BDSCollimatorJaw::CheckParameters()
 {
@@ -118,9 +155,6 @@ void BDSCollimatorJaw::CheckParameters()
 
   if (!buildLeftJaw && !buildRightJaw)
     {throw BDSException(__METHOD_NAME__, "no jaws being built: \"" + name + "\"");}
-  
-  if (!BDS::IsFinite(xHalfGap) && !BDS::IsFinite(xSizeLeft) && !BDS::IsFinite(xSizeRight))
-    {buildAperture = false;}
 }
 
 void BDSCollimatorJaw::BuildContainerLogicalVolume()
@@ -148,44 +182,9 @@ void BDSCollimatorJaw::BuildContainerLogicalVolume()
 
 void BDSCollimatorJaw::Build()
 {
+  Calculations();
   CheckParameters();
   BDSAcceleratorComponent::Build(); // calls BuildContainer and sets limits and vis for container
-
-  // set each jaws half gap default to aperture half size
-  G4double leftJawHalfGap = xHalfGap;
-  G4double rightJawHalfGap = xHalfGap;
-
-  // update jaw half gap with offsets
-  // if one jaw is not constructed, set the opening to xSize/2 for the aperture vacuum volume creation
-  if (BDS::IsFinite(xSizeLeft))
-    {
-      if (buildLeftJaw)
-        {leftJawHalfGap = xSizeLeft;}
-      else
-        {leftJawHalfGap = 0.5 * horizontalWidth;}
-    }
-
-  if (BDS::IsFinite(xSizeRight))
-    {
-      if (buildRightJaw)
-        {rightJawHalfGap = xSizeRight;}
-      else
-        {rightJawHalfGap = 0.5 * horizontalWidth;}
-    }
-
-  // jaws have to fit inside containerLogicalVolume so calculate full jaw widths given offsets
-  G4double leftJawWidth = 0.5 * horizontalWidth - leftJawHalfGap;
-  G4double rightJawWidth = 0.5 * horizontalWidth - rightJawHalfGap;
-  G4double vacuumWidth = 0.5 * (leftJawHalfGap + rightJawHalfGap);
-
-  // centre of jaw and vacuum volumes for placements
-  G4double leftJawCentre = 0.5*leftJawWidth + leftJawHalfGap;
-  G4double rightJawCentre = 0.5*rightJawWidth + rightJawHalfGap;
-  G4double vacuumCentre = 0.5*(leftJawHalfGap - rightJawHalfGap);
-
-  G4ThreeVector leftJawPos = G4ThreeVector(leftJawCentre, 0, 0);
-  G4ThreeVector rightJawPos = G4ThreeVector(-rightJawCentre, 0, 0);
-  G4ThreeVector vacuumOffset = G4ThreeVector(vacuumCentre, 0, 0);
 
   G4VisAttributes* collimatorVisAttr = new G4VisAttributes(*colour);
   RegisterVisAttributes(collimatorVisAttr);

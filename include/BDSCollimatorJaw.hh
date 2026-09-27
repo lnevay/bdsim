@@ -48,13 +48,16 @@ public:
                    G4bool      buildRightJawIn,
                    G4Material* collimatorMaterialIn,
                    G4Material* vacuumMaterialIn,
-                   G4Colour*   colourIn = nullptr);
+                   G4Colour*   colourIn = nullptr,
+                   const G4String& objectType = "jcol");
   virtual ~BDSCollimatorJaw();
 
   inline G4double GetJawTiltLeft() const {return jawTiltLeft;}
   inline G4double GetJawTiltRight() const {return jawTiltRight;}
 
 protected:
+  virtual void Calculations(); ///< Calculate offsets and sizes.
+
   /// Check and update parameters before construction. Called at the start of Build() as
   /// we can't call a virtual function in a constructor.
   virtual void CheckParameters() override;
@@ -79,6 +82,15 @@ protected:
   G4bool    buildLeftJaw;    ///< Build left jaw or not.
   G4bool    buildRightJaw;   ///< Build right jaw or not.
   G4bool    buildAperture;   ///< Build aperture or not.
+
+  G4double leftJawHalfGap;
+  G4double rightJawHalfGap;
+  G4double leftJawWidth;
+  G4double rightJawWidth;
+  G4double vacuumWidth;
+  G4ThreeVector leftJawPos;
+  G4ThreeVector rightJawPos;
+  G4ThreeVector vacuumOffset;
 
 private:
   /// Private default constructor to force the use of the supplied one.
