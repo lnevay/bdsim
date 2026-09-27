@@ -63,11 +63,11 @@ public:
 
 protected:
   /// Adjust the calculated values to include the space for the tips that are separate placements.
-  virtual void Calculations() override;
+  void UpdateCalculations();
 
   /// Check and update parameters before construction. Called at the start of Build() as
   /// we can't call a virtual function in a constructor.
-  virtual void CheckParameters() override;
+  void CheckParametersForTips();
 
   /// Override function in BDSCollimator for totally different construction.
   virtual void Build() override;

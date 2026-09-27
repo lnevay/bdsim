@@ -75,6 +75,26 @@ BDSCollimator(nameIn, lengthIn, horizontalWidthIn, objectType, collimatorMateria
 
   if (!BDS::IsFinite(xHalfGap) && !BDS::IsFinite(xSizeLeft) && !BDS::IsFinite(xSizeRight))
     {buildAperture = false;}
+
+  if (!colour)
+    {colour = BDSColours::Instance()->GetColour("collimator");}
+
+  if (std::abs(xSizeLeft) > 0.5*horizontalWidth)
+    {
+      G4cerr << __METHOD_NAME__ << "jcol \"" << name
+             << "\" left jaw offset is greater the element half width, jaw "
+             << "will not be constructed" << G4endl;
+      buildLeftJaw = false;
+    }
+  if (std::abs(xSizeRight) > 0.5*horizontalWidth)
+    {
+      G4cerr << __METHOD_NAME__ << "jcol \"" << name
+             << "\" right jaw offset is greater the element half width, jaw "
+             << "will not be constructed" << G4endl;
+      buildRightJaw = false;
+    }
+
+  Calculations();
 }
 
 BDSCollimatorJaw::~BDSCollimatorJaw()
@@ -111,9 +131,6 @@ void BDSCollimatorJaw::Calculations()
 void BDSCollimatorJaw::CheckParameters()
 {
   // BDSCollimator::CheckParameters() <- we replace this and don't call it - 'tapered' is never set
-  if (!colour)
-    {colour = BDSColours::Instance()->GetColour("collimator");}
-  
   if (jawHalfWidth < 1e-3) // 1um minimum, could also be negative
     {throw BDSException(__METHOD_NAME__, "horizontalWidth insufficient given xsize of jcol \"" + name + "\"");}
 
@@ -132,23 +149,6 @@ void BDSCollimatorJaw::CheckParameters()
   if (xSizeRight < 0)
     {throw BDSException(__METHOD_NAME__, "left jcol jaw cannot have negative half aperture size: \"" + name + "\"");}
 
-  if (std::abs(xSizeLeft) > 0.5*horizontalWidth)
-    {
-      G4cerr << __METHOD_NAME__ << "jcol \"" << name
-             << "\" left jaw offset is greater the element half width, jaw "
-             << "will not be constructed" << G4endl;
-      buildLeftJaw = false;
-    }
-  if (std::abs(xSizeRight) > 0.5*horizontalWidth)
-    {
-      G4cerr << __METHOD_NAME__ << "jcol \"" << name
-             << "\" right jaw offset is greater the element half width, jaw "
-             << "will not be constructed" << G4endl;
-      buildRightJaw = false;
-    }
-  
-  if (std::abs(jawTiltLeft) > 0 && std::tan(std::abs(jawTiltLeft)) * chordLength / 2. > std::max(xHalfGap, xSizeLeft))
-    {throw BDSException(__METHOD_NAME__, "tilted left jaw not allowed to cross the mid-plane: \"" + name + "\"");}
 
   if (std::abs(jawTiltRight) > 0 && std::tan(std::abs(jawTiltRight)) * chordLength / 2. > std::max(xHalfGap, xSizeLeft))
     {throw BDSException(__METHOD_NAME__, "tilted right jaw not allowed to cross the mid-plane: \"" + name + "\"");}
@@ -182,7 +182,6 @@ void BDSCollimatorJaw::BuildContainerLogicalVolume()
 
 void BDSCollimatorJaw::Build()
 {
-  Calculations();
   CheckParameters();
   BDSAcceleratorComponent::Build(); // calls BuildContainer and sets limits and vis for container
 

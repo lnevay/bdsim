@@ -58,29 +58,37 @@ BDSCollimatorJaw(nameIn, lengthIn, horizontalWidthIn, xHalfGapIn, yHalfHeightIn,
   tipColour(tipColourIn),
   tipThickness(tipThicknessIn),
   collimatorTipMaterial(collimatorTipMaterialIn)
-{;}
+{
+  if (!tipColour)
+    {
+      G4Colour* defaultTipColour = BDSColours::Instance()->GetColour("collimator");
+      tipColour = BDSColourFromMaterial::Instance()->GetColourWithDefault(collimatorTipMaterialIn, defaultTipColour);
+    }
+
+  UpdateCalculations();
+}
 
 BDSCollimatorJawTip::~BDSCollimatorJawTip()
 {;}
 
-void BDSCollimatorJawTip::Calculations()
+void BDSCollimatorJawTip::UpdateCalculations()
 {
-  leftJawWidth -= (tipThickness + 2*lengthSafety);
-  leftJawPos -= G4ThreeVector(leftJawWidth*0.5, 0, 0);
-  rightJawWidth -= (tipThickness + 2*lengthSafety);
-  rightJawPos += G4ThreeVector(rightJawWidth*0.5, 0, 0);
+  BDSCollimatorJaw::Calculations();
 
-  leftJawTipPos = G4ThreeVector(leftJawHalfGap+0.5*tipThickness, 0, 0);
-  rightJawTipPos = G4ThreeVector(rightJawHalfGap-0.5*tipThickness, 0, 0);
+  // shrink the bulk jaws from the aperture side to make space for the tips, so the
+  // centre of each jaw moves outwards by half the space taken
+  G4double tipSpace = tipThickness + 2*lengthSafety;
+  leftJawWidth -= tipSpace;
+  leftJawPos += G4ThreeVector(0.5*tipSpace, 0, 0);
+  rightJawWidth -= tipSpace;
+  rightJawPos -= G4ThreeVector(0.5*tipSpace, 0, 0);
+
+  leftJawTipPos = G4ThreeVector(leftJawHalfGap + 0.5*tipThickness, 0, 0);
+  rightJawTipPos = G4ThreeVector(-(rightJawHalfGap + 0.5*tipThickness), 0, 0);
 }
 
-void BDSCollimatorJawTip::CheckParameters()
+void BDSCollimatorJawTip::CheckParametersForTips()
 {
-  BDSCollimatorJaw::CheckParameters();
-
-  if (!tipColour)
-    {tipColour = BDSColours::Instance()->GetColour("collimatorTip");}
-
   // the remaining checks only apply to the jaw and vacuum geometry
   if (!buildAperture)
     {return;}
@@ -113,6 +121,7 @@ void BDSCollimatorJawTip::CheckParameters()
 
 void BDSCollimatorJawTip::Build()
 {
+  CheckParametersForTips();
   BDSCollimatorJaw::Build();
   BuildTips();
 }

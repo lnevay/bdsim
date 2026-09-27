@@ -56,7 +56,7 @@ public:
   inline G4double GetJawTiltRight() const {return jawTiltRight;}
 
 protected:
-  virtual void Calculations(); ///< Calculate offsets and sizes.
+  void Calculations(); ///< Calculate offsets and sizes.
 
   /// Check and update parameters before construction. Called at the start of Build() as
   /// we can't call a virtual function in a constructor.
