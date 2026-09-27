@@ -65,7 +65,6 @@ BDSCollimatorJaw(nameIn, lengthIn, horizontalWidthIn, xHalfGapIn, yHalfHeightIn,
       G4Colour* defaultTipColour = BDSColours::Instance()->GetColour("collimator");
       tipColour = BDSColourFromMaterial::Instance()->GetColourWithDefault(collimatorTipMaterialIn, defaultTipColour);
     }
-
   UpdateCalculations();
 }
 
@@ -114,88 +113,125 @@ void BDSCollimatorJawTip::Build()
 
 void BDSCollimatorJawTip::BuildTips()
 {
-  // no tips without an aperture - the base class builds a solid block
-  if (!buildAperture)
-    {return;}
-
   G4VisAttributes* tipVisAttr = new G4VisAttributes(*tipColour);
   RegisterVisAttributes(tipVisAttr);
 
   G4UserLimits* tipCollUserLimits = CollimatorUserLimits();
 
+  // If not aperture, then the base class just fills the container with one material. Now,
+  // place a tip material block inside that block.
+  if (!buildAperture)
+    {
+      G4VSolid* tipSolid = new G4Box(name + "_tip_solid",
+                                  tipThickness,
+                                  yHalfHeight - lengthSafety,
+                                  chordLength * 0.5 - 2*lengthSafety);
+      // the containerLV is of length chordLength * 0.5 - lengthSafety
+      RegisterSolid(tipSolid);
+
+      G4LogicalVolume* collimatorTipLV = new G4LogicalVolume(tipSolid, collimatorTipMaterial, name + "_tip_lv");
+      collimatorTipLV->SetVisAttributes(tipVisAttr);
+
+      // user limits - provided by BDSAcceleratorComponent - don't use collUserLimits
+      collimatorTipLV->SetUserLimits(tipCollUserLimits);
+
+      // register with base class (BDSGeometryComponent)
+      RegisterLogicalVolume(collimatorTipLV);
+      if (sensitiveOuter)
+        {RegisterSensitiveVolume(collimatorTipLV, BDSSDType::collimatorcomplete);}
+
+      // place the jaw
+      G4PVPlacement* collimatorTipPV = new G4PVPlacement(nullptr,                 // rotation
+                                                         (G4ThreeVector) 0,       // position
+                                                         collimatorTipLV,         // its logical volume
+                                                         name + "_tip_pv",            // its name
+                                                         collimatorLV,            // its mother volume
+                                                         false,                   // no boolean operation
+                                                         0,                       // copy number
+                                                         checkOverlaps);
+      RegisterPhysicalVolume(collimatorTipPV);
+      return;
+    }
+
   G4VSolid* leftJawTipSolid = nullptr;
   if (buildLeftJaw && buildAperture)
     {
-      G4double leftHalfLength = chordLength * 0.5 * std::cos(jawTiltLeft);
-      leftJawTipSolid = new G4Para(name + "_leftjawtip_solid",
-                                   tipThickness * 0.5 - lengthSafety,
-                                   yHalfHeight - lengthSafety,
-                                   leftHalfLength - lengthSafety,
-                                   0, jawTiltLeft, 0);
-    }
-  else
-    {
-      leftJawTipSolid = new G4Box(name + "_leftjawtip_solid",
-                                  tipThickness * 0.5 - lengthSafety,
-                                  yHalfHeight - lengthSafety,
-                                  chordLength * 0.5 - lengthSafety);
-    }
-  RegisterSolid(leftJawTipSolid);
+      if (jawTiltLeft != 0)
+        {
+          G4double leftHalfLength = chordLength * 0.5 * std::cos(jawTiltLeft);
+          leftJawTipSolid = new G4Para(name + "_leftjawtip_solid",
+                                       tipThickness * 0.5 - lengthSafety,
+                                       yHalfHeight - lengthSafety,
+                                       leftHalfLength - lengthSafety,
+                                       0, jawTiltLeft, 0);
+        }
+      else
+        {
+          leftJawTipSolid = new G4Box(name + "_leftjawtip_solid",
+                                     tipThickness * 0.5 - lengthSafety,
+                                     yHalfHeight - lengthSafety,
+                                      chordLength * 0.5 - lengthSafety);
+        }
+      RegisterSolid(leftJawTipSolid);
 
-  G4LogicalVolume* leftJawTipLV = new G4LogicalVolume(leftJawTipSolid, collimatorTipMaterial, name + "_leftjawtip_lv");
-  leftJawTipLV->SetVisAttributes(tipVisAttr);
-  leftJawTipLV->SetUserLimits(tipCollUserLimits);
-  RegisterLogicalVolume(leftJawTipLV);
-  BDSAcceleratorModel::Instance()->VolumeSet("collimators")->insert(leftJawTipLV);
-  if (sensitiveOuter)
-    {RegisterSensitiveVolume(leftJawTipLV, BDSSDType::collimatorcomplete);}
+      G4LogicalVolume* leftJawTipLV = new G4LogicalVolume(leftJawTipSolid, collimatorTipMaterial, name + "_leftjawtip_lv");
+      leftJawTipLV->SetVisAttributes(tipVisAttr);
+      leftJawTipLV->SetUserLimits(tipCollUserLimits);
+      RegisterLogicalVolume(leftJawTipLV);
+      BDSAcceleratorModel::Instance()->VolumeSet("collimators")->insert(leftJawTipLV);
+      if (sensitiveOuter)
+        {RegisterSensitiveVolume(leftJawTipLV, BDSSDType::collimatorcomplete);}
 
-  // place the tip
-  G4PVPlacement* leftJawTipPV = new G4PVPlacement(nullptr,
-                                                  leftJawTipPos,
-                                                  leftJawTipLV,
-                                                  name + "_leftjawtip_pv",
-                                                  containerLogicalVolume,
-                                                  false,               // no boolean operation
-                                                  0,                   // copy number
-                                                  checkOverlaps);
-  RegisterPhysicalVolume(leftJawTipPV);
+      // place the tip
+      G4PVPlacement* leftJawTipPV = new G4PVPlacement(nullptr,
+                                                      leftJawTipPos,
+                                                      leftJawTipLV,
+                                                      name + "_leftjawtip_pv",
+                                                      containerLogicalVolume,
+                                                      false,               // no boolean operation
+                                                      0,                   // copy number
+                                                      checkOverlaps);
+      RegisterPhysicalVolume(leftJawTipPV);
+    }
 
   G4VSolid* rightJawTipSolid = nullptr;
   if (buildRightJaw && buildAperture)
     {
-      G4double rightHalfLength = chordLength * 0.5 * std::cos(jawTiltRight);
-      rightJawTipSolid = new G4Para(name + "_rightjawtip_solid",
-                                    tipThickness * 0.5 - lengthSafety,
-                                    yHalfHeight - lengthSafety,
-                                    rightHalfLength - lengthSafety,
-                                    0, jawTiltRight, 0);
-    }
-  else
-    {
-      rightJawTipSolid = new G4Box(name + "_rightjawtip_solid",
-                                   tipThickness * 0.5 - lengthSafety,
-                                   yHalfHeight - lengthSafety,
-                                   chordLength * 0.5 - lengthSafety);
-    }
-  RegisterSolid(rightJawTipSolid);
+      if (jawTiltLeft != 0)
+        {
+          G4double rightHalfLength = chordLength * 0.5 * std::cos(jawTiltRight);
+          rightJawTipSolid = new G4Para(name + "_rightjawtip_solid",
+                                        tipThickness * 0.5 - lengthSafety,
+                                        yHalfHeight - lengthSafety,
+                                        rightHalfLength - lengthSafety,
+                                        0, jawTiltRight, 0);
+        }
+      else
+        {
+          rightJawTipSolid = new G4Box(name + "_rightjawtip_solid",
+                                       tipThickness * 0.5 - lengthSafety,
+                                       yHalfHeight - lengthSafety,
+                                       chordLength * 0.5 - lengthSafety);
+        }
+      RegisterSolid(rightJawTipSolid);
 
-  G4LogicalVolume* rightJawTipLV = new G4LogicalVolume(rightJawTipSolid, collimatorTipMaterial, name + "_rightjawtip_lv");
-  rightJawTipLV->SetVisAttributes(tipVisAttr);
-  rightJawTipLV->SetUserLimits(tipCollUserLimits);
-  RegisterLogicalVolume(rightJawTipLV);
-  BDSAcceleratorModel::Instance()->VolumeSet("collimators")->insert(rightJawTipLV);
-  if (sensitiveOuter)
-    {RegisterSensitiveVolume(rightJawTipLV, BDSSDType::collimatorcomplete);}
+      G4LogicalVolume* rightJawTipLV = new G4LogicalVolume(rightJawTipSolid, collimatorTipMaterial, name + "_rightjawtip_lv");
+      rightJawTipLV->SetVisAttributes(tipVisAttr);
+      rightJawTipLV->SetUserLimits(tipCollUserLimits);
+      RegisterLogicalVolume(rightJawTipLV);
+      BDSAcceleratorModel::Instance()->VolumeSet("collimators")->insert(rightJawTipLV);
+      if (sensitiveOuter)
+        {RegisterSensitiveVolume(rightJawTipLV, BDSSDType::collimatorcomplete);}
 
-  // place the tip
-  G4PVPlacement* rightJawTipPV = new G4PVPlacement(nullptr,
-                                                   rightJawTipPos,
-                                                   rightJawTipLV,
-                                                   name + "_rightjawtip_pv",
-                                                   containerLogicalVolume,
-                                                   false,           // no boolean operation
-                                                   0,               // copy number
-                                                   checkOverlaps);
-  RegisterPhysicalVolume(rightJawTipPV);
+      // place the tip
+      G4PVPlacement* rightJawTipPV = new G4PVPlacement(nullptr,
+                                                       rightJawTipPos,
+                                                       rightJawTipLV,
+                                                       name + "_rightjawtip_pv",
+                                                       containerLogicalVolume,
+                                                       false,           // no boolean operation
+                                                       0,               // copy number
+                                                       checkOverlaps);
+      RegisterPhysicalVolume(rightJawTipPV);
+    }
 }
