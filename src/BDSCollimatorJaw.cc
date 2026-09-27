@@ -53,7 +53,6 @@ BDSCollimatorJaw::BDSCollimatorJaw(const G4String&    nameIn,
                                    const G4String& objectType):
 BDSCollimator(nameIn, lengthIn, horizontalWidthIn, objectType, collimatorMaterialIn, vacuumMaterialIn,
               xHalfGapIn, yHalfHeightIn, xHalfGapIn, yHalfHeightIn, colourIn),
-  jawSolid(nullptr),
   xSizeLeft(xSizeLeftIn),
   xSizeRight(xSizeRightIn),
   xHalfGap(xHalfGapIn),
@@ -140,9 +139,6 @@ void BDSCollimatorJaw::CheckParameters()
     {throw BDSException(__METHOD_NAME__, "horizontalWidth too small for the total gap width of \"" + name + "\"");}
 
   if (BDS::IsFinite(yHalfHeight) && (yHalfHeight < 1e-3)) // 1um minimum
-    {throw BDSException(__METHOD_NAME__, "insufficient ysize for jcol \"" + name + "\"");}
-
-  if ((yHalfHeight < 0) || ((yHalfHeight > 0) && (yHalfHeight < 1e-3))) // 1um minimum and not negative
     {throw BDSException(__METHOD_NAME__, "insufficient ysize for jcol \"" + name + "\"");}
 
   if (!buildLeftJaw && !buildRightJaw)

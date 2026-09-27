@@ -72,7 +72,6 @@ protected:
   /// To fulfill inheritance but unused.
   virtual void BuildInnerCollimator() final {;}
 
-  G4VSolid* jawSolid;        ///< Jaw solid.
   G4double  xSizeLeft;       ///< Offset of jaw 1
   G4double  xSizeRight;      ///< Offset of jaw 2
   G4double  xHalfGap;        ///< Half gap separation between jaws.
