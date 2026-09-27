@@ -23,12 +23,10 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSColours.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
-#include "BDSMaterials.hh"
 #include "BDSSDType.hh"
 
 #include "G4Box.hh"
 #include "G4Para.hh"
-#include "G4GenericTrap.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
 #include "G4VisAttributes.hh"
