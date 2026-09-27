@@ -123,7 +123,6 @@ void BDSCollimatorJawTip::BuildTips()
   RegisterVisAttributes(tipVisAttr);
 
   G4UserLimits* tipCollUserLimits = CollimatorUserLimits();
-  RegisterUserLimits(tipCollUserLimits);
 
   G4VSolid* leftJawTipSolid = nullptr;
   if (buildLeftJaw && buildAperture)

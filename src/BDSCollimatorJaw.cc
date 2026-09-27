@@ -191,7 +191,6 @@ void BDSCollimatorJaw::Build()
 
   // get appropriate user limits for jaw material
   G4UserLimits* collUserLimits = CollimatorUserLimits();
-  RegisterUserLimits(collUserLimits);
 
   // build jaws as appropriate
   if (buildLeftJaw && buildAperture)
