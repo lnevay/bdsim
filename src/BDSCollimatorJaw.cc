@@ -147,7 +147,7 @@ void BDSCollimatorJaw::CheckParameters()
   if (xSizeLeft < 0)
     {throw BDSException(__METHOD_NAME__, "left jcol jaw cannot have negative half aperture size: \"" + name + "\"");}
   if (xSizeRight < 0)
-    {throw BDSException(__METHOD_NAME__, "left jcol jaw cannot have negative half aperture size: \"" + name + "\"");}
+    {throw BDSException(__METHOD_NAME__, "right jcol jaw cannot have negative half aperture size: \"" + name + "\"");}
 
 
   if (std::abs(jawTiltRight) > 0 && std::tan(std::abs(jawTiltRight)) * chordLength / 2. > std::max(xHalfGap, xSizeLeft))
