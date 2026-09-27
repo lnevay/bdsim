@@ -1,20 +1,22 @@
 
 d1: drift, l=0.2*m;
-col1: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsize=2.5*cm;
-col2: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsize=2.5*cm, ysize=5.0*cm;
-col3: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsize=2.5*cm, xsizeLeft=5.0*cm;
-col4: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsize=2.5*cm, xsizeRight=5.0*cm;
-col5: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsize=0*cm, xsizeLeft=2.0*cm;
-col6: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsize=0*cm, xsizeRight=2.0*cm;
-col7: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsize=0*cm;
-col8: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsizeLeft=2*m, xsizeRight=1*cm;
-col9: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsizeRight=2*m, xsizeLeft=1*cm;
-col10: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsizeRight=2*m, xsizeLeft=1*cm, jawTiltLeft=0.05;
-col11: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsizeRight=2*m, xsizeLeft=1*cm, jawTiltRight=0.05;
-col12: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsizeRight=2*m, xsizeLeft=1*cm, jawTiltLeft=-0.05, jawTiltRight=-0.05;
-col13: jcol, l=0.2*m, material="G4_W", horizontalWidth=60.0*cm, xsizeRight=2*cm, xsizeLeft=1*cm, jawTiltLeft=0.05, jawTiltRight=-0.05;
+col1:  jcol, l=0.2*m, material="G4_W",  horizontalWidth=60.0*cm, xsize=2.5*cm;
+col2:  jcol, l=0.2*m, material="G4_Cu", horizontalWidth=60.0*cm, xsize=2.5*cm, ysize=5.0*cm;
+col3:  jcol, l=0.2*m, material="G4_W",  horizontalWidth=60.0*cm, xsize=2.5*cm, xsizeLeft=5.0*cm;
+col4:  jcol, l=0.2*m, material="G4_Cu", horizontalWidth=60.0*cm, xsize=2.5*cm, xsizeRight=5.0*cm;
+col5:  jcol, l=0.2*m, material="G4_W",  horizontalWidth=60.0*cm, xsize=0*cm, xsizeLeft=2.0*cm;
+col6:  jcol, l=0.2*m, material="G4_Cu", horizontalWidth=60.0*cm, xsize=0*cm, xsizeRight=2.0*cm;
+col7:  jcol, l=0.2*m, material="G4_W",  horizontalWidth=60.0*cm, xsize=0*cm;
+col8:  jcol, l=0.2*m, material="G4_Cu", horizontalWidth=60.0*cm, xsizeLeft=2*m, xsizeRight=1*cm;
+col9:  jcol, l=0.2*m, material="G4_W",  horizontalWidth=60.0*cm, xsizeRight=2*m, xsizeLeft=1*cm;
+col10: jcol, l=0.2*m, material="G4_Cu", horizontalWidth=60.0*cm, xsizeRight=2*m, xsizeLeft=1*cm, jawTiltLeft=0.05;
+col11: jcol, l=0.2*m, material="G4_W" , horizontalWidth=60.0*cm, xsizeRight=2*m, xsizeLeft=1*cm, jawTiltRight=0.05;
+col12: jcol, l=0.2*m, material="G4_Cu", horizontalWidth=60.0*cm, xsizeRight=2*m, xsizeLeft=1*cm, jawTiltLeft=-0.05, jawTiltRight=-0.05;
+col13: jcol, l=0.2*m, material="G4_W",  horizontalWidth=60.0*cm, xsizeRight=2*cm, xsizeLeft=1*cm, jawTiltLeft=0.05, jawTiltRight=-0.05;
+col14: jcol, l=0.2*m, material="G4_Cu", horizontalWidth=60.0*cm, xsizeLeft=-2*mm, xsizeRight=3*mm;
+col15: jcol, l=0.2*m, material="G4_W",  horizontalWidth=60.0*cm, xsizeLeft=3*mm, xsizeRight=-2*mm;
 
-l1: line=(d1, col1, d1, col2, d1, col3, d1, col4, d1, col5, d1, col6, d1, col7, d1, col8, d1, col9, d1, col10, d1, col11, d1, col12, d1, col13);
+l1: line=(d1, col1, d1, col2, d1, col3, d1, col4, d1, col5, d1, col6, d1, col7, d1, col8, d1, col9, d1, col10, d1, col11, d1, col12, d1, col13, d1, col14, d1, col15, d1);
 use, l1;
 
 beam, particle="e-",
