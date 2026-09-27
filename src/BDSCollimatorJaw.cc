@@ -133,7 +133,7 @@ void BDSCollimatorJaw::CheckParameters()
 {
   // BDSCollimator::CheckParameters() <- we replace this and don't call it - 'tapered' is never set
   G4double totalGap = leftJawHalfGap + rightJawHalfGap;
-  if (totalGap < 1e-3) // 1um minimum, could also be negative
+  if (totalGap < 1e-3 && buildAperture) // 1um minimum, could also be negative
     {throw BDSException(__METHOD_NAME__, "gap too small (<1um) for \"" + name + "\"");}
 
   if (horizontalWidth - 2*lengthSafetyLarge < totalGap)
@@ -157,8 +157,8 @@ void BDSCollimatorJaw::CheckParameters()
   G4double tiltShiftLeft  = buildLeftJaw  ? std::tan(jawTiltLeft)  * chordLength * 0.5 : 0;
   G4double tiltShiftRight = buildRightJaw ? std::tan(jawTiltRight) * chordLength * 0.5 : 0;
 
-  G4double gapIn = totalGap - tiltShiftLeft - tiltShiftRight;
-  G4double gapOut = totalGap + tiltShiftLeft + tiltShiftRight;
+  G4double gapIn = totalGap - tiltShiftLeft + tiltShiftRight;
+  G4double gapOut = totalGap + tiltShiftLeft - tiltShiftRight;
   if (gapIn <= 0 || gapOut <= 0)
     {throw BDSException(__METHOD_NAME__, "the tilts plus centre gap will cause the jaws to collide in: \"" + name + "\"");}
 
