@@ -128,6 +128,10 @@ void BDSCollimatorJawTip::Build()
 
 void BDSCollimatorJawTip::BuildTips()
 {
+  // no tips without an aperture - the base class builds a solid block
+  if (!buildAperture)
+    {return;}
+
   G4VisAttributes* tipVisAttr = new G4VisAttributes(*tipColour);
   RegisterVisAttributes(tipVisAttr);
 
