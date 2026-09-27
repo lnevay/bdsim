@@ -24,6 +24,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4Material.hh"
 
 class G4Colour;
+class G4LogicalVolume;
 class G4VSolid;
 
 /**
@@ -90,6 +91,7 @@ protected:
   G4ThreeVector leftJawPos;
   G4ThreeVector rightJawPos;
   G4ThreeVector vacuumOffset;
+  G4LogicalVolume* collimatorLV; ///< In case of no aperture, cache this volume for derived classes to place inside.
 
 private:
   /// Private default constructor to force the use of the supplied one.
