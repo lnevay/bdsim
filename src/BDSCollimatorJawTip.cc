@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSAcceleratorModel.hh"
-#include "BDSCollimatorTipJaw.hh"
+#include "BDSCollimatorJawTip.hh"
 #include "BDSBeamPipeInfo.hh"
 #include "BDSCollimatorJaw.hh"
 #include "BDSColours.hh"
@@ -35,7 +35,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <set>
 
-BDSCollimatorTipJaw::BDSCollimatorTipJaw(const G4String&    nameIn,
+BDSCollimatorJawTip::BDSCollimatorJawTip(const G4String&    nameIn,
                                          G4double    lengthIn,
                                          G4double    horizontalWidthIn,
                                          G4double    xHalfGapIn,
@@ -60,10 +60,10 @@ BDSCollimatorJaw(nameIn, lengthIn, horizontalWidthIn, xHalfGapIn, yHalfHeightIn,
   collimatorTipMaterial(collimatorTipMaterialIn)
 {;}
 
-BDSCollimatorTipJaw::~BDSCollimatorTipJaw()
+BDSCollimatorJawTip::~BDSCollimatorJawTip()
 {;}
 
-void BDSCollimatorTipJaw::Calculations()
+void BDSCollimatorJawTip::Calculations()
 {
   leftJawWidth -= (tipThickness + 2*lengthSafety);
   leftJawPos -= G4ThreeVector(leftJawWidth*0.5, 0, 0);
@@ -74,7 +74,7 @@ void BDSCollimatorTipJaw::Calculations()
   rightJawTipPos = G4ThreeVector(rightJawHalfGap-0.5*tipThickness, 0, 0);
 }
 
-void BDSCollimatorTipJaw::CheckParameters()
+void BDSCollimatorJawTip::CheckParameters()
 {
   BDSCollimatorJaw::CheckParameters();
 
@@ -111,13 +111,13 @@ void BDSCollimatorTipJaw::CheckParameters()
     {throw BDSException(__METHOD_NAME__, "insufficient aperture between jaws for jcoltip \"" + name + "\"");}
 }
 
-void BDSCollimatorTipJaw::Build()
+void BDSCollimatorJawTip::Build()
 {
   BDSCollimatorJaw::Build();
   BuildTips();
 }
 
-void BDSCollimatorTipJaw::BuildTips()
+void BDSCollimatorJawTip::BuildTips()
 {
   G4VisAttributes* tipVisAttr = new G4VisAttributes(*tipColour);
   RegisterVisAttributes(tipVisAttr);

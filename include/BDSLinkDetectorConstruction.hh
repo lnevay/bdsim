@@ -19,7 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #define BDSLINKDETECTORCONSTRUCTION_H
 #include "BDSBeamline.hh"
 #include "BDSCollimatorJaw.hh"
-#include "BDSCollimatorTipJaw.hh"
+#include "BDSCollimatorJawTip.hh"
 #include "BDSExtent.hh"
 
 #include "G4ThreeVector.hh"

@@ -33,11 +33,11 @@ class G4VSolid;
  * @autor Giacomo Broggi
  */
 
-class BDSCollimatorTipJaw: public BDSCollimatorJaw
+class BDSCollimatorJawTip: public BDSCollimatorJaw
 {
 public:
-  BDSCollimatorTipJaw() = delete;
-  BDSCollimatorTipJaw(const G4String& nameIn,
+  BDSCollimatorJawTip() = delete;
+  BDSCollimatorJawTip(const G4String& nameIn,
                       G4double    lengthIn,
                       G4double    horizontalWidthIn,
                       G4double    xHalfGapIn,
@@ -54,11 +54,11 @@ public:
                       G4Material* vacuumMaterialIn,
                       G4Colour*   colourIn = nullptr,
                       G4Colour*   tipColourIn = nullptr);
-  virtual ~BDSCollimatorTipJaw();
+  virtual ~BDSCollimatorJawTip();
 
   /// @{ Assignment and copy constructor not implemented nor used
-  BDSCollimatorTipJaw& operator=(const BDSCollimatorTipJaw&) = delete;
-  BDSCollimatorTipJaw(BDSCollimatorTipJaw&) = delete;
+  BDSCollimatorJawTip& operator=(const BDSCollimatorJawTip&) = delete;
+  BDSCollimatorJawTip(BDSCollimatorJawTip&) = delete;
   /// @}
 
 protected:
