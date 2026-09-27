@@ -18,12 +18,13 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BDSCOLLIMATORTIPJAW_H
 #define BDSCOLLIMATORTIPJAW_H
 
-#include "BDSTipCollimator.hh"
+#include "BDSCollimatorJaw.hh"
 
-#include "globals.hh" // geant4 types / globals
-#include "G4Material.hh"
+#include "G4String.hh"
+#include "G4Types.hh"
 
 class G4Colour;
+class G4Material;
 class G4VSolid;
 
 /**
@@ -32,9 +33,10 @@ class G4VSolid;
  * @autor Giacomo Broggi
  */
 
-class BDSCollimatorTipJaw: public BDSTipCollimator
+class BDSCollimatorTipJaw: public BDSCollimatorJaw
 {
 public:
+  BDSCollimatorTipJaw() = delete;
   BDSCollimatorTipJaw(const G4String& nameIn,
                       G4double    lengthIn,
                       G4double    horizontalWidthIn,
@@ -54,44 +56,29 @@ public:
                       G4Colour*   tipColourIn = nullptr);
   virtual ~BDSCollimatorTipJaw();
 
-  inline G4double GetJawTiltLeft() const {return jawTiltLeft;}
-  inline G4double GetJawTiltRight() const {return jawTiltRight;}
-
-protected:
-  /// Check and update parameters before construction. Called at the start of Build() as
-  /// we can't call a virtual function in a constructor.
-  virtual void CheckParameters() override;
-  
-  /// Override function in BDSCollimator for totally different construction.
-  virtual void Build() override;
-
-  /// Override function in BDSCollimator for different size based container.
-  virtual void BuildContainerLogicalVolume() override;
-
-  /// To fulfill inheritance but unused.
-  virtual void BuildInnerCollimator() final {;}
-
-  G4VSolid* jawSolid;             ///< Jaw solid.
-  G4double  xSizeLeft;            ///< Offset of jaw 1
-  G4double  xSizeRight;           ///< Offset of jaw 2
-  G4double  xHalfGap;             ///< Half gap separation between jaws.
-  G4double  jawTiltLeft;          ///< Tilt of jaw 1 (angle in x-z plane)
-  G4double  jawTiltRight;         ///< Tilt of jaw 2 (angle in x-z plane)
-  G4double  tipThickness;         ///< Thickness of collimator tip.
-  G4double  jawHalfWidth;         ///< Half width of each jaw.
-  G4double  yHalfHeight;          ///< Half height of each jaw.
-  G4bool    buildLeftJaw;         ///< Build left jaw or not.
-  G4bool    buildRightJaw;        ///< Build right jaw or not.
-  G4bool    buildAperture;        ///< Build aperture or not.
-
-private:
-  /// Private default constructor to force the use of the supplied one.
-  BDSCollimatorTipJaw() = delete;
-
   /// @{ Assignment and copy constructor not implemented nor used
   BDSCollimatorTipJaw& operator=(const BDSCollimatorTipJaw&) = delete;
   BDSCollimatorTipJaw(BDSCollimatorTipJaw&) = delete;
   /// @}
+
+protected:
+  /// Adjust the calculated values to include the space for the tips that are separate placements.
+  virtual void Calculations() override;
+
+  /// Check and update parameters before construction. Called at the start of Build() as
+  /// we can't call a virtual function in a constructor.
+  virtual void CheckParameters() override;
+
+  /// Override function in BDSCollimator for totally different construction.
+  virtual void Build() override;
+
+  virtual void BuildTips();
+
+  G4Colour*   tipColour;
+  G4double    tipThickness;
+  G4Material* collimatorTipMaterial;
+  G4ThreeVector leftJawTipPos;
+  G4ThreeVector rightJawTipPos;
 };
 
 #endif
