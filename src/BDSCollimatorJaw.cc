@@ -60,7 +60,6 @@ BDSCollimator(nameIn, lengthIn, horizontalWidthIn, objectType, collimatorMateria
   xHalfGap(xHalfGapIn),
   jawTiltLeft(leftJawTiltIn),
   jawTiltRight(rightJawTiltIn),
-  jawHalfWidth(0),
   yHalfHeight(yHalfHeightIn),
   buildLeftJaw(buildLeftJawIn),
   buildRightJaw(buildRightJawIn),
@@ -71,8 +70,6 @@ BDSCollimator(nameIn, lengthIn, horizontalWidthIn, objectType, collimatorMateria
   rightJawWidth(0),
   vacuumWidth(0)
 {
-  jawHalfWidth = 0.5 * (0.5*horizontalWidth - lengthSafetyLarge - xHalfGap);
-
   if (!BDS::IsFinite(xHalfGap) && !BDS::IsFinite(xSizeLeft) && !BDS::IsFinite(xSizeRight))
     {buildAperture = false;}
 
@@ -93,6 +90,10 @@ BDSCollimator(nameIn, lengthIn, horizontalWidthIn, objectType, collimatorMateria
              << "will not be constructed" << G4endl;
       buildRightJaw = false;
     }
+
+  // set half height to half horizontal width if zero - finite height required.
+  if (!BDS::IsFinite(yHalfHeight))
+    {yHalfHeight = 0.5*horizontalWidth;}
 
   Calculations();
 }
@@ -131,12 +132,12 @@ void BDSCollimatorJaw::Calculations()
 void BDSCollimatorJaw::CheckParameters()
 {
   // BDSCollimator::CheckParameters() <- we replace this and don't call it - 'tapered' is never set
-  if (jawHalfWidth < 1e-3) // 1um minimum, could also be negative
-    {throw BDSException(__METHOD_NAME__, "horizontalWidth insufficient given xsize of jcol \"" + name + "\"");}
+  G4double totalGap = leftJawHalfGap + rightJawHalfGap;
+  if (totalGap < 1e-3) // 1um minimum, could also be negative
+    {throw BDSException(__METHOD_NAME__, "gap too small (<1um) for \"" + name + "\"");}
 
-  // set half height to half horizontal width if zero - finite height required.
-  if (!BDS::IsFinite(yHalfHeight))
-    {yHalfHeight = 0.5*horizontalWidth;}
+  if (horizontalWidth - 2*lengthSafetyLarge < totalGap)
+    {throw BDSException(__METHOD_NAME__, "horizontalWidth too small for the total gap width of \"" + name + "\"");}
 
   if (BDS::IsFinite(yHalfHeight) && (yHalfHeight < 1e-3)) // 1um minimum
     {throw BDSException(__METHOD_NAME__, "insufficient ysize for jcol \"" + name + "\"");}

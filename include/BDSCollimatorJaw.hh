@@ -77,7 +77,6 @@ protected:
   G4double  xHalfGap;        ///< Half gap separation between jaws.
   G4double  jawTiltLeft;     ///< Tilt of jaw 1 (angle in x-z plane)
   G4double  jawTiltRight;    ///< Tilt of jaw 2 (angle in x-z plane)
-  G4double  jawHalfWidth;    ///< Half width of each jaw.
   G4double  yHalfHeight;     ///< Half height of each jaw.
   G4bool    buildLeftJaw;    ///< Build left jaw or not.
   G4bool    buildRightJaw;   ///< Build right jaw or not.
