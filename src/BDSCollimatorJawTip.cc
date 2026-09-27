@@ -60,7 +60,7 @@ BDSCollimatorJaw(nameIn, lengthIn, horizontalWidthIn, xHalfGapIn, yHalfHeightIn,
 {
   if (!tipColour)
     {
-      G4Colour* defaultTipColour = BDSColours::Instance()->GetColour("collimator");
+      G4Colour* defaultTipColour = BDSColours::Instance()->GetColour("collimatorTip");
       tipColour = BDSColourFromMaterial::Instance()->GetColourWithDefault(collimatorTipMaterialIn, defaultTipColour);
     }
   UpdateCalculations();
@@ -89,7 +89,11 @@ void BDSCollimatorJawTip::CheckParametersForTips()
 {
   // the remaining checks only apply to the jaw and vacuum geometry
   if (!buildAperture)
-    {return;}
+    {
+      if (tipThickness > (0.5*horizontalWidth-4*lengthSafety))
+        {throw BDSException(__METHOD_NAME__, "2x tipThickness is greater than the horizontal width for zero opening jcoltip \"" + name + "\"");}
+      return;
+    }
 
   // tip solids have a half width of tipThickness/2 - lengthSafety
   if (tipThickness * 0.5 - lengthSafety < 1e-3) // 1um minimum, could also be negative
@@ -121,9 +125,9 @@ void BDSCollimatorJawTip::BuildTips()
   if (!buildAperture)
     {
       G4VSolid* tipSolid = new G4Box(name + "_tip_solid",
-                                  tipThickness,
-                                  yHalfHeight - lengthSafety,
-                                  chordLength * 0.5 - 2*lengthSafety);
+                                     tipThickness,
+                                     yHalfHeight - 2*lengthSafety,
+                                     chordLength * 0.5 - 2*lengthSafety);
       // the containerLV is of length chordLength * 0.5 - lengthSafety
       RegisterSolid(tipSolid);
 
@@ -135,6 +139,7 @@ void BDSCollimatorJawTip::BuildTips()
 
       // register with base class (BDSGeometryComponent)
       RegisterLogicalVolume(collimatorTipLV);
+      BDSAcceleratorModel::Instance()->VolumeSet("collimators")->insert(collimatorTipLV);
       if (sensitiveOuter)
         {RegisterSensitiveVolume(collimatorTipLV, BDSSDType::collimatorcomplete);}
 
@@ -195,7 +200,7 @@ void BDSCollimatorJawTip::BuildTips()
   G4VSolid* rightJawTipSolid = nullptr;
   if (buildRightJaw && buildAperture)
     {
-      if (jawTiltLeft != 0)
+      if (jawTiltRight != 0)
         {
           G4double rightHalfLength = chordLength * 0.5 * std::cos(jawTiltRight);
           rightJawTipSolid = new G4Para(name + "_rightjawtip_solid",

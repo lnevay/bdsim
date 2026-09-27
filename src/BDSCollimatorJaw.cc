@@ -317,10 +317,11 @@ void BDSCollimatorJaw::Build()
       collimatorLV->SetVisAttributes(collimatorVisAttr);
       
       // user limits - provided by BDSAcceleratorComponent - don't use collUserLimits
-      collimatorLV->SetUserLimits(userLimits);
+      collimatorLV->SetUserLimits(collUserLimits);
       
       // register with base class (BDSGeometryComponent)
       RegisterLogicalVolume(collimatorLV);
+      BDSAcceleratorModel::Instance()->VolumeSet("collimators")->insert(collimatorLV);
       if (sensitiveOuter)
         {RegisterSensitiveVolume(collimatorLV, BDSSDType::collimatorcomplete);}
       
