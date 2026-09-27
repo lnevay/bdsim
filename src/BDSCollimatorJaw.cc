@@ -145,17 +145,26 @@ void BDSCollimatorJaw::CheckParameters()
   if ((yHalfHeight < 0) || ((yHalfHeight > 0) && (yHalfHeight < 1e-3))) // 1um minimum and not negative
     {throw BDSException(__METHOD_NAME__, "insufficient ysize for jcol \"" + name + "\"");}
 
-  if (xSizeLeft < 0)
-    {throw BDSException(__METHOD_NAME__, "left jcol jaw cannot have negative half aperture size: \"" + name + "\"");}
-  if (xSizeRight < 0)
-    {throw BDSException(__METHOD_NAME__, "right jcol jaw cannot have negative half aperture size: \"" + name + "\"");}
-
-
-  if (std::abs(jawTiltRight) > 0 && std::tan(std::abs(jawTiltRight)) * chordLength / 2. > std::max(xHalfGap, xSizeLeft))
-    {throw BDSException(__METHOD_NAME__, "tilted right jaw not allowed to cross the mid-plane: \"" + name + "\"");}
-
   if (!buildLeftJaw && !buildRightJaw)
     {throw BDSException(__METHOD_NAME__, "no jaws being built: \"" + name + "\"");}
+
+  // the remaining checks only apply to the jaw and vacuum geometry
+  if (!buildAperture)
+    {return;}
+
+  // shift of each jaw face at the ends of the element due to its tilt - tilt is ignored for a
+  // jaw that isn't built - uses the half gaps from Calculations(), which is called in the constructor
+  G4double tiltShiftLeft  = buildLeftJaw  ? std::tan(jawTiltLeft)  * chordLength * 0.5 : 0;
+  G4double tiltShiftRight = buildRightJaw ? std::tan(jawTiltRight) * chordLength * 0.5 : 0;
+
+  G4double gapIn = totalGap - tiltShiftLeft - tiltShiftRight;
+  G4double gapOut = totalGap + tiltShiftLeft + tiltShiftRight;
+  if (gapIn <= 0 || gapOut <= 0)
+    {throw BDSException(__METHOD_NAME__, "the tilts plus centre gap will cause the jaws to collide in: \"" + name + "\"");}
+
+  // vacuum full width at each end of the element - see vacuum construction in Build()
+  if (std::min(gapIn, gapOut) * 0.5 - lengthSafety < 1e-3) // 1um minimum
+    {throw BDSException(__METHOD_NAME__, "insufficient aperture between jaws for jcol \"" + name + "\"");}
 }
 
 void BDSCollimatorJaw::BuildContainerLogicalVolume()
@@ -164,7 +173,8 @@ void BDSCollimatorJaw::BuildContainerLogicalVolume()
   if (jawTiltLeft != 0 || jawTiltRight != 0)
     {
       // The box must encompass everything, so pick the largest absolute angle
-      horizontalHalfWidth = horizontalWidth * 0.5 + chordLength * 0.5 * std::sin(std::max(std::abs(jawTiltLeft), std::abs(jawTiltRight)));
+      G4double maxTilt = std::max(std::abs(jawTiltLeft), std::abs(jawTiltRight));
+      horizontalHalfWidth = horizontalWidth * 0.5 + chordLength * 0.5 * std::sin(maxTilt);
     }
   
   // For the case of jaw tilt, adjust the horizontal size, but keep the container length the same
@@ -196,7 +206,6 @@ void BDSCollimatorJaw::Build()
   if (buildLeftJaw && buildAperture)
     {
       G4VSolid* leftJawSolid = nullptr;
-      
       if (jawTiltLeft != 0)
         {
           // Adjust the length of the parallelepiped to match the inside edges in Z

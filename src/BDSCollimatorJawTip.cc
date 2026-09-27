@@ -17,6 +17,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSAcceleratorModel.hh"
 #include "BDSCollimatorJawTip.hh"
+#include "BDSColourFromMaterial.hh"
 #include "BDSBeamPipeInfo.hh"
 #include "BDSCollimatorJaw.hh"
 #include "BDSColours.hh"
@@ -102,21 +103,6 @@ void BDSCollimatorJawTip::CheckParametersForTips()
     {throw BDSException(__METHOD_NAME__, "left jaw of jcoltip \"" + name + "\" too thin given horizontalWidth, aperture and tipThickness");}
   if (buildRightJaw && ((0.5 * horizontalWidth - rightJawHalfGap - tipThickness) * 0.5 - lengthSafety < 1e-3))
     {throw BDSException(__METHOD_NAME__, "right jaw of jcoltip \"" + name + "\" too thin given horizontalWidth, aperture and tipThickness");}
-
-  // shift of each jaw face at the ends of the element due to its tilt - tilt is ignored for a jaw that isn't built
-  G4double tiltShiftLeft  = buildLeftJaw  ? std::tan(jawTiltLeft)  * chordLength * 0.5 : 0;
-  G4double tiltShiftRight = buildRightJaw ? std::tan(jawTiltRight) * chordLength * 0.5 : 0;
-
-  if (std::abs(tiltShiftLeft) > leftJawHalfGap)
-    {throw BDSException(__METHOD_NAME__, "tilted left jaw not allowed to cross the mid-plane: \"" + name + "\"");}
-  if (std::abs(tiltShiftRight) > rightJawHalfGap)
-    {throw BDSException(__METHOD_NAME__, "tilted right jaw not allowed to cross the mid-plane: \"" + name + "\"");}
-
-  // vacuum full width at each end of the element - see vacuum construction in Build()
-  G4double vacuumWidthUpstream   = (leftJawHalfGap - tiltShiftLeft) + (rightJawHalfGap + tiltShiftRight);
-  G4double vacuumWidthDownstream = (leftJawHalfGap + tiltShiftLeft) + (rightJawHalfGap - tiltShiftRight);
-  if (std::min(vacuumWidthUpstream, vacuumWidthDownstream) * 0.5 - lengthSafety < 1e-3) // 1um minimum
-    {throw BDSException(__METHOD_NAME__, "insufficient aperture between jaws for jcoltip \"" + name + "\"");}
 }
 
 void BDSCollimatorJawTip::Build()
