@@ -122,7 +122,7 @@ void BDSCollimatorJawTip::BuildTips()
 
   // If not aperture, then the base class just fills the container with one material. Now,
   // place a tip material block inside that block.
-  if (!buildAperture)
+  if (!buildAperture && tipThickness > 1e-3)
     {
       G4VSolid* tipSolid = new G4Box(name + "_tip_solid",
                                      tipThickness,
@@ -133,8 +133,6 @@ void BDSCollimatorJawTip::BuildTips()
 
       G4LogicalVolume* collimatorTipLV = new G4LogicalVolume(tipSolid, collimatorTipMaterial, name + "_tip_lv");
       collimatorTipLV->SetVisAttributes(tipVisAttr);
-
-      // user limits - provided by BDSAcceleratorComponent - don't use collUserLimits
       collimatorTipLV->SetUserLimits(tipCollUserLimits);
 
       // register with base class (BDSGeometryComponent)

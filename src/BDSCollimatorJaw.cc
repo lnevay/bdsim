@@ -136,17 +136,29 @@ void BDSCollimatorJaw::CheckParameters()
     {throw BDSException(__METHOD_NAME__, "gap too small (<1um) for \"" + name + "\"");}
 
   if (horizontalWidth - 2*lengthSafetyLarge < totalGap)
-    {throw BDSException(__METHOD_NAME__, "horizontalWidth too small for the total gap width of \"" + name + "\"");}
+    {throw BDSException(__METHOD_NAME__, "horizontalWidth too small for the total gap width in \"" + name + "\"");}
 
   if (BDS::IsFinite(yHalfHeight) && (yHalfHeight < 1e-3)) // 1um minimum
-    {throw BDSException(__METHOD_NAME__, "insufficient ysize for jcol \"" + name + "\"");}
+    {throw BDSException(__METHOD_NAME__, "insufficient ysize for \"" + name + "\"");}
 
   if (!buildLeftJaw && !buildRightJaw)
-    {throw BDSException(__METHOD_NAME__, "no jaws being built: \"" + name + "\"");}
+    {throw BDSException(__METHOD_NAME__, "no jaws being built for \"" + name + "\"");}
 
   // the remaining checks only apply to the jaw and vacuum geometry
   if (!buildAperture)
     {return;}
+
+  // jaw solids have a half width of jawWidth/2 - lengthSafety - for jcoltip this is the bulk
+  // jaw width after the space for the tip has been removed in the derived class
+  if (buildLeftJaw && (leftJawWidth * 0.5 - lengthSafety < 1e-3)) // 1um minimum, could also be negative
+    {throw BDSException(__METHOD_NAME__, "left jaw too thin given horizontalWidth and aperture for \"" + name + "\"");}
+  if (buildRightJaw && (rightJawWidth * 0.5 - lengthSafety < 1e-3)) // 1um minimum, could also be negative
+    {throw BDSException(__METHOD_NAME__, "right jaw too thin given horizontalWidth and aperture for \"" + name + "\"");}
+
+  if (std::abs(jawTiltLeft) > 0.5*CLHEP::halfpi)
+    {throw BDSException(__METHOD_NAME__, "|jawTiltLeft| is over pi/4 radians for \"" + name + "\"");}
+  if (std::abs(jawTiltRight) > 0.5*CLHEP::halfpi)
+    {throw BDSException(__METHOD_NAME__, "|jawTiltRight| is over pi/4 radians for \"" + name + "\"");}
 
   // shift of each jaw face at the ends of the element due to its tilt - tilt is ignored for a
   // jaw that isn't built - uses the half gaps from Calculations(), which is called in the constructor
@@ -156,11 +168,11 @@ void BDSCollimatorJaw::CheckParameters()
   G4double gapIn = totalGap - tiltShiftLeft + tiltShiftRight;
   G4double gapOut = totalGap + tiltShiftLeft - tiltShiftRight;
   if (gapIn <= 0 || gapOut <= 0)
-    {throw BDSException(__METHOD_NAME__, "the tilts plus centre gap will cause the jaws to collide in: \"" + name + "\"");}
+    {throw BDSException(__METHOD_NAME__, "the tilts plus centre gap will cause the jaws to collide in \"" + name + "\"");}
 
   // vacuum full width at each end of the element - see vacuum construction in Build()
   if (std::min(gapIn, gapOut) * 0.5 - lengthSafety < 1e-3) // 1um minimum
-    {throw BDSException(__METHOD_NAME__, "insufficient aperture between jaws for jcol \"" + name + "\"");}
+    {throw BDSException(__METHOD_NAME__, "insufficient aperture between jaws in \"" + name + "\"");}
 }
 
 void BDSCollimatorJaw::BuildContainerLogicalVolume()
@@ -282,13 +294,8 @@ void BDSCollimatorJaw::Build()
                                                         collimatorMaterial,     // material
                                                         name + "_rightjaw_lv"); // name
       rightJawLV->SetVisAttributes(collimatorVisAttr);
-      
-      // user limits - provided by BDSAcceleratorComponent
       rightJawLV->SetUserLimits(collUserLimits);
-      
-      // register with base class (BDSGeometryComponent)
       RegisterLogicalVolume(rightJawLV);
-      // register it in a set of collimator logical volumes
       BDSAcceleratorModel::Instance()->VolumeSet("collimators")->insert(rightJawLV);
       if (sensitiveOuter)
         {RegisterSensitiveVolume(rightJawLV, BDSSDType::collimatorcomplete);}
@@ -315,11 +322,7 @@ void BDSCollimatorJaw::Build()
       
       collimatorLV = new G4LogicalVolume(collimatorSolid, collimatorMaterial, name + "_block_lv");
       collimatorLV->SetVisAttributes(collimatorVisAttr);
-      
-      // user limits - provided by BDSAcceleratorComponent - don't use collUserLimits
       collimatorLV->SetUserLimits(collUserLimits);
-      
-      // register with base class (BDSGeometryComponent)
       RegisterLogicalVolume(collimatorLV);
       BDSAcceleratorModel::Instance()->VolumeSet("collimators")->insert(collimatorLV);
       if (sensitiveOuter)
@@ -385,7 +388,6 @@ void BDSCollimatorJaw::Build()
                                                       name + "_vacuum_lv"); // name
       
       vacuumLV->SetVisAttributes(containerVisAttr);
-      // user limits - provided by BDSAcceleratorComponent
       vacuumLV->SetUserLimits(userLimits);
       SetAcceleratorVacuumLogicalVolume(vacuumLV);
       RegisterLogicalVolume(vacuumLV);
