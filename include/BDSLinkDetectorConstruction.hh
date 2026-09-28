@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -19,7 +18,6 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BDSLINKDETECTORCONSTRUCTION_H
 #define BDSLINKDETECTORCONSTRUCTION_H
 #include "BDSBeamline.hh"
-#include "BDSCollimatorJaw.hh"
 #include "BDSExtent.hh"
 
 #include "G4ThreeVector.hh"
@@ -27,16 +25,20 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4Version.hh"
 #include "G4VUserDetectorConstruction.hh"
 
+#include <map>
 #include <string>
 
-class BDSBeamline;
 class BDSBeamlineElement;
+class BDSBeamlineIntegral;
 class BDSLinkPrimaryGeneratorAction;
 class BDSLinkRegistry;
 class BDSParticleDefinition;
 class G4Box;
 class G4ChannelingOptrMultiParticleChangeCrossSection;
 class G4VPhysicalVolume;
+
+#include "parser/element.h"
+#include "parser/elementtype.h"
 
 /**
  * @brief Construction of the geometry in the case of a link model.
@@ -55,21 +57,39 @@ public:
 
   /// Interface to append a collimator of jaw style to the linking.
   G4int AddLinkCollimatorJaw(const std::string& collimatorName,
-			     const std::string& materialName,
-			     G4double length,
-			     G4double halfApertureLeft,
-			     G4double halfApertureRight,
-			     G4double rotation,
-			     G4double xOffset,
-			     G4double yOffset,
-                 G4double jawTiltLeft = 0.0,
-                 G4double jawTiltRight = 0.0,
-			     G4bool   buildLeftJaw  = true,
-			     G4bool   buildRightJaw = true,
-			     G4bool   isACrystal    = false,
-			     G4double crystalAngle  = 0,
-			     G4bool   sampleIn      = false);
-  
+                             const std::string& materialName,
+                             G4double length,
+                             G4double halfApertureLeft,
+                             G4double halfApertureRight,
+                             G4double rotation,
+                             G4double xOffset,
+                             G4double yOffset,
+                             G4double jawTiltLeft = 0.0,
+                             G4double jawTiltRight = 0.0,
+                             G4bool   buildLeftJaw  = true,
+                             G4bool   buildRightJaw = true,
+                             G4bool   isACrystal    = false,
+                             G4double crystalAngle  = 0,
+                             G4bool   sampleIn      = false);
+
+  /// Interface to append a tip collimator jaw to the linking.
+  G4int AddLinkCollimatorTipJaw(const std::string& collimatorName,
+                                const std::string& materialName,
+                                const std::string& tipMaterialName,
+                                G4double tipThickness,
+                                G4double length,
+                                G4double halfApertureLeft,
+                                G4double halfApertureRight,
+                                G4double rotation,
+                                G4double xOffset,
+                                G4double yOffset,
+                                G4double jawTiltLeft = 0.0,
+                                G4double jawTiltRight = 0.0,
+                                G4bool   buildLeftJaw  = true,
+                                G4bool   buildRightJaw = true);
+  /// Interface to append an element
+  G4int AddLinkElement(GMAD::Element el);
+
   /// Set the design particle definition.
   inline void SetDesignParticle(const BDSParticleDefinition* defIn) {designParticle = defIn;}
   inline void SetPrimaryGeneratorAction(BDSLinkPrimaryGeneratorAction* pgIn) {primaryGeneratorAction = pgIn;}
@@ -112,6 +132,8 @@ public:
 
   /// Cache of the index to which parallel world the sampler one is.
   G4int samplerWorldID;
+  
+  BDSBeamlineIntegral* integral;
 
   std::map<std::string, G4int> nameToElementIndex; ///< Build up a copy here too.
   std::map<G4int, G4int> linkIDToBeamlineIndex;    ///< Special linkID to linkBeamline index

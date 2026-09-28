@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -413,7 +412,7 @@ void Event::SetBranchAddress(TTree* t,
           samplerSNames.push_back(sampName);  // cache the name in a vector
           samplerSMap[sampName] = SamplersS[i];// cache the sampler in a map
           
-          t->SetBranchAddress(sampName.c_str(), &SamplersC[i]);
+          t->SetBranchAddress(sampName.c_str(), &SamplersS[i]);
           t->SetBranchStatus((sampName+"*").c_str(), true);
           if (debug)
             {std::cout << "Event::SetBranchAddress> " << (*samplerSNamesIn)[i] << " " << SamplersS[i] << std::endl;}

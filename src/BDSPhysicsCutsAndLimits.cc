@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -26,6 +25,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4Positron.hh"
 #include "G4Proton.hh"
 #include "G4StepLimiter.hh"
+#include "G4String.hh"
 #include "G4Types.hh"
 #include "G4UserSpecialCuts.hh"
 #include "G4Version.hh"
@@ -59,7 +59,7 @@ void BDSPhysicsCutsAndLimits::ConstructParticle()
 {
   G4Gamma::Gamma();
   G4Electron::Electron();
-  G4Positron::Positron();    
+  G4Positron::Positron();
   G4Proton::Proton();
 }
 
@@ -82,12 +82,10 @@ void BDSPhysicsCutsAndLimits::ConstructProcess()
 
       // Flag as applying range production cuts. These only ever
       // apply in geant4 to gamma, e+- and proton
-      if((particle->GetParticleName()=="gamma")||
-	 (particle->GetParticleName()=="e-")||
-	 (particle->GetParticleName()=="e+")||
-	 (particle->GetParticleName()=="proton"))
-	{particle->SetApplyCutsFlag(true);}
-
+      std::set<G4String> rangeApplicableParticles = {"gamma", "e-", "e+", "proton"};
+      if (rangeApplicableParticles.count(particle->GetParticleName()) == 1) // if in the set
+        {particle->SetApplyCutsFlag(true);}
+      
       // apply general cuts processes to all particles
       ph->RegisterProcess(stepLimiter, particle); // this is for MaxAllowedStep
       ph->RegisterProcess(cutsProcess, particle); // this is for all other limits
@@ -95,4 +93,3 @@ void BDSPhysicsCutsAndLimits::ConstructProcess()
 
   SetActivated();
 }
-

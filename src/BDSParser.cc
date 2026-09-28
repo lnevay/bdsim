@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -21,7 +20,9 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSParser.hh"
 #include "BDSUtilities.hh"
 
+#include <map>
 #include <string>
+#include <vector>
 
 BDSParser* BDSParser::instance = nullptr;
 
@@ -39,7 +40,7 @@ BDSParser* BDSParser::Instance(const std::string& name)
 {
   if (instance)
     {
-      std::cerr << "WARNING BDSParser was already initialised!" << std::endl;
+      std::cerr << "WARNING BDSParser was already initialised! " << std::endl;
       delete instance;
     }
   instance = new BDSParser(name);
@@ -53,13 +54,21 @@ bool BDSParser::IsInitialised()
 
 BDSParser::~BDSParser()
 {
+  std::cout << "BDSParser::~BDSParser" << std::endl;
   instance = nullptr;
+  std::cout << "BDSParser::~BDSParser " << instance << std::endl;
 }
 
 BDSParser::BDSParser(const std::string& name):
   GMAD::Parser(name)
 {
   std::cout << __METHOD_NAME__ << "Using input file: "<< name << std::endl;
+}
+
+BDSParser::BDSParser()
+{
+  std::cout << __METHOD_NAME__ << "Only for python " << std::endl;
+  instance = this;
 }
 
 void BDSParser::AmalgamateBeam(const GMAD::Beam& execBeamIn,
@@ -89,7 +98,7 @@ void BDSParser::CheckOptions()
   if (options.lengthSafety < 1e-15)
     { // protect against poor lengthSafety choices that would cause potential overlaps
       std::cerr << "Dangerously low \"lengthSafety\" value of: " << options.lengthSafety
-		<< " m that will result in potential geometry overlaps!" << std::endl;
+                << " m that will result in potential geometry overlaps!" << std::endl;
       std::cerr << "This affects all geometry construction and should be carefully chosen!!!" << std::endl;
       std::cerr << "The default value is 1 pm" << std::endl;
       exit(1);
@@ -103,4 +112,14 @@ void BDSParser::CheckOptions()
 
   if (BDS::IsFinite(options.beamlineS) && beam.S0 == 0) 
     {beam.S0 = beam.S0 + options.beamlineS;}
+}
+
+GMAD::CoolingChannel BDSParser::GetCoolingChannel(const std::string& objectName)
+{
+  auto m = coolingchannel_list.getMap();
+  auto search = m.find(objectName);
+  if (search != m.end())
+    {return search->second;}
+  else
+    {throw BDSException(__METHOD_NAME__, "no such coolingDefinition \"" + objectName + "\"");}
 }

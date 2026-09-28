@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -89,10 +88,12 @@ BDSColours::BDSColours()
   colours["rfy"]              = colours["rf"];
   colours["srfcavity"]        = new G4Colour(0.69,  0.769, 0.871); // light steel blue
   colours["collimator"]       = new G4Colour(0.25,  0.4,   0.2);   // dark green
+  colours["collimatorTip"]    = new G4Colour(0.12,  0.26,  0.08);  // even darker green
   colours["ecol"]             = colours["collimator"];
   colours["jcol"]             = colours["collimator"];
   colours["rcol"]             = colours["collimator"];
   colours["jcol"]             = colours["collimator"];
+  colours["bmcol"]            = colours["collimator"];
   colours["target"]           = colours["collimator"];
   colours["muonspoiler"]      = new G4Colour(0,     0.807, 0.819); // "light blue" / tab blue
   colours["vkicker"]          = new G4Colour(0.73,  0.33,  0.83);  // blue
@@ -115,11 +116,13 @@ BDSColours::BDSColours()
   colours["awakespectrometer"]= colours["sectorbend"];
   colours["gap"]              = colours["default"];
   colours["opaquebox"]        = new G4Colour(0.2, 0.2, 0.2, 0.2); // dark grey but mostly transparent
+  colours["gaborlens"]        = new G4Colour(0.212, 0.655, 0.816);// cerulean blue
   
   // some specific materials
   colours["iron"]             = new G4Colour(0.509, 0.321, 0.294);
   colours["kapton"]           = new G4Colour(0.929, 0.380, 0.082, 0.5);
   colours["lead"]             = new G4Colour(0.377, 0.408, 0.451);
+  colours["water"]            = new G4Colour(0, 0.4, 0.8, 0.5);
   
   // element parts
   colours["coil"]             = new G4Colour(0.722, 0.451, 0.2);   // copper
@@ -131,6 +134,9 @@ BDSColours::BDSColours()
   colours["LHCyokered"]       = new G4Colour(*(colours["quadrupole"]));// quadrupole red
   colours["gdml"]             = new G4Colour(0.4,   0.2,   0);     // poo brown
   colours["screenframe"]      = new G4Colour(0.7,   0.7,   0.7, 0.4);// light grey, semi-transparent
+  colours["capillaryouter"]   = colours["collimator"];
+  colours["capillarygas"]    = new G4Colour(0.82,  0.1,   0.1, 0.4); // red, semi-transparent
+  colours["electrode"]        = colours["screen"];
 
   // general
   colours["white"]   = new G4Colour(G4Colour::White());
@@ -201,6 +207,27 @@ void BDSColours::Print()
     }
 }
 
+G4Colour* BDSColours::GetColour(G4double red,
+                                G4double green,
+                                G4double blue,
+                                G4double alpha)
+{
+  BDSColourKey key = {red, green, blue, alpha};
+  auto search = anonymousColours.find(key);
+  if (search != anonymousColours.end())
+    {return search->second;}
+  else
+    {
+      BDS::EnsureInLimits(red, 0, 255);
+      BDS::EnsureInLimits(green, 0, 255);
+      BDS::EnsureInLimits(blue, 0, 255);
+      BDS::EnsureInLimits(alpha, 0, 1);
+      auto result = new G4Colour(red, green, blue, alpha);
+      anonymousColours[key] = result;
+      return result;
+    }
+}
+
 G4Colour* BDSColours::GetColour(const G4String& type,
                                 G4bool normaliseTo255)
 {
@@ -227,7 +254,7 @@ G4Colour* BDSColours::GetColour(const G4String& type,
       G4double a = 1;
       ss >> r >> g >> b;
       if (ss.rdbuf()->in_avail() != 0)
-	{ss >> a;}
+        {ss >> a;}
       DefineColour(colourName, r, g, b, a, normaliseTo255);
       return colours[colourName];
     }

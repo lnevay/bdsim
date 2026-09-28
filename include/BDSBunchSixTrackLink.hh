@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -50,9 +49,9 @@ public:
 
   /// Append particle to the bunch for tracking.
   void AddParticle(BDSParticleDefinition* particleDefinitionIn,
-		   const BDSParticleCoordsFull& coordsIn,
-		   int   externalParticleID,
-		   int   externalParentID);
+                   const BDSParticleCoordsFull& coordsIn,
+                   int   externalParticleID,
+                   int   externalParentID);
 
   /// Delete all particle objects in the bunch and clear the vector.
   void ClearParticles();

@@ -80,6 +80,11 @@ macro(bdsim_install_gdml)
         DESTINATION share/bdsim/gdml/schema
         COMPONENT GDML)
 endmacro()
+macro(bdsim_install_python)
+    install(TARGETS ${ARGN}
+            DESTINATION lib/bdsim-python/bdsim
+            COMPONENT python)
+endmacro()
 
 # This macro fixes the MACOSX_BUNDLES
 # since we do not make a "traditional app"
@@ -105,7 +110,7 @@ set(CMAKE_MACOSX_RPATH ON)
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VENDOR "Royal Holloway, University of London")
 set(CPACK_PACKAGE_HOMEPAGE_URL "http://www.pp.rhul.ac.uk/bdsim")
-set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/README.txt")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${PROJECT_SOURCE_DIR}/README.md")
 set(CPACK_RESOURCE_FILE_LICENSE    "${PROJECT_SOURCE_DIR}/LICENCE.txt")
 set(CPACK_BUNDLE_NAME "${CPACK_PACKAGE_NAME}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "BDSIM - Beam Delivery Simulation")

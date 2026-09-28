@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -89,6 +88,14 @@ private:
   /// Construct ions.
   void ConstructAllIons();
 
+  /// @{ Cached flag to avoid repeated construction.
+  G4bool constructedAllLeptons;
+  G4bool constructedAllShortLived;
+  G4bool constructedAllMesons;
+  G4bool constructedAllBaryons;
+  G4bool constructedAllIons;
+  /// @}
+
   /// Interpret the string of physics lists given from the user through the parser.
   void ParsePhysicsList(const G4String& physListName);
 
@@ -140,6 +147,8 @@ private:
   /// Flag telling whether ions are being used either in physics list or in beam particle.
   mutable G4bool usingIons;
 
+  G4bool particlesConstructed;
+
   /// Unique physics constructor that doesn't add physics processes but only forces the
   /// immediate construction of all particles.  See implementation for constructors called.
   void AllParticles();
@@ -165,6 +174,7 @@ private:
   void Em4();
   void FTFPBERT();
   void FTFPBERTHP();
+  void FTFBIC();
   void GammaToMuMu();
   void HadronicElastic();
   void HadronicElasticD();
@@ -178,7 +188,13 @@ private:
   void IonElasticQMD();
   void IonEMDissociation();
   void IonINCLXX();
+  void Ionisation();
   void LaserWire();
+  void LaserPhotoDetachment();
+  void LaserComptonScattering();
+  void LaserCumulativePhotoDetachment();
+  void LaserCumulativeCompton();
+  void LaserIonExcitation();
   void Muon();
   void MuonInelastic();
   void NeutronTrackingCut();
@@ -192,6 +208,7 @@ private:
   void SynchRad();
 #if G4VERSION_NUMBER > 1019
   void EmGS();
+  void DNAChemistry();
 #endif
 #if G4VERSION_NUMBER > 1020
   void DecaySpin();

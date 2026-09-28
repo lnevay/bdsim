@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -46,5 +45,9 @@ BDSCavityInfo::BDSCavityInfo(BDSCavityType cavityTypeIn,
   equatorVerticalAxis(equatorVerticalAxisIn),
   irisHorizontalAxis(irisHorizontalAxisIn),
   irisVerticalAxis(irisVerticalAxisIn),
-  tangentLineAngle(tangentLineAngleIn)
+  tangentLineAngle(tangentLineAngleIn),
+  inputWindowMaterial(nullptr),
+  inputWindowThickness(0),
+  outputWindowMaterial(nullptr),
+  outputWindowThickness(0)
 {;}

@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -21,7 +20,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BDSSingleUse.hh"
 
-#include "globals.hh"
+#include "G4Types.hh"
 #include "G4VPhysicsConstructor.hh"
 
 /**
@@ -33,21 +32,17 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 class BDSPhysicsCherenkov: public G4VPhysicsConstructor, public BDSSingleUse
 {
 public:
-  BDSPhysicsCherenkov(G4double maxPhotonsPerStepIn,
-		      G4double maxBetaChangePerStepIn);
+  BDSPhysicsCherenkov() = delete;
+  BDSPhysicsCherenkov(G4int maxPhotonsPerStepIn,
+											G4double maxBetaChangePerStepIn);
   virtual ~BDSPhysicsCherenkov();
 
   virtual void ConstructParticle();
   virtual void ConstructProcess();
 
 private:
-
-  BDSPhysicsCherenkov() = delete;
-  
-  /// @{ Parameter from global constants to control cherenkov physics.
-  G4double maxPhotonsPerStep;
+  G4int maxPhotonsPerStep;
   G4double maxBetaChangePerStep;
-  /// @}
 };
 
 #endif

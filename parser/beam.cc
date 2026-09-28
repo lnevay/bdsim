@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -288,8 +287,10 @@ void Beam::PublishMembers()
   publish("shellYpWidth",&Beam::shellYpWidth);
 
   // options for beam distrType="ring"
-  publish("Rmin",&Beam::Rmin);
-  publish("Rmax",&Beam::Rmax);
+  publish("Rmin", &Beam::Rmin);
+  publish("Rmax", &Beam::Rmax);
+  publish("Rpmin", &Beam::Rpmin);
+  publish("Rpmax", &Beam::Rpmax);
 
   // options for beam distrType="halo"
   publish("haloNSigmaXInner",      &Beam::haloNSigmaXInner);
@@ -332,4 +333,33 @@ void Beam::PublishMembers()
   publish("eventGeneratorMaxEK",     &Beam::eventGeneratorMaxEK); // alias
   publish("eventGeneratorParticles", &Beam::eventGeneratorParticles);
   publish("eventGeneratorWarnSkippedParticles", &Beam::eventGeneratorWarnSkippedParticles);
+
+  // slow extraction beam
+  publish("dTStart", &Beam::dTStart);
+  publish("dTStop",  &Beam::dTStop);
+  publish("dPStart", &Beam::dPStart);
+  publish("dPStop",  &Beam::dPStop);
+
+  //polarization
+  publish("polarization1", &Beam::polarization1);
+  publish("polarization2", &Beam::polarization2);
+  publish("polarization3", &Beam::polarization3);
+
+}
+
+void Beam::print() const
+{
+  std::cout << "Beam: "
+            << "particle "          << particle           << std::endl
+            << "particleName "      << beamParticleName   << std::endl
+            << "beamEnergy "        << beamEnergy         << std::endl
+            << "beamKineticEnergy " << beamKineticEnergy  << std::endl
+            << "beamMomentum "      << beamMomentum       << std::endl
+            << "distrType "         << distrType          << std::endl
+            << "xDistrType "        << xDistrType         << std::endl
+            << "yDistrType "        << yDistrType         << std::endl
+            << "zDistrType "        << zDistrType         << std::endl
+            << "spaceDistrType "    << spaceDistrType     << std::endl
+            << "directionDistrType "<< directionDistrType << std::endl;
+
 }

@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -45,6 +44,7 @@ void BDSPhysicsLaserWire::ConstructParticle()
 
 void BDSPhysicsLaserWire::ConstructProcess()
 {
+
   if (Activated())
     {return;}
   
@@ -75,4 +75,5 @@ void BDSPhysicsLaserWire::ConstructProcess()
     }
 
   SetActivated();
+
 }

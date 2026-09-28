@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -120,7 +119,8 @@ namespace GMAD
       for (auto value : data)
 	{
 	  dst.push_back((T)value);
-#ifdef BDSDEBUG 
+
+#ifdef BDSDEBUG
 	  std::cout << (T)value << " ";
 #endif
 	}

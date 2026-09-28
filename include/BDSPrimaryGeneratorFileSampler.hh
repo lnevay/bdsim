@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -67,6 +66,7 @@ public:
   struct DisplacedVertex
   {
     G4ThreeVector xyz;
+    G4double T;
     G4PrimaryParticle* vertex;
   };
 

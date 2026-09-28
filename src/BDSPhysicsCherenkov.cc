@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -16,9 +15,10 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "BDSDebug.hh"
+#include "BDSException.hh"
 #include "BDSPhysicsCherenkov.hh"
 
-#include "globals.hh" // geant4 types / globals
 #include "G4AutoDelete.hh"
 #include "G4Cerenkov.hh"
 #include "G4Gamma.hh"
@@ -28,21 +28,25 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "G4PhysicsListHelper.hh"
 #include "G4Version.hh"
 
-BDSPhysicsCherenkov::BDSPhysicsCherenkov(G4double maxPhotonsPerStepIn,
-					 G4double maxBetaChangePerStepIn):
+
+BDSPhysicsCherenkov::BDSPhysicsCherenkov(G4int    maxPhotonsPerStepIn,
+                                         G4double maxBetaChangePerStepIn):
   G4VPhysicsConstructor("BDSPhysicsCherenkov"),
   maxPhotonsPerStep(maxPhotonsPerStepIn),
   maxBetaChangePerStep(maxBetaChangePerStepIn)
-{;}
+{
+  if (maxBetaChangePerStep > 100.0)
+    {throw BDSException(__METHOD_NAME__, "the option 'maxBetaChangePerStep' must be less than 100 %");}
+  if (maxBetaChangePerStep < 0)
+    {throw BDSException(__METHOD_NAME__, "the option 'maxBetaChangePerStep' must be >= 0 %");}
+}
 
 BDSPhysicsCherenkov::~BDSPhysicsCherenkov()
 {;}
 
 void BDSPhysicsCherenkov::ConstructParticle()
 {
-  G4LeptonConstructor leptons;
-  leptons.ConstructParticle();
-
+  G4LeptonConstructor::ConstructParticle();
   G4Gamma::Gamma();
   G4OpticalPhoton::OpticalPhotonDefinition();
 }
@@ -58,8 +62,8 @@ void BDSPhysicsCherenkov::ConstructProcess()
   // reduce memory profile
   cherenkov->SetTrackSecondariesFirst(true);
 
-  // common settings (similar to optical physics)
-  if (maxPhotonsPerStep > 0)
+  // common settings (similar to optical physics) - 0 allowed
+  if (maxPhotonsPerStep > -1)
     {cherenkov->SetMaxNumPhotonsPerStep(maxPhotonsPerStep);}
   cherenkov->SetMaxBetaChangePerStep(maxBetaChangePerStep);
 
@@ -74,7 +78,7 @@ void BDSPhysicsCherenkov::ConstructProcess()
       G4ParticleDefinition* particle = aParticleIterator->value();
       
       if (cherenkov->IsApplicable(*particle))
-	{ph->RegisterProcess(cherenkov, particle);}
+        {ph->RegisterProcess(cherenkov, particle);}
     }
 
   SetActivated();

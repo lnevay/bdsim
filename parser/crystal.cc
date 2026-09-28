@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -76,11 +75,11 @@ void Crystal::print()const
 	    << "data "       << data       << std::endl
 	    << "shape "      << shape      << std::endl
 	    << "lengthX "    << lengthX    << std::endl
-    	    << "lengthY "    << lengthY    << std::endl
-    	    << "lengthZ "    << lengthZ    << std::endl
+      << "lengthY "    << lengthY    << std::endl
+      << "lengthZ "    << lengthZ    << std::endl
 	    << "sizeA "      << sizeA      << std::endl
-    	    << "sizeB "      << sizeB      << std::endl
-    	    << "sizeC "      << sizeC      << std::endl
+      << "sizeB "      << sizeB      << std::endl
+      << "sizeC "      << sizeC      << std::endl
 	    << "alpha "      << alpha      << std::endl
 	    << "beta "       << beta       << std::endl
 	    << "gamma "      << gamma      << std::endl

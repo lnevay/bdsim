@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -44,12 +43,12 @@ struct fieldtypes_def
 	     emap1d,  emap2d,  emap3d,  emap4d,
 	     ebmap1d, ebmap2d, ebmap3d, ebmap4d,
 	     mokka,
-	     solenoid, solenoidsheet,
-	     dipole, quadrupole, dipolequadrupole, sextupole,
-	     octupole, decapole, multipole, muonspoiler,
+	     solenoid, solenoidsheet, solenoidloop, solenoidblock,
+	     dipole, dipoleenge, quadrupole, dipolequadrupole, sextupole,
+	     octupole, decapole, multipole, muonspoiler, muoncooler,
              skewquadrupole, skewsextupole, skewoctupole, skewdecapole,
 	     rfpillbox, rfconstantinx, rfconstantiny, rfconstantinz, cavityfringe,
-	     rmatrix, paralleltransporter, undulator,
+	     rmatrix, paralleltransporter, undulator, gaborlens,
              dipole3d,
 	     multipoleouterdipole, multipoleouterquadrupole,
 	     multipoleoutersextupole, multipoleouteroctupole,

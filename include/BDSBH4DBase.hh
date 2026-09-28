@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -62,7 +61,7 @@ public:
   int GetNbinsE() const;
   const char* GetName() const override;
   const char* GetTitle() const override;
-  unsigned long GetEntries_BDSBH4D();
+  unsigned long GetEntries_BDSBH4D() const;
   
   void SetName(const char*) override;
   void SetTitle(const char*) override;

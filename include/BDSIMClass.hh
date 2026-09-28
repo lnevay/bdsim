@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -53,6 +52,10 @@ public:
   /// Construct an instance but don't initialise. Requires initialisation with
   /// arguments argc and arv
   BDSIM();
+
+  /// Construct an instance with a parser. Only useful for the python interface
+  /// to BDSIM
+  BDSIM(BDSParser* parser);
 
   /// Initialise everything given these arguments.
   int Initialise(int argc, char** argv, bool usualPrintOut=true);

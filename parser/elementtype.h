@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -39,14 +38,14 @@ namespace GMAD
     _SOLENOID    = 10,
     _LINE        = 11,
     _REV_LINE    = -11, //for line inversion in sublines
-    // = 12,
+    _BMCOL       = 12,
     _ECOL        = 13,
     _RCOL        = 14,
-    _LASER       = 15,
+    _LASERWIREOLD      = 15,
     _MATERIAL    = 16,
     _RBEND       = 17,
-    // = 18,
-    // = 19,
+    _GASCAP      = 18,
+    _GASJET      = 19,
     _ELEMENT     = 20,
     _SCREEN      = 21,
     _AWAKESCREEN = 22,
@@ -73,7 +72,12 @@ namespace GMAD
     _CT            = 75,
     _TARGET        = 76,
     _RFX           = 77,
-    _RFY           = 78
+    _RFY           = 78,
+    _MUONCOOLER    = 79,
+    _JCOLTIP       = 80,
+    _GABORLENS     = 81,
+    _LASERWIRE     = 82,
+    _LASER         = 83
   };
 
   /// conversion from enum to string

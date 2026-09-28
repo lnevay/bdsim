@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -37,8 +36,8 @@ class BDSLinkEventAction: public G4UserEventAction
 public:
   BDSLinkEventAction() = delete;
   BDSLinkEventAction(BDSOutput*        outputIn,
-		     BDSLinkRunAction* runActionIn,
-		     G4bool            debugIn = false);
+                     BDSLinkRunAction* runActionIn,
+                     G4bool            debugIn = false);
   virtual ~BDSLinkEventAction();
   
   virtual void BeginOfEventAction(const G4Event* evt);

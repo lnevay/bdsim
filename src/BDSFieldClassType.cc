@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -43,6 +42,8 @@ BDSFieldClassType BDS::DetermineFieldClassType(BDSFieldType fType)
     case BDSFieldType::mokka:
     case BDSFieldType::solenoid:
     case BDSFieldType::solenoidsheet:
+    case BDSFieldType::solenoidloop:
+    case BDSFieldType::solenoidblock:
     case BDSFieldType::dipole:
     case BDSFieldType::dipole3d:
     case BDSFieldType::quadrupole:
@@ -87,6 +88,7 @@ BDSFieldClassType BDS::DetermineFieldClassType(BDSFieldType fType)
     case BDSFieldType::ebmap3d:
     case BDSFieldType::ebmap4d:
     case BDSFieldType::rfpillbox:
+    case BDSFieldType::muoncooler:
       {return BDSFieldClassType::electromagnetic;}
     case BDSFieldType::teleporter:
     case BDSFieldType::rmatrix:

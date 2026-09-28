@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -49,8 +48,7 @@ std::vector<std::string> Config::treeNames = {"Beam.", "Options.", "Model.", "Ru
 
 Config::Config(const std::string& inputFilePathIn,
                const std::string& outputFileNameIn,
-               const std::string& defaultOutputFileSuffix):
-  allBranchesActivated(false)
+               const std::string& defaultOutputFileSuffix)
 {
   InitialiseOptions("");
   
@@ -75,8 +73,7 @@ Config::Config(const std::string& inputFilePathIn,
 Config::Config(const std::string& fileNameIn,
                const std::string& inputFilePathIn,
                const std::string& outputFileNameIn,
-               const std::string& defaultOutputFileSuffix):
-  allBranchesActivated(false)
+               const std::string& defaultOutputFileSuffix)
 {
   InitialiseOptions(fileNameIn);
   ParseInputFile();
@@ -118,7 +115,8 @@ void Config::InitialiseOptions(const std::string& analysisFile)
   // for backwards compatibility / verbose names
   alternateKeys["calculateopticalfunctions"]         = "calculateoptics";
   alternateKeys["calculateopticalfunctionsfilename"] = "opticsfilename";
-  
+
+  optionsBool["allbranchesactivated"] = false;
   optionsBool["debug"]             = false;
   optionsBool["calculateoptics"]   = false;
   optionsBool["emittanceonthefly"] = false;
@@ -226,7 +224,7 @@ void Config::ParseInputFile()
   // set flags etc based on what options have been set
   if (optionsBool.at("calculateoptics"))
     {
-      allBranchesActivated = true;
+      optionsBool["allbranchesactivated"] = true;
       optionsBool["processsamplers"] = true;
       optionsBool["perentryevent"]   = true;
     }
@@ -563,6 +561,29 @@ void Config::PrintHistogramSetDefinitions() const
     {std::cout << *def << std::endl;}
 }
 
+
+void Config::FixCylindricalAndSphericalSamplerVariablesInSets(const std::set<std::string>& allCNames,
+                                                              const std::set<std::string>& allSNames)
+{
+  for (auto* hsetset : {&eventHistoDefSetsPerEntry, &eventHistoDefSetsSimple})
+    {
+      for (auto *hset: *hsetset)
+        {
+          std::string tempName = hset->branchName + ".";
+          if (allCNames.count(tempName) > 0)
+            {
+              hset->ReplaceStringInVariable("energy", "totalEnergy");
+              hset->SetSamplerType(HistogramDefSet::samplertype::cylindrical);
+            }
+          else if (allSNames.count(tempName) > 0)
+           {
+             hset->ReplaceStringInVariable("energy", "totalEnergy");
+             hset->SetSamplerType(HistogramDefSet::samplertype::spherical);
+           }
+        }
+    }
+}
+
 void Config::CheckValidTreeName(std::string& treeName) const
 {
   // check it has a point at the end (simple mistake)
@@ -640,8 +661,7 @@ void Config::ParseBinning(const std::string& binning,
         {// try to match ranges
           auto rangeBegin = std::sregex_iterator(matchS.begin(), matchS.end(), oneDim);
           auto rangeEnd   = std::sregex_iterator();
-          int counterRange = 0;
-          for (auto j = rangeBegin; j != rangeEnd; ++j, ++counterRange)
+          for (auto j = rangeBegin; j != rangeEnd; ++j)
             {// iterate over all matches and pull out first and second number
               std::smatch matchR = *j;
               try

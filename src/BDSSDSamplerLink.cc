@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -77,10 +76,6 @@ G4bool BDSSDSamplerLink::ProcessHits(G4Step* aStep, G4TouchableHistory* /*readOu
   auto pd = dp->GetParticleDefinition();
 
   // check against various filters
-  if (charge == 0) // don't return neutral particles
-    {return false;}
-  if (!pd->GetPDGStable()) // don't return unstable particles
-    {return false;}
   G4double ek = track->GetKineticEnergy();
   if (ek < minimumEK)
     {return false;}

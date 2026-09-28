@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -44,11 +43,11 @@ public:
   /// Face normal (unit) vectors are w.r.t. the incoming / outgoing reference 
   /// trajectory and NOT the local geometry of the component.
   BDSLinkComponent(const G4String&      nameIn,
-		   BDSLinkOpaqueBox*    componentIn,
-		   G4double             arcLengthIn,
-		   G4double             angleIn = 0,
-		   const G4ThreeVector& inputFaceNormalIn  = G4ThreeVector(0,0,-1),
-		   const G4ThreeVector& outputFaceNormalIn = G4ThreeVector(0,0, 1));
+                   BDSLinkOpaqueBox*    componentIn,
+                   G4double             arcLengthIn,
+                   G4double             angleIn = 0,
+                   const G4ThreeVector& inputFaceNormalIn  = G4ThreeVector(0,0,-1),
+                   const G4ThreeVector& outputFaceNormalIn = G4ThreeVector(0,0, 1));
   
   /// Default destructor suffices as this calls base class which
   /// clears everything up.

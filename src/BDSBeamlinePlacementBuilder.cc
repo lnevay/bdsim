@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -19,6 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAcceleratorModel.hh"
 #include "BDSBeamline.hh"
 #include "BDSBeamlineElement.hh"
+#include "BDSBeamlineIntegral.hh"
 #include "BDSBeamlinePlacementBuilder.hh"
 #include "BDSComponentFactory.hh"
 #include "BDSDebug.hh"
@@ -51,13 +51,17 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSBeamline* BDS::BuildPlacementGeometry(const std::vector<GMAD::Placement>& placements,
                                          const BDSBeamline* parentBeamLine,
-                                         BDSComponentFactory* componentFactory)
+                                         BDSComponentFactory* componentFactory,
+                                         const BDSParticleDefinition* designParticle)
 {
   if (placements.empty())
     {return nullptr;} // don't do anything - no placements
   
   BDSBeamline* placementBL = new BDSBeamline();
   std::vector<BDSPlacementToMake> fieldPlacements;
+  
+  BDSBeamlineIntegral startingIntegral(*designParticle);
+  BDSBeamlineIntegral* integral = new BDSBeamlineIntegral(startingIntegral);
 
   for (const auto& placement : placements)
     {
@@ -82,12 +86,12 @@ BDSBeamline* BDS::BuildPlacementGeometry(const std::vector<GMAD::Placement>& pla
       G4bool geometrySpecified = !placement.geometryFile.empty();
       if (elementSpecified && geometrySpecified)
         {
-          G4String msg = "only one of \"geometryFile\" or \"bdsimElemenet\" can be specified in placement \"" + placement.name + "\"";
+          G4String msg = "only one of \"geometryFile\" or \"bdsimElement\" can be specified in placement \"" + placement.name + "\"";
           throw BDSException(__METHOD_NAME__, msg);
         }
       else if (!elementSpecified && !geometrySpecified)
         {
-          G4String msg = "at least one of \"geometryFile\" or \"bdsimElemenet\" must be specified in placement \"" + placement.name + "\"";
+          G4String msg = "at least one of \"geometryFile\" or \"bdsimElement\" must be specified in placement \"" + placement.name + "\"";
           throw BDSException(__METHOD_NAME__, msg);
         }
       
@@ -129,7 +133,7 @@ BDSBeamline* BDS::BuildPlacementGeometry(const std::vector<GMAD::Placement>& pla
           const GMAD::Element* element = BDSParser::Instance()->GetPlacementElement(placement.bdsimElement);
           if (!element)
             {throw BDSException(__METHOD_NAME__, "no such element definition by name \"" + placement.bdsimElement + "\" found for placement.");}
-          comp = componentFactory->CreateComponent(element, nullptr, nullptr); // note no current arc length for RF time offset
+          comp = componentFactory->CreateComponent(element, nullptr, nullptr, *integral); // note no current arc length for RF time offset
           hasAField = comp->HasAField();
           if (hasAField)
             {comp->SetFieldUsePlacementWorldTransform();}
@@ -163,7 +167,7 @@ BDSBeamline* BDS::BuildPlacementGeometry(const std::vector<GMAD::Placement>& pla
                                                       new G4RotationMatrix(*rm),
                                                       new G4RotationMatrix(*rm),
                                                       new G4RotationMatrix(*rm),
-                                                      -1,-1,-1);
+                                                      -1,-1,-1, 0);
 
       placementBL->AddBeamlineElement(el);
   
@@ -176,6 +180,8 @@ BDSBeamline* BDS::BuildPlacementGeometry(const std::vector<GMAD::Placement>& pla
     }
   
   BDSAcceleratorModel::Instance()->RegisterPlacementFieldPlacements(fieldPlacements);
+  
+  delete integral;
   
   return placementBL;
 }

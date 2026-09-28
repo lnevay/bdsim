@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -37,18 +36,23 @@ class G4VSolid;
 class BDSCollimator: public BDSAcceleratorComponent
 {
 public:
+  BDSCollimator() = delete;
   BDSCollimator(const G4String& name,
-		G4double        length,
-		G4double        horizontalWidth,
-		const G4String& type,
-		G4Material* collimatorMaterial,
-		G4Material* vacuumMaterial,
-		G4double    xApertureIn    = 0,
-		G4double    yApertureIn    = 0,
-		G4double    xApertureOutIn = 0,
-		G4double    yApertureOutIn = 0,
-		G4Colour*   colourIn       = nullptr,
-		G4bool      circularOuterIn = false);
+                G4double        length,
+                G4double        horizontalWidth,
+                const G4String& type,
+                G4Material* collimatorMaterial,
+                G4Material* vacuumMaterial,
+                G4double    xApertureIn    = 0,
+                G4double    yApertureIn    = 0,
+                G4double    xApertureOutIn = 0,
+                G4double    yApertureOutIn = 0,
+                G4Colour*   colourIn       = nullptr,
+                G4bool      circularOuterIn = false);
+  /// @{ Assignment and copy constructor not implemented nor used
+  BDSCollimator& operator=(const BDSCollimator&) = delete;
+  BDSCollimator(BDSCollimator&) = delete;
+  /// @}
   virtual ~BDSCollimator();
 
   /// @{ Accessor.
@@ -94,14 +98,6 @@ protected:
   G4Colour*   colour;             ///< Colour of collimator.
   G4double    minKineticEnergy;   ///< Optional minimum kinetic energy for collimator materials.
   G4bool      circularOuter;      ///< Aperture type of the collimator
-private:
-  /// Private default constructor to force the use of the supplied one.
-  BDSCollimator() = delete;
-
-  /// @{ Assignment and copy constructor not implemented nor used
-  BDSCollimator& operator=(const BDSCollimator&) = delete;
-  BDSCollimator(BDSCollimator&) = delete;
-  /// @}
 };
 
 #endif

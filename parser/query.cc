@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -45,7 +44,7 @@ void Query::clear()
   outfileMagnetic = "";
   outfileElectric = "";
 
-  queryMagneticField = true;
+  queryMagneticField = false;
   queryElectricField = false;
   
   overwriteExistingFiles = true;

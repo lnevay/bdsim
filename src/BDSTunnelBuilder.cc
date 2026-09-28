@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -353,7 +352,8 @@ BDSBeamline* BDSTunnelBuilder::BuildTunnelSections(const BDSBeamline* flatBeamli
                                                                      endRot2,        // referenceRotationEnd
                                                                      sStart,         // sPositionStart
                                                                      sMid,           // sPositionMiddle
-                                                                     sEnd);          // sPositionEnd
+                                                                     sEnd,           // sPositionEnd
+                                                                     0.0);
 
           // store segment in tunnel beam line
           tunnelLine->AddBeamlineElement(tunnelElement);

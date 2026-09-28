@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -59,8 +58,9 @@ const std::vector<G4String> BDSMagnetStrength::keys = {
   "k10", "k10s",
   "k11", "k11s",
   "k12", "k12s",
+  "kg",              // gabor lens focusing strength
+  "plasmaEfield",    // magnitude of electric strength of confined Gabor lens plasma
   "frequency",       // frequency for time varying field (presumably em)
-  "tOffset",         // tOffset resulting in a phase for time varying field
   "phase",           // phase for time varying field
   "synchronousT0",   // global T0 for the synchronous particle at the centre of the object
   "equatorradius",   // radius from axis at which field goes to 0
@@ -139,10 +139,11 @@ const std::map<G4String, BDSMagnetStrength::unitsFactors> BDSMagnetStrength::uni
     {"k11s"          , {"",    1.0}},
     {"k12s"          , {"",    1.0}},
     {"frequency"     , {"",    CLHEP::megahertz}},
-    {"tOffset"       , {"s",   CLHEP::s}},
     {"phase"         , {"rad", CLHEP::rad}},
     {"synchronousT0" , {"s",   CLHEP::s}},
     {"equatorradius" , {"m",   CLHEP::m}},
+    {"kg"            , {"",    1.0}},
+    {"plasmaEfield"  , {"",    1.0}},
     {"nominalenergy" , {"GeV", CLHEP::GeV}},
     {"scaling"       , {"",    1.0}},
     {"scalingOuter"  , {"",    1.0}},
@@ -166,7 +167,8 @@ const std::map<G4String, BDSMagnetStrength::unitsFactors> BDSMagnetStrength::uni
     {"rmat41"        , {"",    1.0}},
     {"rmat42"        , {"",    1.0}},
     {"rmat43"        , {"",    1.0}},
-    {"rmat44"        , {"",    1.0}}
+    {"rmat44"        , {"",    1.0}},
+    {"coilRadialThickness", {"m", CLHEP::m}}
 };
 
 const std::vector<G4String> BDSMagnetStrength::normalComponentKeys = {

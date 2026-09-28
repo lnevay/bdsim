@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -92,6 +91,7 @@ public:
   /// @{ Copy the bias list to each component.
   virtual void SetBiasVacuumList(const std::list<std::string>& biasVacuumList);
   virtual void SetBiasMaterialList(const std::list<std::string>& biasMaterialList);
+  virtual void SetBiasMaterialLVList(const std::list<std::string>& biasMaterialLVList);
   /// @}
 
   /// Set the region name for each component.

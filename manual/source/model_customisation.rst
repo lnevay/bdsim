@@ -61,7 +61,7 @@ The field map is a 3D field map in BDSIM file format and uses cubic interpolatio
 * :code:`field` objects are described below at: :ref:`field-map-definition`.
 * Pure fields are described at: :ref:`fields-pure-field-types`.
 * Accepted file formats for a field object are described below at: :ref:`field-map-file-formats`.
-* Specific field map file descriptions are described here: :ref:`field-map-formats`.
+* Specific field map file format descriptions are described here: :ref:`field-map-formats`.
 * Allowable different combinations of dimension are described here: :ref:`fields-different-dimensions`.
 
 Field General Notes
@@ -139,7 +139,8 @@ Each beam line element will allow "fieldAll", "fieldVacuum" and "fieldOuter" to 
 Field Map Definition
 ^^^^^^^^^^^^^^^^^^^^
 
-When defining a :code:`field`, the following parameters can be specified. Example below.
+When defining a :code:`field` object, the following parameters can be specified. Usually,
+only a small number of these possible parameters are needed. An example is given below.
 
 .. tabularcolumns:: |p{0.2\textwidth}|p{0.5\textwidth}|
 
@@ -241,7 +242,7 @@ Advanced parameter to be used with caution:
 Simple example: ::
 
   detectorField: field, type="bmap2d",
-                 magneticFile="bdsim2d:fieldmap.dat";
+                        magneticFile="bdsim2d:fieldmap.dat";
 
 This will use a BDSIM format magnetic (only) field map. By default it will have cubic
 interpolation and use a 4th order Runge Kutta integrator.
@@ -256,20 +257,20 @@ The maximum step length will be the **minimum** of:
 In the case of a 4D field, the velocity is assume to be :code:`c`, the speed of light,
 for the spatial distance calculated from this.
 
-.. Note:: See :ref:`fields-sub-fields` below for more details on overlaying two field maps in one.
 
-.. Note:: Either axis angle (with unit axis 3-vector) or Euler angles can be used to provide
-	  the rotation between the element the field maps are attached to and the coordinates
-	  of the field map. Use `axisAngle=1` to use the axis angle rotation scheme.
+Notes:
 
-.. Note:: A right-handed coordinate system is used in Geant4, so positive x is out of a ring.
-
-.. Note:: The time-modulation of the fields is off by default. It is implemented for field maps
-    (E, B and EM) in up to all three spatial dimensions. It is not necessary to define both,
-    phase and tOffset, as they have the same physical meaning. The modulation is calculated
-    according to :math:`\sin(2\pi ft-\varphi)` or :math:`\cos(2\pi ft-\varphi)` with :math:`f`
-    being the frequency of the modulation, :math:`t` the global time of the particle and
-    :math:`\varphi` the shift wrt. the beginning of the oscillation.
+* See :ref:`fields-sub-fields` below for more details on overlaying two field maps in one.
+* Either axis angle (with unit axis 3-vector) or Euler angles can be used to provide
+  the rotation between the element the field maps are attached to and the coordinates
+  of the field map. Use `axisAngle=1` to use the axis angle rotation scheme.
+* A right-handed coordinate system is used in Geant4, so positive x is out of a ring.
+* The time-modulation of the fields is off by default. It is implemented for field maps
+  (E, B and EM) in up to all three spatial dimensions. It is not necessary to define both,
+  phase and tOffset, as they have the same physical meaning. The modulation is calculated
+  according to :math:`\sin(2\pi ft-\varphi)` or :math:`\cos(2\pi ft-\varphi)` with :math:`f`
+  being the frequency of the modulation, :math:`t` the global time of the particle and
+  :math:`\varphi` the shift wrt. the beginning of the oscillation.
 
 
 AutoScaling
@@ -441,7 +442,7 @@ in the field definition in either :code:`magneticReflection` or :code:`electricR
 * (\*) See pictorial representation below
 
 For :code:`reflectxydipole`, :math:`x \mapsto |x|` and :math:`y \mapsto |y|`
-for the array look up. Then the value found at that location if changed as follows:
+for the array look up. Then the value found at that location is changed as follows:
 
 * if :math:`x < 0 \wedge y \geqslant 0`, :math:`B_x \mapsto -B_x`
 * if :math:`x \geqslant 0 \wedge y < 0`, :math:`B_x \mapsto -B_x`
@@ -450,20 +451,20 @@ for the array look up. Then the value found at that location if changed as follo
 
 
 For :code:`reflectxzdipole`, :math:`y \mapsto |y|` for the array look up. Then
-the value found at that location if changed as follows:
+the value found at that location is changed as follows:
 
 * if :math:`y < 0`, :math:`B_x \mapsto -B_x`
 
 
 For :code:`reflectxzsolenoid`, :math:`z \mapsto |z|` for the array look up. Then
-the value found at that location if changed as follows:
+the value found at that location is changed as follows:
 
 * if :math:`z < 0`, :math:`B_x \mapsto -B_x`
 * if :math:`z < 0`, :math:`B_y \mapsto -B_y`
 
 
 For :code:`reflectxyquadrupole`, :math:`x \mapsto |x|` and :math:`y \mapsto |y|`
-for the array look up. Then the value found at that location if changed as follows:
+for the array look up. Then the value found at that location is changed as follows:
 
 * if :math:`x < 0`, :math:`B_y \mapsto -B_y`
 * if :math:`y < 0`, :math:`B_x \mapsto -B_x`
@@ -531,6 +532,7 @@ The function is described by the :code:`type` parameter which can be one of the 
 * :code:`sint` - sinusoid as a function of (local) time
 * :code:`singlobal` - sinusoid as a function of (global) time with no synchronous offset in time
 * :code:`tophatt` - a top hat function as a function of time
+* :code:`lineart` - similar to top hat but function depends linearly on time
 
 Each is described below.
 
@@ -593,6 +595,31 @@ It is described by the equation:
 | `T1`               | Global time for 'off'                    | Yes           | 0            | s          |
 +--------------------+------------------------------------------+---------------+--------------+------------+
 | `amplitudeScale`   | Multiplier of scale                      | No            | 1            | None       |
++--------------------+------------------------------------------+---------------+--------------+------------+
+
+
+**lineart**
+
+A function that depends linearly on time inside a time window and is 0 everywhere else in time.
+It is described by the equation:
+
+.. math::
+
+    factor &= \textrm{amplitudeScale} * t + \textrm{amplitudeOffset} \quad \textrm{if} \quad T0 <= T <= T1 \\
+    factor &= 0 \quad \textrm{otherwise} \\
+
+
+
++--------------------+------------------------------------------+---------------+--------------+------------+
+| **Parameter**      | **Description**                          | **Required**  | **Default**  | **Units**  |
++====================+==========================================+===============+==============+============+
+| `T0`               | Global starting time for 'on'            | Yes           | 0            | s          |
++--------------------+------------------------------------------+---------------+--------------+------------+
+| `T1`               | Global time for 'off'                    | Yes           | 0            | s          |
++--------------------+------------------------------------------+---------------+--------------+------------+
+| `amplitudeScale`   | Multiplier of scale                      | No            | 0            | 1/s        |
++--------------------+------------------------------------------+---------------+--------------+------------+
+| `amplitudeOffset`  | Offset of numerical factor               | No            | 1            | None       |
 +--------------------+------------------------------------------+---------------+--------------+------------+
 
 
@@ -699,30 +726,31 @@ is automatically chosen based on the number of dimensions in the field map type.
 File Formats
 ^^^^^^^^^^^^
 
-.. note:: BDSIM field maps by default have units :math:`cm,s`.
+.. note:: BDSIM field maps by default have units :math:`cm, s` and :math:`T` for magnetic
+          field and :math:`V/m` for electric field.
 
 .. tabularcolumns:: |p{3cm}|p{6cm}|
 
-+------------------+--------------------------------------------+
-| **Format**       | **Description**                            |
-+==================+============================================+
-| bdsim1d          | 1D BDSIM format file  (Units :math:`cm,s`) |
-+------------------+--------------------------------------------+
-| bdsim2d          | 2D BDSIM format file  (Units :math:`cm,s`) |
-+------------------+--------------------------------------------+
-| bdsim3d          | 3D BDSIM format file  (Units :math:`cm,s`) |
-+------------------+--------------------------------------------+
-| bdsim4d          | 4D BDSIM format file  (Units :math:`cm,s`) |
-+------------------+--------------------------------------------+
-| poisson2d        | 2D Poisson Superfish SF7 file              |
-+------------------+--------------------------------------------+
-| poisson2dquad    | 2D Poisson Superfish SF7 file              |
-|                  | for 1/8th of quadrupole                    |
-+------------------+--------------------------------------------+
-| poisson2ddipole  | 2D Poisson Superfish SF7 file for positive |
-|                  | quadrant that's reflected to produce a     |
-|                  | full windowed dipole field                 |
-+------------------+--------------------------------------------+
++------------------+-----------------------------------------------------+
+| **Format**       | **Description**                                     |
++==================+=====================================================+
+| bdsim1d          | 1D BDSIM format file (Units :math:`cm, s, T, V/m`)  |
++------------------+-----------------------------------------------------+
+| bdsim2d          | 2D BDSIM format file (Units :math:`cm, s, T, V/m`)  |
++------------------+-----------------------------------------------------+
+| bdsim3d          | 3D BDSIM format file (Units :math:`cm, s, T, V/m`)  |
++------------------+-----------------------------------------------------+
+| bdsim4d          | 4D BDSIM format file (Units :math:`cm, s, T, V/m`)  |
++------------------+-----------------------------------------------------+
+| poisson2d        | 2D Poisson Superfish SF7 file                       |
++------------------+-----------------------------------------------------+
+| poisson2dquad    | 2D Poisson Superfish SF7 file                       |
+|                  | for 1/8th of quadrupole                             |
++------------------+-----------------------------------------------------+
+| poisson2ddipole  | 2D Poisson Superfish SF7 file for positive          |
+|                  | quadrant that's reflected to produce a              |
+|                  | full windowed dipole field                          |
++------------------+-----------------------------------------------------+
 
 Field maps in the following formats are accepted:
 
@@ -939,7 +967,7 @@ The following parameters can be used in a query object:
 | fieldObject             | Name of the field object in the input to query |
 +-------------------------+------------------------------------------------+
 | queryMagneticField      | (1 or 0) whether to query the magnetic field   |
-|                         | - default is True (1)                          |
+|                         | - default is False (0)                         |
 +-------------------------+------------------------------------------------+
 | queryElectricField      | (1 or 0) whether to query the electric field   |
 |                         | - default is False (0)                         |
@@ -1008,6 +1036,8 @@ The following parameters can be used in a query object:
 	  combination of parameters for the 3 ways of specifying a transform. 
 
 * The default is to query the magnetic field only and **to overwrite** files.
+* The magnetic field will be queried if neither `queryMagneticField` or
+  `queryElectricField` are set to 1 (on), but only if neither are specified.
 * The ranges defined will be queried in the global frame if no transform is specified,
   otherwise they will be about the point / frame of the transform.
 * In the case where a reference element is used, the frame includes the offset of that
@@ -1148,8 +1178,8 @@ material used for that element. It is used differently depending on the element.
 in the case of a magnet, it is used for the yoke and for a collimator for the collimator
 block.
 
-Single Element
-^^^^^^^^^^^^^^
+Use a Single Element
+^^^^^^^^^^^^^^^^^^^^
 
 In the case of an element, the chemical symbol can be specified::
 
@@ -1170,15 +1200,21 @@ command with the following syntax::
 
   materialname : matdef, Z=<int>, A=<double>, density=<double>, T=<double>, P=<double>, state=<char*>;
 
-=========  ========================== =============
-Parameter  Description                Default
-Z          Atomic number
-A          Mass number [g/mol]
-density    Density in [g/cm3]
-T          Temperature in [K]         300
-P          Pressure [atm]             1
-state      "solid", "liquid" or "gas" "solid"
-=========  ========================== =============
++-----------+------------------------------+-----------+--------------+
+| Parameter | Description                  | Units     | Default      |
++===========+==============================+===========+==============+
+| Z         | Atomic number                |           |              |
++-----------+------------------------------+-----------+--------------+
+| A         | Mass number                  | g/mol     |              |
++-----------+------------------------------+-----------+--------------+
+| density   | Density                      | g/cm3     |              |
++-----------+------------------------------+-----------+--------------+
+| T         | Temperature                  | K         | 300          |
++-----------+------------------------------+-----------+--------------+
+| P         | Pressure                     | atm       | 1            |
++-----------+------------------------------+-----------+--------------+
+| state     | "solid", "liquid" or "gas"   |           |              |
++-----------+------------------------------+-----------+--------------+
 
 Example::
 
@@ -1186,8 +1222,12 @@ Example::
 
 A compound material can be specified in two manners:
 
-Compound Material by Atoms
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Compound Material
+^^^^^^^^^^^^^^^^^
+
+By Atoms
+********
+
 If the number of atoms of each component in a material unit is known,
 the following syntax can be used::
 
@@ -1195,19 +1235,29 @@ the following syntax can be used::
                 state=<char*>, components=<[list<char*>]>,
                 componentsWeights=<{list<int>}>;
 
-================= ===================================================
-Parameter         Description
-density           Density in [g/cm3]
-components        List of symbols for material components
-componentsWeights Number of atoms for each component in material unit
-================= ===================================================
++-------------------+-----------------------------------------------------+
+| Parameter         | Description                                         |
++===================+=====================================================+
+| density           | Density (g/cm3)                                     |
++-------------------+-----------------------------------------------------+
+| T                 | Temperature (K)                                     |
++-------------------+-----------------------------------------------------+
+| P                 | Pressure (atm)                                      |
++-------------------+-----------------------------------------------------+
+| state             | "solid", "liquid", "gas"                            |
++-------------------+-----------------------------------------------------+
+| components        | List of symbols for material components             |
++-------------------+-----------------------------------------------------+
+| componentsWeights | Number of atoms for each component in material unit |
++-------------------+-----------------------------------------------------+
 
 Example::
 
   NbTi : matdef, density=5.6, T=4.0, components=["Nb","Ti"], componentsWeights={1,1};
 
-Compound Material by Mass Fraction
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By Mass Fraction
+****************
 
 On the other hand, if the mass fraction of each component is known, the
 following syntax can be used::
@@ -1216,15 +1266,28 @@ following syntax can be used::
                 state=<char*>, components=<[list<char*>]>,
                 componentsFractions=<{list<double>}>;
 
-=================== ================================================
-Parameter           Description
-components          List of symbols for material components
-componentsFractions Mass fraction of each component in material unit
-=================== ================================================
+
+
++---------------------+-----------------------------------------------------+
+| Parameter           | Description                                         |
++=====================+=====================================================+
+| density             | Density (g/cm3)                                     |
++---------------------+-----------------------------------------------------+
+| T                   | Temperature (K)                                     |
++---------------------+-----------------------------------------------------+
+| P                   | Pressure (atm)                                      |
++---------------------+-----------------------------------------------------+
+| state               | "solid", "liquid", "gas"                            |
++---------------------+-----------------------------------------------------+
+| components          | List of symbols for material components             |
++---------------------+-----------------------------------------------------+
+| componentsFractions | Mass fraction of each component in material unit    |
++---------------------+-----------------------------------------------------+
 
 Example::
 
   SmCo : matdef, density=8.4, T=300.0, components=["Sm","Co"], componentsFractions = {0.338,0.662};
+
 
 The second syntax can also be used to define materials which are composed by
 other materials (and not by atoms).
@@ -1393,6 +1456,20 @@ with the following fractions:
 
 It is a gas with density of 1.20479 mg/cm3.
 
+Ideal gases
+^^^^^^^^^^^
+
+When a new material is added with the parameter :code:`state=gas`, BDSIM check if the ideal gas law is respected between
+the density, pressure and temperature. It is assumed that the density is correct as it is the parameter Geant4 cares
+about. If the ideal gas law isn't respected, the temperature is defaulted to :code:`T=300` and the pressure is calculated from
+the density.
+
+.. note:: This check does not apply to :ref:`predefined-materials` and other materials defined above.
+
+.. note:: Molar mass calculations can't distinguish between single atom elements and elements with multiple of the same
+    atom (oxygen and dioxygen for example). This ideal gas calculation is intended for the former case like with
+    noble gases.
+
 .. _aperture-parameters:
 
 Aperture Parameters
@@ -1463,10 +1540,10 @@ A completely custom aperture can be used with `pointsfile`. See the notes below.
 +----------------------+--------------+-------------------+-----------------+----------------+------------------+
 | `circularvacuum`     | 1            | radius            | NA              | NA             | NA               |
 +----------------------+--------------+-------------------+-----------------+----------------+------------------+
-| `pointsfile` (\*\*)  | 0            | NA                | NA              | NA             | NA               |
-+----------------------+--------------+-------------------+-----------------+----------------+------------------+
 | `rhombus` (\+)       | 2-3          | x half-width      | y half-width    | radius of      | NA               |
 |                      |              |                   |                 | corners        |                  |
++----------------------+--------------+-------------------+-----------------+----------------+------------------+
+| `pointsfile` (\*\*)  | 0            | NA                | NA              | NA             | NA               |
 +----------------------+--------------+-------------------+-----------------+----------------+------------------+
 
 .. note:: (\*) :code:`lhcdetailed` aperture type will result in the :code:`beampipeMaterial` being ignored
@@ -1485,7 +1562,203 @@ the same as the geometric centre of the bottom ellipse. Therefore, *aper4*, the 
 between ellipses is added on to the 0 position. The parameterisation is taken from
 Phys. Rev. ST Accel. Beams **12**, 021001 (2009).
 
-**Custom Aperture**
+circular
+^^^^^^^^
+
+.. image:: figures/aperture/circular.png
+    :width: 40%
+    :align: left
+
+A circular aperture is defined by one parameter, :code:`aper1`. The beam pipe
+thickness is added outside this radius.
+
+**Example** ::
+
+  d1: drift, aperType="circular",
+             aper1=5*cm,
+             beampipeThickness=3*mm;
+
+|
+|
+|
+
+rectangular
+^^^^^^^^^^^^
+
+.. image:: figures/aperture/rectangular.png
+    :width: 40%
+    :align: left
+
+A rectangular aperture is defined by two parameters, :code:`aper1` for the horizontal
+half width, and :code:`aper2` for the vertical half width. The beam pipe
+thickness is added outside this aperture.
+
+**Example** ::
+
+  d1: drift, aperType="rectangular",
+             aper1=5*cm,
+             aper2=2.1*cm,
+             beampipeThickness=3*mm;
+
+|
+
+elliptical
+^^^^^^^^^^
+
+.. image:: figures/aperture/elliptical.png
+    :width: 40%
+    :align: left
+
+An elliptical aperture is defined by two parameters, :code:`aper1` for the horizontal
+semi-axis, and :code:`aper2` for the vertical semi-axis. The beam pipe
+thickness is added outside this aperture.
+
+**Example** ::
+
+  d1: drift, aperType="elliptical",
+             aper1=5*cm,
+             aper2=2.1*cm,
+             beampipeThickness=3*mm;
+
+|
+|
+
+lhc
+^^^^
+
+.. image:: figures/aperture/lhc.png
+    :width: 40%
+    :align: left
+
+The LHC aperture shape is defined by three parameters. It is the intersection (i.e. only
+where both exist) of a circle and a rectangle centred on each other. :code:`aper1` is the
+horizontal half-width of the rectangle. :code:`aper2` is the vertical half-height of the
+rectangle. :code:`aper3` is the radius of the circle. Depending on these parameters, a similar
+shape as shown can be achieved this way or apparently rotated 90 degrees with flat vertical
+edges. If :code:`aper2` is less than :code:`aper3`, then the aperture will appear like the
+image shown. The beam pipe thickness is added outside this aperture.
+|
+
+**Example** ::
+
+  d1: drift, aperType="lhc",
+             aper1=2.202*cm,
+             aper2=1.714*cm,
+             aper3=2.202*cm
+             beampipeThickness=1*mm;
+
+lhcdetailed
+^^^^^^^^^^^
+
+This aperture type has the same parameters as :code:`lhc`. However, it includes more
+detailed geometry with a circular second outer beam pipe as well as the 70 micron
+layer of copper. The beam screen does not have the perforated holes as this was
+deemed too detailed and would slow the simulation. This may cause errors if parameters
+too far from the authentic LHC aperture parameters are used.
+
+
+rectellipse
+^^^^^^^^^^^
+
+.. image:: figures/aperture/rectellipse.png
+    :width: 40%
+    :align: left
+
+The rectellipse aperture is similar to the LHC aperture shape, but intead of a
+circle, it is the intersection of a rectangle and an ellipse. :code:`aper1` and
+:code:`aper2` define the rectangle, and :code:`aper3` and :code:`aper4` define the
+ellipse. The beam pipe thickness is added outside this aperture.
+
+**Example** ::
+
+  d1: drift, aperType="rectellipse",
+             aper1=2*cm,
+             aper2=1*cm,
+             aper3=2*cm,
+             aper4=2*cm
+             beampipeThickness=3*mm;
+
+
+racetrack
+^^^^^^^^^
+
+.. image:: figures/aperture/racetrack.png
+    :width: 40%
+    :align: left
+
+The racetrack aperture is defined by three parameters. The aperture is defined
+by a circle with an offset in one quadrant that is then mirrored in all quadrants.
+:code:`aper1` and :code:`aper2` are the horizontal and vertical offsets of the
+centre of the circle in the positive quadrant (i.e. positive values). :code:`aper3`
+is the radius of the circle. The horizontal half width is therefore :code:`aper1 + `aper3`,
+and similarly, the vertical half width is :code:`aper2 + aper3`. The beam pipe
+thickness is added outside this aperture.
+|
+|
+
+**Example** ::
+
+  d1: drift, aperType="racetrack",
+             aper1=2*cm,
+             aper2=1*cm,
+             aper3=2.4*cm
+             beampipeThickness=3*mm;
+
+
+octagonal
+^^^^^^^^^
+
+.. image:: figures/aperture/octagonal.png
+    :width: 40%
+    :align: left
+
+The octagonal aperture is defined by four parameters. :code:`aper1` and :code:`aper2`
+definthe the horizontal and vertical half widths respectively of a full rectangle.
+:code:`aper3` and :code:`aper4` define a (smaller) set of horizontal and vertical values
+that define the points where the cut-off edge starts. The beam pipe
+thickness is added outside this aperture.
+
+.. warning:: This is not the same set of parameters as MADX, which uses the angles
+             between the origin and each cut-off point. This is particularly hard
+             to use as well as more difficult to implement so was not used in BDSIM.
+             The MADX community wanted to change this but it is kept for backwards
+             compatibility.
+
+**Example** ::
+
+  d1: drift, aperType="octagonal",
+             aper1=2*cm,
+             aper2=1*cm,
+             aper3=1.1*cm,
+             aper4=0.5*cm
+             beampipeThickness=3*mm;
+
+
+rhombus
+^^^^^^^
+
+.. image:: figures/aperture/rhombus.png
+    :width: 40%
+    :align: left
+
+The rhombus aperture is defined by three parameters, :code:`aper1` for the horizontal
+half width out to the point of a full rhombus, and :code:`aper2` for the vertical half width,
+again out the point of a full rhombus. :code:`aper3` optionally defines the radius of
+a circle used for the curved corners. Therefore, a small amount of width is lost at each tip.
+The figure shows a rhombus where :code:`aper1 = aper2`, however, these can be unequal.
+The beam pipe thickness is added outside this aperture.
+
+**Example** ::
+
+  d1: drift, aperType="rhombus",
+             aper1=3*cm,
+             aper2=10*cm,
+             aper3=0.1*cm
+             beampipeThickness=3*mm;
+
+
+pointsfile
+^^^^^^^^^^
 
 For **pointsfile**, a text file can be used to list a set of x,y transverse points to specify
 a custom shape. No other aperture parameters are required other than the aperture type. The
@@ -2031,6 +2304,27 @@ GDML Geometry Specifics
 
 * The Geant4 installation that BDSIM is compiled with repsect to must have GDML support turned on.
 * BDSIM must be compiled with the GDML build option in CMake turned on for GDML loading to work.
+
+Auxiliary Colour Information
+****************************
+
+When preparing a GDML file for input to BDSIM, you can supply extra information in the form of
+an auxiliary tag in GDML. This is attached the :code:`volume` and an example is: ::
+  
+    <volume name="q2_outer_pole_lv0x600003006e40">
+      <materialref ref="G4_Fe0x147912550"/>
+      <solidref ref="q2_outer_pole_solid0x600003006bc0"/>
+      <auxiliary auxtype="bds_vrgba" auxvalue="1 0.82 0.1 0.1 1"/>
+    </volume>
+
+
+The format should be: ::
+
+  <auxiliary auxtype="bds_vrgba" auxvalue="v r g b a"/>
+
+where :code:`v` is a 1 or 0 for visible or not. :code:`r g b a` are double values for the
+normalised red green blue and alpha colour components. These should range from 0 to 1 (inclusive).
+
 
 Creating GDML Geometry
 **********************
@@ -2656,159 +2950,178 @@ For convenience the predefined colours in BDSIM are:
 +---------------------+-----+-----+-----+------+
 | Name                |  R  |  G  |  B  |  A   |
 +=====================+=====+=====+=====+======+
-| LHCcoil             | 229 | 191 | 0   | 1    |
+|              LHCcoil| 229 | 191 |   0 |    1 |
 +---------------------+-----+-----+-----+------+
-| LHCcollar           | 229 | 229 | 229 | 1    |
+|            LHCcollar| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| LHCcopperskin       | 184 | 133 | 10  | 1    |
+|        LHCcopperskin| 184 | 133 |  10 |    1 |
 +---------------------+-----+-----+-----+------+
-| LHCyoke             | 0   | 127 | 255 | 1    |
+|              LHCyoke|   0 | 127 | 255 |    1 |
 +---------------------+-----+-----+-----+------+
-| LHCyokered          | 209 | 25  | 25  | 1    |
+|           LHCyokered| 209 |  25 |  25 |    1 |
 +---------------------+-----+-----+-----+------+
-| awakescreen         | 175 | 196 | 222 | 1    |
+|                  air| 240 | 240 | 240 | 0.05 |
 +---------------------+-----+-----+-----+------+
-| awakespectrometer   | 0   | 102 | 204 | 1    |
+|          awakescreen| 175 | 196 | 222 |    1 |
 +---------------------+-----+-----+-----+------+
-| beampipe            | 102 | 102 | 102 | 1    |
+|    awakespectrometer|   0 | 102 | 204 |    1 |
 +---------------------+-----+-----+-----+------+
-| black               | 0   | 0   | 0   | 1    |
+|             beampipe| 102 | 102 | 102 |    1 |
 +---------------------+-----+-----+-----+------+
-| blue                | 0   | 0   | 255 | 1    |
+|                black|   0 |   0 |   0 |    1 |
 +---------------------+-----+-----+-----+------+
-| brown               | 114 | 63  | 0   | 1    |
+|                 blue|   0 |   0 | 255 |    1 |
 +---------------------+-----+-----+-----+------+
-| coil                | 184 | 115 | 51  | 1    |
+|                bmcol|  63 | 102 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| collimator          | 63  | 102 | 51  | 1    |
+|                brown| 114 |  63 |   0 |    1 |
 +---------------------+-----+-----+-----+------+
-| copper              | 184 | 115 | 51  | 1    |
+|         capillarygas| 209 |  25 |  25 |  0.4 |
 +---------------------+-----+-----+-----+------+
-| crystal             | 175 | 196 | 222 | 1    |
+|       capillaryouter|  63 | 102 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| cyan                | 0   | 255 | 255 | 1    |
+|                 coil| 184 | 115 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| decapole            | 76  | 51  | 178 | 1    |
+|           collimator|  63 | 102 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| default             | 229 | 229 | 229 | 1    |
+|               copper| 184 | 115 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| degrader            | 159 | 159 | 159 | 1    |
+|              crystal| 175 | 196 | 222 |    1 |
 +---------------------+-----+-----+-----+------+
-| dipolefringe        | 229 | 229 | 229 | 1    |
+|                 cyan|   0 | 255 | 255 |    1 |
 +---------------------+-----+-----+-----+------+
-| drift               | 102 | 102 | 102 | 1    |
+|             decapole|  76 |  51 | 178 |    1 |
 +---------------------+-----+-----+-----+------+
-| ecol                | 63  | 102 | 51  | 1    |
+|              default| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| element             | 229 | 229 | 229 | 1    |
+|             degrader| 159 | 159 | 159 |    1 |
 +---------------------+-----+-----+-----+------+
-| gap                 | 229 | 229 | 229 | 1    |
+|         dipolefringe| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| gdml                | 102 | 51  | 0   | 1    |
+|                drift| 102 | 102 | 102 |    1 |
 +---------------------+-----+-----+-----+------+
-| gray                | 127 | 127 | 127 | 1    |
+|                 ecol|  63 | 102 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| green               | 0   | 255 | 0   | 1    |
+|            electrode| 175 | 196 | 222 |    1 |
 +---------------------+-----+-----+-----+------+
-| grey                | 127 | 127 | 127 | 1    |
+|              element| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| hkicker             | 76  | 51  | 178 | 1    |
+|            gaborlens|  54 | 167 | 208 |    1 |
 +---------------------+-----+-----+-----+------+
-| iron                | 129 | 81  | 74  | 1    |
+|                  gap| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| jcol                | 63  | 102 | 51  | 1    |
+|                 gdml| 102 |  51 |   0 |    1 |
 +---------------------+-----+-----+-----+------+
-| kapton              | 236 | 96  | 20  | 0.5  |
+|                 gold| 220 | 176 |  71 |    1 |
 +---------------------+-----+-----+-----+------+
-| kicker              | 0   | 102 | 204 | 1    |
+|                 gray| 127 | 127 | 127 |    1 |
 +---------------------+-----+-----+-----+------+
-| lead                | 96  | 104 | 115 | 1    |
+|                green|   0 | 255 |   0 |    1 |
 +---------------------+-----+-----+-----+------+
-| magenta             | 255 | 0   | 255 | 1    |
+|                 grey| 127 | 127 | 127 |    1 |
 +---------------------+-----+-----+-----+------+
-| marker              | 229 | 229 | 229 | 1    |
+|              hkicker|  76 |  51 | 178 |    1 |
 +---------------------+-----+-----+-----+------+
-| multipole           | 118 | 135 | 153 | 1    |
+|                 iron| 129 |  81 |  74 |    1 |
 +---------------------+-----+-----+-----+------+
-| muonspoiler         | 0   | 205 | 208 | 1    |
+|                 jcol|  63 | 102 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| octupole            | 0   | 153 | 76  | 1    |
+|               kapton| 236 |  96 |  20 |  0.5 |
 +---------------------+-----+-----+-----+------+
-| opaquebox           | 51  | 51  | 51  | 0.2  |
+|               kicker|   0 | 102 | 204 |    1 |
 +---------------------+-----+-----+-----+------+
-| paralleltransporter | 229 | 229 | 229 | 1    |
+|                 lead|  96 | 104 | 115 |    1 |
 +---------------------+-----+-----+-----+------+
-| quadrupole          | 209 | 25  | 25  | 1    |
+|                 lyso| 230 | 210 | 235 |  0.3 |
 +---------------------+-----+-----+-----+------+
-| rbend               | 0   | 102 | 204 | 1    |
+|              magenta| 255 |   0 | 255 |    1 |
 +---------------------+-----+-----+-----+------+
-| rcol                | 63  | 102 | 51  | 1    |
+|               marble| 228 | 228 | 228 |    1 |
 +---------------------+-----+-----+-----+------+
-| reallyreallydarkgrey| 51  | 51  | 51  | 1    |
+|               marker| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| rectangularbend     | 0   | 102 | 204 | 1    |
+|            multipole| 118 | 135 | 153 |    1 |
 +---------------------+-----+-----+-----+------+
-| red                 | 255 | 0   | 0   | 1    |
+|          muonspoiler|   0 | 205 | 208 |    1 |
 +---------------------+-----+-----+-----+------+
-| rf                  | 118 | 135 | 153 | 1    |
+|             octupole|   0 | 153 |  76 |    1 |
 +---------------------+-----+-----+-----+------+
-| rfcavity            | 118 | 135 | 153 | 1    |
+|            opaquebox|  51 |  51 |  51 |  0.2 |
 +---------------------+-----+-----+-----+------+
-| rfx                 | 118 | 135 | 153 | 1    |
+|  paralleltransporter| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| rfy                 | 118 | 135 | 153 | 1    |
+|           quadrupole| 209 |  25 |  25 |    1 |
 +---------------------+-----+-----+-----+------+
-| rmatrix             | 229 | 229 | 229 | 1    |
+|                rbend|   0 | 102 | 204 |    1 |
 +---------------------+-----+-----+-----+------+
-| sbend               | 0   | 102 | 204 | 1    |
+|                 rcol|  63 | 102 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| screen              | 175 | 196 | 222 | 1    |
+| reallyreallydarkgrey|  51 |  51 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| screenframe         | 178 | 178 | 178 | 0.4  |
+|      rectangularbend|   0 | 102 | 204 |    1 |
 +---------------------+-----+-----+-----+------+
-| sectorbend          | 0   | 102 | 204 | 1    |
+|                  red| 255 |   0 |   0 |    1 |
 +---------------------+-----+-----+-----+------+
-| sextupole           | 255 | 204 | 0   | 1    |
+|                   rf| 118 | 135 | 153 |    1 |
 +---------------------+-----+-----+-----+------+
-| shield              | 138 | 135 | 119 | 1    |
+|             rfcavity| 118 | 135 | 153 |    1 |
 +---------------------+-----+-----+-----+------+
-| soil                | 138 | 90  | 0   | 0.4  |
+|                  rfx| 118 | 135 | 153 |    1 |
 +---------------------+-----+-----+-----+------+
-| solenoid            | 255 | 139 | 0   | 0.7  |
+|                  rfy| 118 | 135 | 153 |    1 |
 +---------------------+-----+-----+-----+------+
-| srfcavity           | 175 | 196 | 222 | 1    |
+|              rmatrix| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| target              | 63  | 102 | 51  | 1    |
+|                sbend|   0 | 102 | 204 |    1 |
 +---------------------+-----+-----+-----+------+
-| thinmultipole       | 229 | 229 | 229 | 1    |
+|               screen| 175 | 196 | 222 |    1 |
 +---------------------+-----+-----+-----+------+
-| thinrmatrix         | 229 | 229 | 229 | 1    |
+|          screenframe| 178 | 178 | 178 |  0.4 |
 +---------------------+-----+-----+-----+------+
-| tkicker             | 0   | 102 | 204 | 1    |
+|           sectorbend|   0 | 102 | 204 |    1 |
 +---------------------+-----+-----+-----+------+
-| traj_negative       | 204 | 0   | 0   | 1    |
+|            sextupole| 255 | 204 |   0 |    1 |
 +---------------------+-----+-----+-----+------+
-| traj_neutral        | 51  | 178 | 0   | 0.2  |
+|               shield| 138 | 135 | 119 |    1 |
 +---------------------+-----+-----+-----+------+
-| traj_positive       | 0   | 51  | 229 | 1    |
+|                 soil| 138 |  90 |   0 |  0.4 |
 +---------------------+-----+-----+-----+------+
-| tunnel              | 138 | 135 | 119 | 1    |
+|             solenoid| 255 | 139 |   0 |  0.7 |
 +---------------------+-----+-----+-----+------+
-| tunnelfloor         | 127 | 127 | 114 | 1    |
+|            srfcavity| 175 | 196 | 222 |    1 |
 +---------------------+-----+-----+-----+------+
-| undulator           | 159 | 159 | 159 | 1    |
+|               target|  63 | 102 |  51 |    1 |
 +---------------------+-----+-----+-----+------+
-| vkicker             | 186 | 84  | 211 | 1    |
+|        thinmultipole| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| warning             | 255 | 19  | 146 | 1    |
+|          thinrmatrix| 229 | 229 | 229 |    1 |
 +---------------------+-----+-----+-----+------+
-| white               | 255 | 255 | 255 | 1    |
+|              tkicker|   0 | 102 | 204 |    1 |
 +---------------------+-----+-----+-----+------+
-| wirescanner         | 138 | 135 | 119 | 1    |
+|        traj_negative| 204 |   0 |   0 |    1 |
 +---------------------+-----+-----+-----+------+
-| yellow              | 255 | 255 | 0   | 1    |
+|         traj_neutral|  51 | 178 |   0 |  0.2 |
 +---------------------+-----+-----+-----+------+
-
+|        traj_positive|   0 |  51 | 229 |    1 |
++---------------------+-----+-----+-----+------+
+|               tunnel| 138 | 135 | 119 |    1 |
++---------------------+-----+-----+-----+------+
+|          tunnelfloor| 127 | 127 | 114 |    1 |
++---------------------+-----+-----+-----+------+
+|            undulator| 159 | 159 | 159 |    1 |
++---------------------+-----+-----+-----+------+
+|              vkicker| 186 |  84 | 211 |    1 |
++---------------------+-----+-----+-----+------+
+|              warning| 255 |  19 | 146 |    1 |
++---------------------+-----+-----+-----+------+
+|                water|   0 | 102 | 204 |  0.5 |
++---------------------+-----+-----+-----+------+
+|                white| 255 | 255 | 255 |    1 |
++---------------------+-----+-----+-----+------+
+|          wirescanner| 138 | 135 | 119 |    1 |
++---------------------+-----+-----+-----+------+
+|               yellow| 255 | 255 |   0 |    1 |
++---------------------+-----+-----+-----+------+
 
 .. _automatic-colours:
 

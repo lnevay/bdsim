@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -59,7 +58,7 @@ namespace GMAD
     void print()const;
     /// Set methods by property name and value
     template <typename T>
-    void set_value(std::string property, T value);
+    void set_value(std::string property, T value, bool bExit = true);
 
   private:
     /// publish members
@@ -67,20 +66,23 @@ namespace GMAD
   };
   
   template <typename T>
-  void Scorer::set_value(std::string property, T value)
-    {
+  void Scorer::set_value(std::string property, T value, bool bExit)
+  {
 #ifdef BDSDEBUG
-      std::cout << "scorer> Setting value " << std::setw(25) << std::left << property << value << std::endl;
+    std::cout << "scorer> Setting value " << std::setw(25) << std::left << property << value << std::endl;
 #endif
-      // member method can throw runtime_error, catch and exit gracefully
-      try
-	{set(this,property,value);}
-      catch (const std::runtime_error&)
-	{
-	  std::cerr << "Error: scorer> unknown option \"" << property << "\" with value \"" << value << "\"" << std::endl;
-	  exit(1);
-	}
-    }
+    // member method can throw runtime_error, catch and exit gracefully
+    try
+      {set(this,property,value);}
+    catch (const std::runtime_error&)
+      {
+        std::cerr << "Error: scorer> unknown option \"" << property << "\" with value \"" << value << "\"" << std::endl;
+        if (bExit)
+          {exit(1);}
+        else
+          {std::rethrow_exception(std::current_exception());} // to be caught by python
+      }
+  }
 }
 
 #endif

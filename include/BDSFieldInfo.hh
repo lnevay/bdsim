@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -31,6 +30,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <ostream>
 
+class BDSFieldInfoExtra;
 class BDSMagnetStrength;
 class BDSModulatorInfo;
 class G4UserLimits;
@@ -129,7 +129,10 @@ public:
   inline BDSModulatorInfo*   ModulatorInfo()            const {return modulatorInfo;}
   inline G4bool IgnoreUpdateOfMaximumStepSize() const {return ignoreUpdateOfMaximumStepSize;}
   inline G4bool              IsThin()                   const {return isThin;}
+  inline BDSFieldInfoExtra*  ExtraInfo()                const {return extraInfo;}
   /// @}
+
+  G4double SynchronousT() const;
   
   G4Transform3D Transform() const;         ///< Transform for the field definition only.
   G4Transform3D TransformBeamline() const; ///< Transform from the curvilinear coordinates to the beam line component.
@@ -166,6 +169,9 @@ public:
   void SetUserLimits(G4UserLimits* userLimitsIn);
   
   void SetNameOfParserDefinition(const G4String& nameIn) {nameOfParserDefinition = nameIn;}
+
+  /// Set the additional 'extra' info member.
+  void SetExtraInfo(BDSFieldInfoExtra* extraInfoIn) {extraInfo = extraInfoIn;}
   
   /// Update the user limits object (stepLimit) to the minimum of the current and supplied maximum
   /// step size. Mutable, so can be called on const object.
@@ -222,6 +228,7 @@ private:
 
   /// Transform from curvilinear frame to this field - ie beam line bit only.
   G4Transform3D*           transformBeamline;
+  BDSFieldInfoExtra*       extraInfo;
 
   G4String nameOfParserDefinition;
   

@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -112,6 +111,6 @@ BDSParticleCoordsFull BDSBunchCompositeSDE::GetNextParticleLocal()
                                d.xp, d.yp, d.zp,
                                e.T, s.s,
                                e.totalEnergy,
-                               e.weight);
+                               s.weight * d.weight * e.weight);
   return result;
 }

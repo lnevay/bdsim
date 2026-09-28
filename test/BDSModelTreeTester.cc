@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -62,7 +61,8 @@ int main(int argc, char** argv)
     {std::cout << e.what() << std::endl;}
   catch (const std::exception& e)
     {std::cout << e.what() << std::endl;}
-  return 0;
+  std::cout << "End of test" << std::endl;
+  std::_Exit(0);
 }
 
 // define the ostream operator because ROOT doesn't :(

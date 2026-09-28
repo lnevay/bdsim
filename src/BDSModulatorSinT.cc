@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -28,10 +27,12 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 
 BDSModulatorSinT::BDSModulatorSinT(G4double frequencyIn,
                                    G4double phaseIn,
+                                   G4double synchronousTIn,
                                    G4double amplitudeOffsetIn,
                                    G4double amplitudeScaleIn):
   angularFrequency(CLHEP::twopi * frequencyIn),
   phase(phaseIn),
+  synchronousT(synchronousTIn),
   offset(amplitudeOffsetIn),
   scale(amplitudeScaleIn)
 {
@@ -42,7 +43,7 @@ BDSModulatorSinT::BDSModulatorSinT(G4double frequencyIn,
 G4double BDSModulatorSinT::Factor(const G4ThreeVector& /*xyz*/,
                                   G4double T) const
 {
-  G4double factor = offset + scale*std::sin(angularFrequency*T + phase);
+  G4double factor = offset + scale*std::sin(angularFrequency*(T-synchronousT) + phase);
   return factor;
 }
 

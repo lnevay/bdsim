@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -51,7 +50,11 @@ std::map<BDSFieldType, std::string>* BDSFieldType::dictionary =
       {BDSFieldType::mokka,            	           "mokka"},
       {BDSFieldType::solenoid,         	           "solenoid"},
       {BDSFieldType::solenoidsheet,                "solenoidsheet"},
+      {BDSFieldType::solenoidloop,                 "solenoidloop"},
+      {BDSFieldType::solenoidblock,                "solenoidblock"},
+      {BDSFieldType::gaborlens,                    "gaborlens"},
       {BDSFieldType::dipole,           	           "dipole"},
+      {BDSFieldType::dipoleenge,           	       "dipoleenge"},
       {BDSFieldType::quadrupole,       	           "quadrupole"},
       {BDSFieldType::dipolequadrupole,             "dipolequadrupole"},
       {BDSFieldType::sextupole,                    "sextupole"},
@@ -59,6 +62,7 @@ std::map<BDSFieldType, std::string>* BDSFieldType::dictionary =
       {BDSFieldType::decapole,                     "decapole"},
       {BDSFieldType::multipole,                    "multipole"},
       {BDSFieldType::muonspoiler,                  "muonspoiler"},
+      {BDSFieldType::muoncooler,                   "muoncooler"},
       {BDSFieldType::skewquadrupole,               "skewquadrupole"},
       {BDSFieldType::skewsextupole,                "skewsextupole"},
       {BDSFieldType::skewoctupole,                 "skewoctupole"},
@@ -110,7 +114,11 @@ BDSFieldType BDS::DetermineFieldType(G4String bType)
   types["mokka"]            = BDSFieldType::mokka;
   types["solenoid"]         = BDSFieldType::solenoid;
   types["solenoidsheet"]    = BDSFieldType::solenoidsheet;
+  types["solenoidloop"]     = BDSFieldType::solenoidloop;
+  types["solenoidblock"]    = BDSFieldType::solenoidblock;
+  types["gaborlens"]        = BDSFieldType::gaborlens;
   types["dipole"]           = BDSFieldType::dipole;
+  types["dipoleenge"]       = BDSFieldType::dipoleenge;
   types["quadrupole"]       = BDSFieldType::quadrupole;
   types["dipolequadrupole"] = BDSFieldType::dipolequadrupole;
   types["sextupole"]        = BDSFieldType::sextupole;
@@ -118,6 +126,7 @@ BDSFieldType BDS::DetermineFieldType(G4String bType)
   types["decapole"]         = BDSFieldType::decapole;
   types["multipole"]        = BDSFieldType::multipole;
   types["muonspoiler"]      = BDSFieldType::muonspoiler;
+  types["muoncooler"]       = BDSFieldType::muoncooler;
   types["skewquadrupole"]   = BDSFieldType::skewquadrupole;
   types["skewsextupole"]    = BDSFieldType::skewsextupole;
   types["skewoctupole"]     = BDSFieldType::skewoctupole;

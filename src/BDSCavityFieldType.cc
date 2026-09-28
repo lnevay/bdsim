@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -19,6 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSCavityFieldType.hh"
 #include "BDSDebug.hh"
 #include "BDSException.hh"
+#include "BDSFieldType.hh"
 #include "BDSUtilities.hh"
 
 #include "globals.hh"
@@ -57,4 +57,17 @@ BDSCavityFieldType BDS::DetermineCavityFieldType(G4String cavityFieldType)
   G4cout << __METHOD_NAME__ << " determined cavity field type to be " << result->second << G4endl;
 #endif
   return result->second;
+}
+
+BDSFieldType BDS::FieldTypeFromCavityFieldType(BDSCavityFieldType cavityFieldType)
+{
+  BDSFieldType result;
+  switch (cavityFieldType.underlying())
+    {
+    case BDSCavityFieldType::constantinz:
+      {result = BDSFieldType::rfconstantinz; break;}
+    case BDSCavityFieldType::pillbox:
+      {result = BDSFieldType::rfpillbox; break;}
+    }
+  return result;
 }

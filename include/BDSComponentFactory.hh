@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -19,12 +18,14 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BDSCOMPONENTFACTORY_H
 #define BDSCOMPONENTFACTORY_H
 
+#include "BDSBeamlineIntegral.hh"
 #include "BDSFieldType.hh"
 #include "BDSMagnetGeometryType.hh"
 #include "BDSMagnetStrength.hh"
 #include "BDSMagnetType.hh"
 #include "BDSIntegratorType.hh"
 #include "BDSIntegratorSetType.hh"
+#include "BDSParticleDefinition.hh"
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"
@@ -48,10 +49,10 @@ class BDSComponentFactoryUser;
 class BDSCrystalInfo;
 class BDSFieldInfo;
 class BDSIntegratorSet;
+class BDSLaser;
 class BDSMagnet;
 class BDSMagnetOuterInfo;
 class BDSModulatorInfo;
-class BDSParticleDefinition;
 class BDSTiltOffset;
 
 /**
@@ -76,9 +77,8 @@ class BDSTiltOffset;
 class BDSComponentFactory
 {
 public:
-  explicit BDSComponentFactory(const BDSParticleDefinition* designParticleIn,
-			       BDSComponentFactoryUser* userComponentFactoryIn = nullptr,
-			       G4bool usualPrintOut = true);
+  explicit BDSComponentFactory(BDSComponentFactoryUser* userComponentFactoryIn = nullptr,
+                               G4bool usualPrintOut = true);
   ~BDSComponentFactory();
 
   /// Create component from parser Element pointers to next and previous Element
@@ -89,7 +89,7 @@ public:
   BDSAcceleratorComponent* CreateComponent(GMAD::Element const* elementIn,
 					   GMAD::Element const* prevElementIn,
 					   GMAD::Element const* nextElementIn,
-					   G4double currentArcLengthIn = 0);
+					   BDSBeamlineIntegral& integral);
   
   /// Public creation for object that dynamically stops all particles once the primary
   /// has completed a certain number of turns.
@@ -134,7 +134,7 @@ public:
 
   /// Get the scaling factor for a particular outer field depending on the global and individual setting.
   static G4double ScalingFieldOuter(const GMAD::Element* ele);
-  
+
   /// Prepare the field definition for the yoke of a magnet.
   static BDSFieldInfo* PrepareMagnetOuterFieldInfo(const BDSMagnetStrength*  vacuumSt,
 						   const BDSFieldType&       fieldType,
@@ -157,7 +157,7 @@ public:
 						    G4double defaultVHRatio            = 1.0,
 						    G4double defaultCoilWidthFraction  = -1,
 						    G4double defaultCoilHeightFraction = -1);
-  
+
   /// Determine the magnet geometry type. If not specified or the global option to ignore
   /// local magnet geometry definitions is on, then the global default is used
   static BDSMagnetGeometryType MagnetGeometryType(const GMAD::Element* el);
@@ -177,7 +177,9 @@ public:
 						    G4double       defaultCoilHeightFraction = -1);
 
   /// Checks if colour is specified for element, else uses the default for that element type.
-  static G4Colour* PrepareColour(GMAD::Element const* element);
+  /// If the optional material is given and also element->autoColour is true then the material
+  /// colouring is used.
+  static G4Colour* PrepareColour(GMAD::Element const* element, const G4Material* material = nullptr);
 
   /// Checks if a material is named in Element::material, else uses the supplied default.
   static G4Material* PrepareMaterial(GMAD::Element const* element,
@@ -185,6 +187,13 @@ public:
 
   /// Try and get a material and exit if no such material.
   static G4Material* PrepareMaterial(GMAD::Element const* element);
+
+  /// Checks if a material is named in Element::tipMaterial, else uses the supplied default.
+  static G4Material* PrepareTipMaterial(GMAD::Element const* element,
+				     const G4String& defaultMaterialName);
+
+  /// Try and get a tipmaterial and exit if no such material.
+  static G4Material* PrepareTipMaterial(GMAD::Element const* element);
 
   /// Utility function to check if the combination of horizontal width, angle and length
   /// will result in overlapping entrance and exit faces and therefore whether to abort.
@@ -196,35 +205,48 @@ public:
   /// Check whether the pole face rotation angles are too big for practical construction.
   static void PoleFaceRotationsNotTooLarge(const GMAD::Element* el,
 					   G4double       maxAngle = 0.5*CLHEP::halfpi);
-  
+
   /// Get either the "gradient" member or the voltage and divide by the cavityLength
   /// argument (provided in case of reduced length) to get the E field in Geant4 units.
+  /// BRho is required to ensure the field is accelerating for the given particle. This
+  /// is a static function so we can't use the member variable integral.
   static G4double EFieldFromElement(GMAD::Element const* el,
-                                    G4double cavityLength);
-  
+                                    BDSFieldType fieldType,
+                                    G4double cavityLength,
+                                    const BDSParticleDefinition& incomingParticle);
+
+  /// Calculate the field and angle of an rbend from information in the element noting the
+  /// 'l' in an element is the chord length of an rbend. Variables passed by reference and
+  /// are updated as output. Note, this uses the MADX convention of +ve angle -> deflection
+  /// in -ve x.
+  static void CalculateAngleAndFieldRBend(const GMAD::Element* el,
+                                          G4double brhoIn,
+                                          G4double& arcLength,
+                                          G4double& chordLength,
+                                          G4double& field,
+                                          G4double& angle);
+
   /// Utility function to prepare crystal recipe for an element. Produces a unique object
   /// this class doesn't own.
   BDSCrystalInfo* PrepareCrystalInfo(const G4String& crystalName) const;
-  
+
 private:
   /// No default constructor
   BDSComponentFactory() = delete;
 
-  const BDSParticleDefinition* designParticle; ///< Particle w.r.t. which elements are built.
-  G4double brho;              ///< Rigidity in T*m (G4units) for beam particles.
-  G4double beta0;             ///< Cache of relativistic beta for primary particle.
   BDSComponentFactoryUser* userComponentFactory; ///< User component factory if any.
   G4double lengthSafety;      ///< Length safety from global constants.
   G4double thinElementLength; ///< Length of a thin element.
   G4bool includeFringeFields; ///< Cache of whether to include fringe fields.
   G4bool yokeFields;          ///< Cache of whether to include yoke magnetic fields.
   BDSModulatorInfo* defaultModulator; ///< Default modulator for all components.
-  
-  /// Updated each time CreateComponent is called - supplied from outside. Only here to pass around all functions easily.
-  G4double currentArcLength;
+  BDSBeamlineIntegral* integralUpToThisComponent; ///< To save passing it through many functions arguments.
+  G4double synchronousTAtMiddleOfThisComponent;
 
   /// Simple setter used to add Beta0 to a strength instance.
-  inline void SetBeta0(BDSMagnetStrength* stIn) const {(*stIn)["beta0"] = beta0;} 
+  inline void SetBeta0(BDSMagnetStrength* stIn) const {(*stIn)["beta0"] = integralUpToThisComponent->designParticle.Beta();}
+  /// Simple accessor to simplify repetitive code.
+  inline G4double BRho() const {return integralUpToThisComponent->designParticle.BRho();}
 
   /// element for storing instead of passing around
   GMAD::Element const* element = nullptr;
@@ -238,7 +260,7 @@ private:
   
   /// Private enum for RF cavity principle accelerating direction
   enum class RFFieldDirection {x, y, z};
-  
+
   BDSAcceleratorComponent* CreateDrift(G4double angleIn, G4double angleOut);
   BDSAcceleratorComponent* CreateRF(RFFieldDirection direction);
   BDSAcceleratorComponent* CreateSBend();
@@ -254,9 +276,14 @@ private:
   BDSAcceleratorComponent* CreateSolenoid();
   BDSAcceleratorComponent* CreateParallelTransporter();
   BDSAcceleratorComponent* CreateRectangularCollimator();
+  BDSAcceleratorComponent* CreateBeamMaskCollimator();
+  BDSAcceleratorComponent* CreateGasCapillary();
+  BDSAcceleratorComponent* CreateGasJet();
   BDSAcceleratorComponent* CreateTarget();
   BDSAcceleratorComponent* CreateEllipticalCollimator();
   BDSAcceleratorComponent* CreateJawCollimator();
+  BDSAcceleratorComponent* CreateTipJawCollimator();
+  BDSAcceleratorComponent* CreateMuonCooler();
   BDSAcceleratorComponent* CreateMuonSpoiler();
   BDSAcceleratorComponent* CreateShield();
   BDSAcceleratorComponent* CreateDegrader();
@@ -278,6 +305,8 @@ private:
 					     BDSModulatorInfo*        fieldModulator = nullptr);
   BDSAcceleratorComponent* CreateUndulator();
   BDSAcceleratorComponent* CreateDump();
+  BDSAcceleratorComponent* CreateLaserwire(G4double currentArcLength);
+
 #ifdef USE_DICOM
   BDSAcceleratorComponent* CreateCT();
 #endif
@@ -286,7 +315,7 @@ private:
 					      const G4String&          name,
 					      G4double                 irisRadius,
 					      BDSModulatorInfo*        fieldModulator = nullptr);
-
+  BDSAcceleratorComponent* CreateGaborLens();
 #ifdef USE_AWAKE
   BDSAcceleratorComponent* CreateAwakeScreen();
   BDSAcceleratorComponent* CreateAwakeSpectrometer();
@@ -317,6 +346,13 @@ private:
   /// Prepare all crystals in defined the parser.
   void PrepareCrystals();
 
+  /// Prepare all lasers defined in the parser.
+  void PrepareLasers();
+
+  /// Utility function to prepare laser. Prepares a unique object this class
+  /// doesn't own.
+  BDSLaser* PrepareLaser(GMAD::Element const* el) const;
+
   /// Utility function to prepare model info. Retrieve from cache of ones translated
   /// parser objects or create a default based on the element's aperture if none specified.
   /// Will always return a unique object that's not owned by this class. We need the
@@ -337,7 +373,7 @@ private:
 					   G4double             cavityLength,
 					   BDSMagnetStrength*&  fringeIn,
 					   BDSMagnetStrength*&  fringeOut) const;
-  
+
   /// Set the field definition on a BDSAcceleratorComponent from the string definition
   /// name in a parser element. In the case of a BDSMagnet, (exclusively) set the vacuum
   /// and outer field in place of the one general field.
@@ -361,6 +397,9 @@ private:
   /// Maps of crystal info instances by name.
   std::map<G4String, BDSCrystalInfo*> crystalInfos;
 
+  /// Map of laser instances by name. Owned by this class.
+  std::map<G4String, BDSLaser*> lasers;
+
   /// Local copy of reference to integrator set to use.
   const BDSIntegratorSet* integratorSet;
 
@@ -383,16 +422,6 @@ private:
 				   G4double&            angle,
 				   G4double&            field) const;
 
-  /// Calculate the field and angle of an rbend from information in the element noting the
-  /// 'l' in an element is the chord length of an rbend. Variables passed by reference and
-  /// are updated as output. Note, this uses the MADX convention of +ve angle -> deflection
-  /// in -ve x.
-  void CalculateAngleAndFieldRBend(const GMAD::Element* el,
-				   G4double& arcLength,
-				   G4double& chordLength,
-				   G4double& field,
-				   G4double& angle) const;
-
   /// Calculate the angle of a bend whether it's an rbend or an sbend.
   G4double BendAngle(const GMAD::Element* el) const;
 
@@ -409,23 +438,22 @@ private:
   /// incoming curvilinear coordinates, so for an rbend with e1=0, the returned
   /// angle will be half the bend angle. For an sbend, with e1=0, it'll be 0.
   G4double IncomingFaceAngle(const GMAD::Element* el) const;
-  
-  /// Update the BDSMagnetStrength key synchronousT0 with the time at the centre of the element.
-  void AddSynchronousTimeInformation(BDSMagnetStrength* st,
-                                     G4double elementArcLength) const;
 
   /// Return the modulator definition for a given element if one is specified
   /// in fieldModulator, else return the global default which could also be nullptr.
   BDSModulatorInfo* ModulatorDefinition(const GMAD::Element* el, G4bool inDevelopment=false) const; // TBC
-  
+
   /// TBC - remove when modulators are implemented fully.
   void INDEVELOPMENTERROR() const;
-  
+
   /// Pull out the right value - either 'kick' or 'h/vkick' for the appropriate
   /// type of kicker from the current member element.
   void GetKickValue(G4double& hkick,
 		    G4double& vkick,
 		    const KickerType type) const;
+
+  /// Calculate the electric field strength of the confined plasma in a Gabor lens.
+  void CalculateGaborLensStrength(BDSMagnetStrength* st) const;
 
   /// Registry of modified elements stored by original name and number of times
   /// modified - 0 counting. This is so when we modify elements beyond their definition
@@ -436,7 +464,7 @@ private:
 
   /// Variable used to pass around the possibly modified name of an element.
   G4String elementName;
-  
+
   /// Only allow colours to be constructed from parser definitions once. Static so we can use
   /// a component factory many times without calling multiple times.
   static G4bool coloursInitialised;

@@ -1,0 +1,284 @@
+name: bdsim
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - 'develop'
+      - 'master'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  btlinux:
+    name: bt linux 	
+    runs-on: ubuntu-latest
+    container: bdsim/${{ matrix.container }}:latest
+     
+    strategy:
+      fail-fast: false
+      matrix:
+        container: [ubuntu24-g4.10.7, ubuntu24-g4.11.0, ubuntu24-g4.11.1, ubuntu24-g4.11.2, ubuntu24-g4.11.3, ubuntu24-g4.11.4,
+                    alma10-g4.10.7, alma10-g4.11.0, alma10-g4.11.1, alma10-g4.11.2, alma10-g4.11.3, alma10-g4.11.4]
+    steps:
+      - name: Checkout bdsim
+        uses: actions/checkout@v4
+        id: checkout 
+
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+
+      - name: Echo number of cores
+        shell: bash
+        run: echo "Number of cores ${{ steps.cpu-cores.outputs.count }}"
+
+      - name: Working dir
+        run: |
+          pwd
+
+      - name: Build bdsim
+        shell: bash
+        run: |
+          #
+          rm -rfv /usr/local/lib/Geant4-10.7.4/Geant4PackageCache.cmake
+          rm -rfv /usr/local/lib/Geant4-11.0.4/Geant4PackageCache.cmake
+          rm -rfv /usr/local/lib64/Geant4-10.7.4/Geant4PackageCache.cmake
+          rm -rfv /usr/local/lib64/Geant4-11.0.4/Geant4PackageCache.cmake
+
+          # ROOT 
+          source /bdsim/setup.sh
+
+          # git trusted dir 
+          git config --global --add safe.directory $GITHUB_WORKSPACE
+
+          if [[ "${{ matrix.container }}" == "ubuntu24"* ]]; then
+            PYBIND_CMAKE_PATH=$(/bdsim/venv-bdsim/bin/python -m pybind11 --cmakedir)
+          elif [[ "${{ matrix.container }}" == "alma9"* ]]; then
+            PYBIND_CMAKE_PATH=$(python3.12 -m pybind11 --cmakedir)
+          else 
+            PYBIND_CMAKE_PATH=$(python3 -m pybind11 --cmakedir)
+          fi
+          
+          # build
+          mkdir /tmp/bdsim-build
+          mkdir /tmp/bdsim-install
+          cd /tmp/bdsim-build
+          if [[ "${{ matrix.container }}" == "centos8-g4.10.7" ]]; then
+            cmake -DCMAKE_CXX_STANDARD=17 \
+                  -DCMAKE_INSTALL_PREFIX=/bdsim/bdsim-install \
+                  "$GITHUB_WORKSPACE"
+          else 
+            cmake -DCMAKE_CXX_STANDARD=17 \
+                  -DCMAKE_INSTALL_PREFIX=/bdsim/bdsim-install \
+                  -DUSE_PYTHON_BINDINGS=ON \
+                  -DCMAKE_PREFIX_PATH=$PYBIND_CMAKE_PATH \
+                  -DUSE_PLASMA_HDF5=ON \
+                  -DUSE_HEPMC3=ON \
+                  -DBDSIM_BUILD_TEST_PROGRAMS=ON \
+                  "$GITHUB_WORKSPACE"          
+          fi
+          
+          make -j${{ steps.cpu-cores.outputs.count }} install
+
+
+
+      - name: Test bdsim
+        shell: bash
+        run: |
+          # Set upt geant4 and bdsim 
+          source /bdsim/setup.sh
+          source /bdsim/bdsim-install/bin/bdsim.sh
+
+          # run tests
+          cd /tmp/bdsim-build
+          ctest -j${{ steps.cpu-cores.outputs.count }} --output-on-failure
+
+
+      - name: Test bdsim python
+        shell: bash
+        run: |      
+            # set up environment
+            source /bdsim/venv-bdsim/bin/activate
+            source /bdsim/setup.sh
+            source /bdsim/bdsim-install/bin/bdsim.sh
+            
+            # install python deps             
+            /bdsim/venv-bdsim/bin/pip uninstall pybdsim -y
+            /bdsim/venv-bdsim/bin/pip install "pybdsim[dev] @ git+https://github.com/bdsim-collaboration/pybdsim.git@develop"
+            /bdsim/venv-bdsim/bin/pip install rpyc
+            /bdsim/venv-bdsim/bin/pip install pandas
+            if [[ "${{ matrix.container }}" == ubuntu24* ]]; then
+              export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+            fi
+            export GLIBC_TUNABLES=glibc.rtld.optional_static_tls=2097152:glibc.rtld.nns=8
+            
+            # run pytest
+            cd examples
+            LD_DEBUG=statistics pytest -v
+
+  btmac:
+    name: bt mac
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        geant4-version: ["v10.7.4", "v11.0.4", "v11.1.3", "v11.2.2", "v11.3.2", "v11.4.2"]
+        os: [macOS-15]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+
+      - name: Echo number of cores
+        shell: bash
+        run: echo "Number of cores ${{ steps.cpu-cores.outputs.count }}"
+
+      - name: Install brew dependencies on MacOS
+        run: .github/bin/install-deps-macos.sh
+
+      - name: Bison path
+        shell: bash      
+        run: |
+          # Switch bison depending on macOS
+          if [[ "${{ matrix.os }}" == "macOS-14" ]]; then
+            echo "BISON_PATH=/opt/homebrew/opt/bison/bin/bison" >> $GITHUB_ENV
+          elif [[ "${{ matrix.os }}" == "macOS-15" ]]; then
+            echo "BISON_PATH=/opt/homebrew/opt/bison/bin/bison" >> $GITHUB_ENV
+          elif [[ "${{ matrix.os }}" == "macOS-15-intel" ]]; then
+            echo "BISON_PATH=/usr/local/opt/bison/bin/bison" >> $GITHUB_ENV
+          fi
+
+      - name: Get Geant4
+        shell: bash
+        run: |
+          # download geant4 build
+          wget -q https://github.com/bdsim-collaboration/mac_geant4/releases/download/v0.0.29/geant4-${{ matrix.os}}-${{ matrix.geant4-version }}.tgz
+          # unpack geant4
+          tar zxf geant4-${{ matrix.os }}-${{ matrix.geant4-version }}.tgz -C /tmp/
+
+
+      - name: Build bdsi9
+        shell: bash
+        run: |
+          rm -rfv /tmp/geant4-v10.7.4/lib/Geant4-10.7.4/Geant4PackageCache.cmake
+          rm -rfv /tmp/geant4-v11.0.4/lib/Geant4-11.0.4/Geant4PackageCache.cmake
+
+          # source geant4 setup
+          source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
+
+          # Set up root, geant4 and bdsim
+          if [[ "${{ matrix.os }}" == "macOS-14" ]]; then
+            source /opt/homebrew/bin/thisroot.sh  
+          elif [[ "${{ matrix.so }}" == "macOS-15" ]]; then
+            source /opt/homebrew/bin/thisroot.sh
+          elif [[ "${{ matrix.so }}" == "macOS-15-intel" ]]; then
+            source /usr/homebrew/bin/thisroot.sh
+          fi 
+          
+          # build
+          mkdir /tmp/bdsim-build
+          mkdir /tmp/bdsim-install
+          cd /tmp/bdsim-build
+          cmake -DCMAKE_INSTALL_PREFIX=/tmp/bdsim-install \
+                -DBISON_EXECUTABLE=$BISON_PATH \
+                -DUSE_PYTHON_BINDINGS=ON \
+                -DCMAKE_PREFIX_PATH="$(python3 -m pybind11 --cmakedir)" \
+                -DUSE_PLASMA_HDF5=ON \
+                -DUSE_HEPMC3=ON \
+                -DBDSIM_BUILD_TEST_PROGRAMS=ON \
+                "$GITHUB_WORKSPACE"
+          make -j${{ steps.cpu-cores.outputs.count }} install
+
+      - name: Test bdsim
+        shell: bash
+        run: |
+          source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
+          source /tmp/bdsim-install/bin/bdsim.sh
+
+          # geant4 contains absolute paths
+          if [[ "${{ matrix.geant4-version }}" == "v10.7.4" ]]; then
+            export G4NEUTRONHPDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4NDL4.6"
+            export G4LEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4EMLOW7.13"
+            export G4LEVELGAMMADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/PhotonEvaporation5.7"
+            export G4RADIOACTIVEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/RadioactiveDecay5.6"
+            export G4PARTICLEXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4PARTICLEXS3.1.1"
+            export G4PIIDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4PII1.3"
+            export G4REALSURFACEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/RealSurface2.2"
+            export G4SAIDXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4SAIDDATA2.0"
+            export G4ABLADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4ABLA3.1"
+            export G4INCLDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4INCL1.0"
+            export G4ENSDFSTATEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4ENSDFSTATE2.3"
+          fi
+
+          if [[ "${{ matrix.geant4-version }}" == "v11.0.4" ]]; then
+            export G4NEUTRONHPDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4NDL4.6"
+            export G4LEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4EMLOW8.0"
+            export G4LEVELGAMMADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/PhotonEvaporation5.7"
+            export G4RADIOACTIVEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/RadioactiveDecay5.6"
+            export G4PARTICLEXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4PARTICLEXS4.0"
+            export G4PIIDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4PII1.3"
+            export G4REALSURFACEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/RealSurface2.2"
+            export G4SAIDXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4SAIDDATA2.0"
+            export G4ABLADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4ABLA3.1"
+            export G4INCLDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4INCL1.0"
+            export G4ENSDFSTATEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4ENSDFSTATE2.3"
+          fi 
+
+          # run tests          
+          cd /tmp/bdsim-build
+          ctest -j${{ steps.cpu-cores.outputs.count }} --output-on-failure
+
+      - name: Test bdsim python
+        shell: bash
+        run: |
+          # set up environment
+          source /tmp/geant4-${{ matrix.geant4-version }}/bin/geant4.sh
+          source /tmp/bdsim-install/bin/bdsim.sh     
+
+          # geant4 contains absolute paths (TODO should be removed as duplicate in previous step)
+          if [[ "${{ matrix.geant4-version }}" == "v10.7.4" ]]; then
+            export G4NEUTRONHPDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4NDL4.6"
+            export G4LEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4EMLOW7.13"
+            export G4LEVELGAMMADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/PhotonEvaporation5.7"
+            export G4RADIOACTIVEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/RadioactiveDecay5.6"
+            export G4PARTICLEXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4PARTICLEXS3.1.1"
+            export G4PIIDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4PII1.3"
+            export G4REALSURFACEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/RealSurface2.2"
+            export G4SAIDXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4SAIDDATA2.0"
+            export G4ABLADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4ABLA3.1"
+            export G4INCLDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4INCL1.0"
+            export G4ENSDFSTATEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-10.7.4/data/G4ENSDFSTATE2.3"
+          fi
+
+          if [[ "${{ matrix.geant4-version }}" == "v11.0.4" ]]; then
+            export G4NEUTRONHPDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4NDL4.6"
+            export G4LEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4EMLOW8.0"
+            export G4LEVELGAMMADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/PhotonEvaporation5.7"
+            export G4RADIOACTIVEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/RadioactiveDecay5.6"
+            export G4PARTICLEXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4PARTICLEXS4.0"
+            export G4PIIDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4PII1.3"
+            export G4REALSURFACEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/RealSurface2.2"
+            export G4SAIDXSDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4SAIDDATA2.0"
+            export G4ABLADATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4ABLA3.1"
+            export G4INCLDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4INCL1.0"
+            export G4ENSDFSTATEDATA="/tmp/geant4-${{ matrix.geant4-version }}/share/Geant4-11.0.4/data/G4ENSDFSTATE2.3"
+          fi 
+          
+          # can't seem to find the HepMC3 library on macOS, so add it to the DYLD_LIBRARY_PATH
+          export DYLD_LIBRARY_PATH=/usr/local/lib/:$DYLD_LIBRARY_PATH
+          
+          pip install "pybdsim[dev] @ git+https://github.com/bdsim-collaboration/pybdsim.git@develop"
+          pip install rpyc
+          pip install rpyc
+          pip install pandas
+          
+          # run pytest
+          cd examples
+          pytest -v

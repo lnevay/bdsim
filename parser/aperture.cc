@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -52,13 +51,13 @@ void Aperture::PublishMembers()
   publish("aperture4",     &Aperture::aper4); // alternative
 }
 
-void Aperture::print()const
+void Aperture::print() const
 {
   std::cout << "Aperture: "
 	    << "name "          << name          << std::endl
 	    << "apertureType "  << apertureType  << std::endl
 	    << "aper1 "         << aper1         << std::endl
 	    << "aper2 "         << aper2         << std::endl
-    	    << "aper3 "         << aper3         << std::endl
-    	    << "aper4 "         << aper4         << std::endl;
+      << "aper3 "         << aper3         << std::endl
+      << "aper4 "         << aper4         << std::endl;
 }

@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -41,9 +40,11 @@ class BDSMagnetStrength;
 class BDSIntegratorCavityFringe: public BDSIntegratorRMatrixThin
 {
 public:
+  BDSIntegratorCavityFringe() = delete;
 	BDSIntegratorCavityFringe(BDSMagnetStrength const* strength,
-			   G4Mag_EqRhs* eqOfMIn,
-			   G4double maximumRadiusIn);
+                            G4Mag_EqRhs* eqOfMIn,
+                            G4double brho,
+                            G4double maximumRadiusIn);
 
   virtual ~BDSIntegratorCavityFringe(){;}
 
@@ -54,10 +55,8 @@ public:
                        G4double       yErr[]);
 
 private:
-  BDSIntegratorCavityFringe();
-
   const	G4double phase;
-  const	G4double efield;
+  G4double efield;
   const	G4double isentrance;
 
 protected:

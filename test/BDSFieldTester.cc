@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -207,7 +206,7 @@ int main(int /*argc*/, char** /*argv*/)
   // outer lhc dipole
   innerField = new BDSFieldMagDipole(st);
   positiveField = (*st)["field"] < 0; // note convention for dipoles here
-  field = new BDSFieldMagMultipoleOuterDual(1, poleTipRadius, innerField, positiveField, lhcDX, true);
+  field = new BDSFieldMagMultipoleOuterDual(1, poleTipRadius, innerField, positiveField, lhcDX, true, true, true);
   delete innerField;
   fields.push_back(field);
   names.emplace_back("multipoleouterdipolelhc");
@@ -215,7 +214,7 @@ int main(int /*argc*/, char** /*argv*/)
   // outer lhc quadrupole
   innerField = new BDSFieldMagQuadrupole(st, brho);
   positiveField = (*st)["k1"] > 0;
-  field = new BDSFieldMagMultipoleOuterDual(2, poleTipRadius, innerField, positiveField, lhcDX, true);
+  field = new BDSFieldMagMultipoleOuterDual(2, poleTipRadius, innerField, positiveField, lhcDX, true, true, false);
   delete innerField;
   fields.push_back(field);
   names.emplace_back("multipoleouterquadrupolelhc");
@@ -223,7 +222,7 @@ int main(int /*argc*/, char** /*argv*/)
   // outer lhc sextupole
   innerField = new BDSFieldMagSextupole(st, brho);
   positiveField = (*st)["k2"] > 0;
-  field = new BDSFieldMagMultipoleOuterDual(3, poleTipRadius, innerField, positiveField, lhcDX, true);
+  field = new BDSFieldMagMultipoleOuterDual(3, poleTipRadius, innerField, positiveField, lhcDX, true, true, true);
   delete innerField;
   fields.push_back(field);
   names.emplace_back("multipoleoutersextupolelhc");

@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -41,9 +40,9 @@ public:
   virtual void EndOfRunAction(const G4Run* aRun);
 
   void AppendHits(G4int currentEventIndex,
-		              G4int externalParticleID,
-		              G4int externalParentID,
-		              const BDSHitsCollectionSamplerLink* hits);
+                  G4int externalParticleID,
+                  G4int externalParentID,
+                  const BDSHitsCollectionSamplerLink* hits);
 
   BDSHitsCollectionSamplerLink* SamplerHits() const {return allHits;}
   void ClearSamplerHits() {delete allHits; allHits = nullptr;}

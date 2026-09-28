@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -30,7 +29,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
  * @author Grahame Blair.
  */
 
-class BDSComptonEngine  
+class BDSComptonEngine
 { 
 public: 
   BDSComptonEngine();

@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -36,7 +35,7 @@ class BDSPhysicsAnnihiToMuMu: public G4VPhysicsConstructor, public BDSSingleUse
 public:
   BDSPhysicsAnnihiToMuMu();
   virtual ~BDSPhysicsAnnihiToMuMu();
-  /// Construct all leptions, photons (inc optical), and pion +- just in case.
+  /// Construct all leptons, photons (inc optical), and pion +- just in case.
   virtual void ConstructParticle();
 
   /// Construct and attach the processes to the relevant particles.

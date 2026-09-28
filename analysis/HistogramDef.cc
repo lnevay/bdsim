@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -19,6 +18,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "HistogramDef.hh"
 
 #include <iostream>
+#include <regex>
 #include <string>
 
 ClassImp(HistogramDef)
@@ -52,4 +52,10 @@ std::ostream& operator<< (std::ostream& out, const HistogramDef& s)
   std::string bs = s.GetBinningString();
   out << hs << " " << s.treeName << " " << s.histName << " " << bs << " " << s.variable << " " << s.selection << "\n";
   return out;
+}
+
+void HistogramDef::ReplaceStringInVariable(const std::string& match,
+                                           const std::string& replacement)
+{
+  variable = std::regex_replace(variable, std::regex(match), replacement);
 }

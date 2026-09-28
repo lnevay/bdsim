@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -270,9 +269,7 @@ void BDSOutputROOTEventTrajectory::FillIndividualTrajectory(IndividualTrajectory
   
   // Position
   G4ThreeVector pos = point->GetPosition();
-  itj.XYZ.emplace_back(TVector3(pos.getX() / CLHEP::m,
-                                pos.getY() / CLHEP::m,
-                                pos.getZ() / CLHEP::m));
+  itj.XYZ.emplace_back(pos.getX() / CLHEP::m, pos.getY() / CLHEP::m, pos.getZ() / CLHEP::m);
   
   G4VPhysicalVolume* vol = auxNavigator->LocateGlobalPointAndSetup(pos,nullptr,true,true,true);
   BDSPhysicalVolumeInfo* theInfo = BDSPhysicalVolumeInfoRegistry::Instance()->GetInfo(vol);
@@ -291,9 +288,7 @@ void BDSOutputROOTEventTrajectory::FillIndividualTrajectory(IndividualTrajectory
   itj.postWeight.push_back(point->GetPostWeight());
   itj.energyDeposit.push_back(point->GetEnergyDeposit() / CLHEP::GeV);
   G4ThreeVector mom = point->GetPreMomentum() / CLHEP::GeV;
-  itj.PXPYPZ.emplace_back(TVector3(mom.getX(),
-                                   mom.getY(),
-                                   mom.getZ()));
+  itj.PXPYPZ.emplace_back(mom.getX(), mom.getY(), mom.getZ());
   itj.S.push_back(point->GetPreS() / CLHEP::m);
   itj.T.push_back(point->GetPreGlobalTime() / CLHEP::ns);
   itj.kineticEnergy.push_back(point->GetKineticEnergy() / CLHEP::GeV);
@@ -304,12 +299,8 @@ void BDSOutputROOTEventTrajectory::FillIndividualTrajectory(IndividualTrajectory
     {
       G4ThreeVector localPos = point->GetPositionLocal() / CLHEP::m;
       G4ThreeVector localMom = point->GetMomentumLocal() / CLHEP::GeV;
-      itj.xyz.emplace_back(TVector3(localPos.getX(),
-                                 localPos.getY(),
-                                 localPos.getZ()));
-      itj.pxpypz.emplace_back(TVector3(localMom.getX(),
-                                    localMom.getY(),
-                                    localMom.getZ()));
+      itj.xyz.emplace_back(localPos.getX(), localPos.getY(), localPos.getZ());
+      itj.pxpypz.emplace_back(localMom.getX(), localMom.getY(), localMom.getZ());
     }
   
   if (point->extraLink)

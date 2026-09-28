@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -118,6 +117,7 @@ namespace GMAD
       
       ///@{ for the ring beam distribution
       double Rmin, Rmax;
+      double Rpmin, Rpmax;
       ///@}
       
       ///@{ for the halo distribution
@@ -139,7 +139,7 @@ namespace GMAD
 
       bool offsetSampleMean;
 
-      /// @{ Event generator file filter.
+      /// @{ fo event generator file filter
       int    eventGeneratorNEventsSkip;
       double eventGeneratorMinX;
       double eventGeneratorMaxX;
@@ -162,9 +162,20 @@ namespace GMAD
       std::string eventGeneratorParticles;
       bool   eventGeneratorWarnSkippedParticles;
       /// @}
+
+      /// @{ for slow-extraction beam
+      double dTStart;
+      double dTStop;
+      double dPStart;
+      double dPStop;
+      /// @}
   
       /// A list of all the keys that have been set in this instance.
       std::vector<std::string> setKeys;
+
+      double polarization1;
+      double polarization2;
+      double polarization3;
     };
 }
 

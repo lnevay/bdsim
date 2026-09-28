@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -136,8 +135,7 @@ std::string BDSMessenger::BDSBeamlineElementToString(G4int iElement)
 void BDSMessenger::ElementNameSearch(std::string name)
 {
   const BDSBeamline* beamline = BDSAcceleratorModel::Instance()->BeamlineMain();
-  int j=0;
-  for (auto i = beamline->begin(); i != beamline->end(); ++i, ++j)
+  for (auto i = beamline->begin(); i != beamline->end(); ++i)
     {
       if(BDS::StrContains((*i)->GetName(), name))
         {G4cout << (*i)->GetName() << G4endl;}
@@ -198,6 +196,11 @@ void BDSMessenger::ElementTypeSearch(std::string /*type*/)
 
 void BDSMessenger::SamplerList()
 {
+  if (BDSSamplerRegistry::Instance()->size() == 0)
+    {
+      G4cout << "No samplers defined" << G4endl;
+      return;
+    }
   for (const auto& name : BDSSamplerRegistry::Instance()->GetUniqueNames())
     {G4cout << name << G4endl;}
 }
@@ -206,7 +209,7 @@ void BDSMessenger::ViewSamplers()
 {
   // we can't use drawVolume because that clears the scene and only draws one volume
   // inside it really applied add/volume as we do here
-  // some how viewing worlds undoes these trajectory actions in our default vis.mac
+  // somehow viewing worlds undoes these trajectory actions in our default vis.mac
   G4UImanager* UIManager = G4UImanager::GetUIpointer();
   UIManager->ApplyCommand("/vis/scene/add/volume SamplerWorld_main");
   UIManager->ApplyCommand("/vis/sceneHandler/attach");
@@ -234,7 +237,7 @@ std::string BDSMessenger::BDSSamplerToString(int iSampler)
 
 void BDSMessenger::ListQueries()
 {
-  auto queries = BDSParser::Instance()->GetQuery();
+  auto queries = BDSParser::Instance()->GetQueries();
   for (const auto& qu : queries)
     {G4cout << qu.name << G4endl;}
 }

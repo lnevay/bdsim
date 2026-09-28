@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -60,8 +59,8 @@ public:
   G4double yHigh;
   G4double zLow;
   G4double zHigh;
-  G4double rLow;
-  G4double rHigh;
+  G4double rInner;
+  G4double rOuter;
   G4double eLow;
   G4double eHigh;
   std::string eScale;
@@ -73,7 +72,6 @@ public:
   inline G4double  ScoringMeshX() const {return 0.5*(xHigh-xLow);}
   inline G4double  ScoringMeshY() const {return 0.5*(yHigh-yLow);}
   inline G4double  ScoringMeshZ() const {return 0.5*(zHigh-zLow);}
-  inline G4double  ScoringMeshR() const {return 0.5*(rHigh-rLow);}
   inline G4double  ScoringMeshE() const {return 0.5*(eHigh-eLow);}
   inline BDSExtent Extent()      const {return extent;}
 

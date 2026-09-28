@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -37,8 +36,7 @@ BDSPhysicsGammaToMuMu::~BDSPhysicsGammaToMuMu()
 
 void BDSPhysicsGammaToMuMu::ConstructParticle()
 { 
-  G4LeptonConstructor leptons;
-  leptons.ConstructParticle();
+  G4LeptonConstructor::ConstructParticle();
 }
 
 void BDSPhysicsGammaToMuMu::ConstructProcess()

@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -18,6 +17,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSArrayReflectionType.hh"
 #include "BDSFieldInfo.hh"
+#include "BDSFieldInfoExtra.hh"
 #include "BDSFieldType.hh"
 #include "BDSIntegratorType.hh"
 #include "BDSInterpolatorType.hh"
@@ -70,6 +70,7 @@ BDSFieldInfo::BDSFieldInfo():
   ignoreUpdateOfMaximumStepSize(false),
   isThin(false),
   transformBeamline(nullptr),
+  extraInfo(nullptr),
   nameOfParserDefinition("")
 {;}
 
@@ -127,6 +128,7 @@ BDSFieldInfo::BDSFieldInfo(BDSFieldType             fieldTypeIn,
   ignoreUpdateOfMaximumStepSize(false),
   isThin(false),
   transformBeamline(nullptr),
+  extraInfo(nullptr),
   nameOfParserDefinition("")
 {
   if (transformIn != G4Transform3D::Identity)
@@ -142,8 +144,10 @@ BDSFieldInfo::~BDSFieldInfo()
 {
   delete magnetStrength;
   delete transform;
-  delete stepLimit;
+  if (stepLimit != defaultUL)
+    {delete stepLimit;}
   delete transformBeamline;
+  delete extraInfo;
 }
 
 BDSFieldInfo::BDSFieldInfo(const BDSFieldInfo& other):
@@ -177,6 +181,7 @@ BDSFieldInfo::BDSFieldInfo(const BDSFieldInfo& other):
   ignoreUpdateOfMaximumStepSize(other.ignoreUpdateOfMaximumStepSize),
   isThin(other.isThin),
   transformBeamline(nullptr),
+  extraInfo(nullptr),
   nameOfParserDefinition(other.nameOfParserDefinition)
 {
   if (other.transform)
@@ -194,6 +199,9 @@ BDSFieldInfo::BDSFieldInfo(const BDSFieldInfo& other):
 
   if (other.transformBeamline)
     {transformBeamline = new G4Transform3D(*other.transformBeamline);}
+
+  if (other.extraInfo)
+    {extraInfo = other.extraInfo->Clone();}
 }
 
 void BDSFieldInfo::SetUserLimits(G4UserLimits* userLimitsIn)
@@ -267,6 +275,7 @@ std::ostream& operator<< (std::ostream& out, BDSFieldInfo const& info)
       G4double maxStep = info.stepLimit->GetMaxAllowedStep(t);
       out << "Step limit:        " << maxStep << G4endl;
     }
+  out << "extra info " << (info.extraInfo ? "present" : "not present") << G4endl;
   return out;
 }
 
@@ -280,6 +289,14 @@ void BDSFieldInfo::Translate(const G4ThreeVector& translationIn)
   G4Transform3D* newTransform = new G4Transform3D(rm, translation);
   delete transform;
   transform = newTransform;
+}
+
+G4double BDSFieldInfo::SynchronousT() const
+{
+  if (!magnetStrength)
+    {return 0;}
+  else
+    {return (*magnetStrength)["synchronousT0"];}
 }
 
 G4Transform3D BDSFieldInfo::Transform() const

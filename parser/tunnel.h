@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -68,7 +67,7 @@ namespace GMAD
     void print()const;
     /// set methods by property name and value
     template <typename T>
-      void set_value(std::string property, T value);
+    void set_value(std::string property, T value, bool bExit = true);
 
   private:
     /// Publish members
@@ -76,20 +75,24 @@ namespace GMAD
   };
   
   template <typename T>
-  void Tunnel::set_value(std::string property, T value)
+  void Tunnel::set_value(std::string property, T value, bool bExit)
     {
 #ifdef BDSDEBUG
       std::cout << "tunnel> Setting value " << std::setw(25) << std::left << property << value << std::endl;
 #endif
       // member method can throw runtime_error, catch and exit gracefully
       try
-	{set(this,property,value);}
+        {set(this,property,value);}
       catch(const std::runtime_error&)
-	{
-	  std::cerr << "Error: tunnel> unknown option \"" << property << "\" with value " << value << "\"" << std::endl;
-	  exit(1);
-	}
-    }
-}
+        {
+          std::cerr << "Error: tunnel> unknown option \"" << property << "\" with value " << value << "\"" << std::endl;
+          if (bExit)
+            {exit(1);}
+          else
+            {
+              std::rethrow_exception(std::current_exception());} // to be caught by python
+            }
+        }
+      }
 
 #endif

@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -85,6 +84,7 @@ void Element::PublishMembers()
   publish("phase",     &Element::phase);
   publish("tOffset",   &Element::tOffset);
   publish("fieldModulator", &Element::fieldModulator);
+  publish("kg",        &Element::kg);
 
   // rmatrix elements, only 4x4
   publish("kick1",     &Element::kick1);
@@ -149,10 +149,18 @@ void Element::PublishMembers()
   publish("ysizeOut",         &Element::ysizeOut);
   publish("xsizeLeft",        &Element::xsizeLeft);
   publish("xsizeRight",       &Element::xsizeRight);
-  publish("offsetX",     &Element::offsetX);
-  publish("offsetY",     &Element::offsetY);
-  publish("jawTiltLeft",     &Element::jawTiltLeft);
+  publish("offsetX",          &Element::offsetX);
+  publish("offsetY",          &Element::offsetY);
+  publish("jawTiltLeft",      &Element::jawTiltLeft);
   publish("jawTiltRight",     &Element::jawTiltRight);
+
+  // PWFA
+  publish("xsize2",            &Element::xsize2);
+  publish("ysize2",            &Element::ysize2);
+  publish("offsetX2",          &Element::offsetX2);
+  publish("offsetY2",          &Element::offsetY2);
+  publish("tilt2",             &Element::tilt2);
+  publish("outerShape",        &Element::outerShape);
 
   // screen parameters
   publish("tscint",          &Element::tscint);
@@ -185,7 +193,9 @@ void Element::PublishMembers()
   publish("xdir",        &Element::xdir);
   publish("ydir",        &Element::ydir);
   publish("zdir",        &Element::zdir);
-  publish("waveLength",  &Element::waveLength);
+  publish("wavelength",  &Element::wavelength);
+  publish("waveLength",  &Element::wavelength);
+  alternativeNames["waveLength"] = "wavelength";
   publish("phi",         &Element::phi);
   publish("theta",       &Element::theta);
   publish("psi",         &Element::psi);
@@ -201,6 +211,17 @@ void Element::PublishMembers()
   publish("materialThickness", &Element::materialThickness);
   publish("degraderOffset",    &Element::degraderOffset);
 
+  publish("laserBeam",         &Element::laserBeam);
+  publish("laserOffsetTheta",  &Element::laserOffsetTheta);
+  publish("laserOffsetPhi",    &Element::laserOffsetPhi);
+  publish("laserOffsetX",      &Element::laserOffsetX);
+  publish("laserOffsetY",      &Element::laserOffsetY);
+  publish("laserOffsetZ",      &Element::laserOffsetZ);
+
+  publish("undulatorPeriod",       &Element::undulatorPeriod);
+  publish("undulatorGap",          &Element::undulatorGap);
+  publish("undulatorMagnetHeight", &Element::undulatorMagnetHeight);
+
   // for wirescanner
   publish("wireDiameter",      &Element::wireDiameter);
   publish("wireLength",        &Element::wireLength);
@@ -214,10 +235,23 @@ void Element::PublishMembers()
   publish("undulatorGap",          &Element::undulatorGap);
   publish("undulatorMagnetHeight", &Element::undulatorMagnetHeight);
 
+  // for gabor lens
+  publish("anodeRadius",         &Element::anodeRadius);
+  publish("anodeLength",         &Element::anodeLength);
+  publish("anodeThickness",      &Element::anodeThickness);
+  publish("electrodeRadius",     &Element::electrodeRadius);
+  publish("electrodeLength",     &Element::electrodeLength);
+  publish("electrodeThickness",  &Element::electrodeThickness);
+
+  // for jaw collimator with tip
+  publish("tipThickness",     &Element::tipThickness);
+  publish("tipMaterial",      &Element::tipMaterial);
+
   // bias
   publish("bias",                &Element::bias);
   publish("biasMaterial",        &Element::biasMaterial);
   publish("biasVacuum",          &Element::biasVacuum);
+  publish("biasMaterialLV",      &Element::biasMaterialLV);
 
   publish("minimumKineticEnergy",&Element::minimumKineticEnergy);
 
@@ -259,6 +293,17 @@ void Element::PublishMembers()
   publish("crystalBoth",            &Element::crystalBoth);
   publish("crystalAngleYAxisLeft" , &Element::crystalAngleYAxisLeft);
   publish("crystalAngleYAxisRight", &Element::crystalAngleYAxisRight);
+
+  publish("coolingDefinition",      &Element::coolingDefinition);
+
+  attribute_map_list_double["knl"]                = &knl;
+  attribute_map_list_double["ksl"]                = &ksl;
+  attribute_map_list_double["layerThicknesses"]   = &layerThicknesses;
+  attribute_map_list_string["layerMaterials"]     = &layerMaterials;
+  attribute_map_list_int["layerIsSampler"]        = &layerIsSampler;
+  attribute_map_list_string["biasMaterialList"]   = &biasMaterialList;
+  attribute_map_list_string["biasVacuumList"]     = &biasVacuumList;
+  attribute_map_list_string["biasMaterialLVList"] = &biasMaterialLVList;
 }
 
 std::string Element::getPublishedName(const std::string& nameIn) const
@@ -284,8 +329,8 @@ void Element::print(int ident) const
     {std::cout << "--";}
 
   std::cout << name << " : " << type << std::endl;
-  if (l>0.0)
-    {std::cout << "l     = " << l << "m" << std::endl;}
+  if (l > 0.0)
+    {std::cout << "l = " << l << "m" << std::endl;}
   if (horizontalWidth > 0)
     {std::cout << "horizontalWidth = " << horizontalWidth << "m" << std::endl;}
   if (samplerType != "none")
@@ -294,7 +339,6 @@ void Element::print(int ident) const
                 << "samplerRadius = " << samplerRadius << "\n"
                 << "samplerarticleSetID = " << samplerParticleSetID << std::endl;
     }
-  
 
   switch(type)
     {
@@ -330,7 +374,9 @@ void Element::print(int ident) const
       }
     case ElementType::_ECOL:
     case ElementType::_RCOL:
+    case ElementType::_BMCOL:
     case ElementType::_JCOL:
+    case ElementType::_JCOLTIP:
       {
         std::cout << "x half aperture = " << xsize <<" m" << std::endl
                   << "y half aperture = " << ysize <<" m" << std::endl
@@ -342,6 +388,18 @@ void Element::print(int ident) const
         std::cout << "horizontalWidth: " << horizontalWidth << "m" << std::endl
                   << "geometryFile:    " << geometryFile << std::endl
                   << "fieldAll:        " << fieldAll     << std::endl;
+        break;
+      }
+    case ElementType::_RF:
+    case ElementType::_RFX:
+    case ElementType::_RFY:
+      {
+        std::cout << "E (voltage): "        << E << " V" << std::endl
+		  << "gradient (e field): " << gradient << " V/m" << std::endl
+		  << "cavityFieldType: "    << cavityFieldType << std::endl
+		  << "cavityModel: "        << cavityModel << std::endl
+		  << "frequency: "          << frequency << " Hz" << std::endl
+		  << "phase: "              << phase << " rad" << std::endl;
         break;
       }
     case ElementType::_CT:
@@ -371,10 +429,10 @@ void Element::print(int ident) const
                   << "scintmaterial   = " << scintmaterial       << std::endl;
         break;
       }
-    case ElementType::_LASER:
+    case ElementType::_LASERWIREOLD:
       {
-        std::cout << "lambda= " << waveLength << "m" << std::endl
-                  << "xSigma= " << xsize << "m" << std::endl
+        std::cout << "lambda= " << wavelength << "m" << std::endl
+                  <<  "xSigma= " << xsize << "m" << std::endl
                   << "ySigma= " << ysize << "m" << std::endl
                   << "xdir= "   << xdir << std::endl
                   << "ydir= "   << ydir << std::endl
@@ -394,6 +452,12 @@ void Element::print(int ident) const
                   << "phi=   " << phi   << "rad" << std::endl
                   << "theta= " << theta << "rad" << std::endl
                   << "psi=   " << psi   << "rad" << std::endl;
+        break;
+      }
+    case ElementType::_GABORLENS:
+      {
+        std::cout << "b=  " << B  << "T" << std::endl
+                  << "kg=  " << kg  << std::endl;
         break;
       }
     default:
@@ -425,9 +489,15 @@ void Element::print(int ident) const
         std::cout << "scaling = " << scaling << std::endl;
         if (scalingFieldOuter != 1)
           {std::cout << "scalingFieldOuter = " << scalingFieldOuter << std::endl;}
-            std::cout << "fieldModulator = \"" << fieldModulator << "\"" << std::endl;
+        std::cout << "fieldModulator = \"" << fieldModulator << "\"" << std::endl;
         break;
       }
+    case ElementType::_MUONCOOLER:
+      {
+        std::cout << "coolingDefinition= " << coolingDefinition << std::endl;
+        break;
+      }
+
     default:
       {break;}
     }
@@ -472,6 +542,7 @@ void Element::flush()
   phase     = 0;
   tOffset   = 0;
   fieldModulator = "";
+  kg = 0;
 
   // rmatrix
   kick1 = 0;
@@ -524,6 +595,15 @@ void Element::flush()
   offsetY = 0;
   jawTiltLeft = 0;
   jawTiltRight = 0;
+  tipThickness = 0;
+
+  // PWFA
+  xsize2 = 0;
+  ysize2 = 0;
+  offsetX2 = 0;
+  offsetY2 = 0;
+  tilt2 = 0;
+  outerShape = "rectangular";
 
   // screen parameters
   tscint = 0.0003;
@@ -550,7 +630,7 @@ void Element::flush()
   xdir = 0;
   ydir = 0;
   zdir = 0;
-  waveLength = 0;
+  wavelength = 0;
   gradient = 0;
   phi = 0;
   theta = 0;
@@ -567,6 +647,14 @@ void Element::flush()
   materialThickness = 0;
   degraderOffset = 0;
 
+  // laserwire
+  laserBeam        = "";
+  laserOffsetTheta = 0;
+  laserOffsetPhi   = 0;
+  laserOffsetX     = 0;
+  laserOffsetY     = 0;
+  laserOffsetZ     = 0;
+
   // for wirescanner
   wireDiameter = 0;
   wireLength   = 0;
@@ -580,13 +668,23 @@ void Element::flush()
   undulatorGap = 0;
   undulatorMagnetHeight = 0;
 
+  // gabor lens
+  anodeLength = 0;
+  anodeRadius = 0;
+  anodeThickness = 0;
+  electrodeLength = 0;
+  electrodeRadius = 0;
+  electrodeThickness = 0;
+
   // bias
   bias         = "";
   biasMaterial = "";
   biasVacuum   = "";
+  biasMaterialLV   = "";
   biasMaterialList.clear();
   biasVacuumList.clear();
-  
+  biasMaterialLVList.clear();
+
   minimumKineticEnergy = 0;
 
   samplerName = "";
@@ -608,7 +706,7 @@ void Element::flush()
   markAsCollimator = false;
   spec = "";
   cavityModel = "";
-  cavityFieldType = "constantinz";
+  cavityFieldType = "";
   
   dicomDataFile = "";
   dicomDataPath = "";
@@ -620,7 +718,9 @@ void Element::flush()
   crystalBoth            = "";
   crystalAngleYAxisLeft  = 0;
   crystalAngleYAxisRight = 0;
-  
+
+  coolingDefinition = "";
+
   angleSet = false;
   scalingFieldOuterSet = false;
 
@@ -682,6 +782,7 @@ void Element::set(const Parameters& params)
                 {
                   biasMaterialList.push_back(tok);
                   biasVacuumList.push_back(tok);
+                  biasMaterialLVList.push_back(tok);
                 }
             }
           else if (property == "biasMaterial")
@@ -696,6 +797,12 @@ void Element::set(const Parameters& params)
               std::string tok;
               while(ss >> tok) {biasVacuumList.push_back(tok);}
             }
+          else if (property == "biasMaterialLV")
+          {
+            std::stringstream ss(biasMaterialLV);
+            std::string tok;
+            while(ss >> tok) {biasMaterialLVList.push_back(tok);}
+          }
         }
     }
 }
@@ -713,3 +820,61 @@ void Element::setSamplerInfo(std::string samplerTypeIn,
   samplerRadius = samplerRadiusIn;
   samplerParticleSetID = particleSetIDIn;
 }
+
+void Element::set_value_array(const std::string& property, Array* value, bool bExit)
+{
+  auto search1 = attribute_map_list_int.find(property);
+  if (search1 != attribute_map_list_int.end())
+  {
+    value->set_vector(*search1->second);
+    return;
+  }
+
+  auto search2 = attribute_map_list_double.find(property);
+  if (search2 != attribute_map_list_double.end())
+  {
+    value->set_vector(*search2->second);
+    return;
+  }
+
+  auto search3 = attribute_map_list_string.find(property);
+  if (search3 != attribute_map_list_string.end()) {
+    value->set_vector(*search3->second);
+    return;
+  }
+
+  std::cerr << "Error: parser> unknown element option \"" << property << "\", or doesn't expect vector type" << std::endl;
+  if(bExit)
+    {exit(1);}
+  else
+    {std::rethrow_exception(std::current_exception());}
+}
+
+#if __cplusplus >= 201703L
+std::list<std::variant<bool, int, double, std::string>> Element::get_value_array(const std::string & property) {
+  std::list<std::variant<bool, int, double, std::string>> retval;
+
+  // search int list
+  auto search1 = attribute_map_list_int.find(property);
+  if (search1 != attribute_map_list_int.end()) {
+    retval.resize((*search1).second->size());
+    std::copy((*search1).second->begin(),(*search1).second->end(), retval.begin());
+  }
+
+  // search double list
+  auto search2 = attribute_map_list_double.find(property);
+  if (search2 != attribute_map_list_double.end()) {
+    retval.resize((*search2).second->size());
+    std::copy((*search2).second->begin(),(*search2).second->end(), retval.begin());
+  }
+
+  // search string list
+  auto search3 = attribute_map_list_string.find(property);
+  if (search3 != attribute_map_list_string.end()) {
+    retval.resize((*search3).second->size());
+    std::copy((*search3).second->begin(),(*search3).second->end(), retval.begin());
+  }
+
+  return retval;
+}
+#endif

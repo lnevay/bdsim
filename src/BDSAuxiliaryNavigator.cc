@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -200,10 +199,10 @@ BDSStep BDSAuxiliaryNavigator::ConvertToLocal(const G4ThreeVector& globalPositio
   // else pass: point = globalPosition
   
   auto selectedVol = LocateGlobalPointAndSetup(point,
-					       &globalDirection,
-					       true,  // relative search
-					       false, // don't ignore direction, ie use it
-					       useCurvilinear);
+                                               &globalDirection,
+                                               true,  // relative search
+                                               false, // don't ignore direction, ie use it
+                                               useCurvilinear);
 #ifdef BDSDEBUGNAV
   G4cout << __METHOD_NAME__ << selectedVol->GetName() << G4endl;
 #endif

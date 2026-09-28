@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -20,6 +19,7 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include "BDSAcceleratorComponent.hh"
 #include "BDSBeamline.hh"
 #include "BDSBeamlineElement.hh"
+#include "BDSBeamlineIntegral.hh"
 #include "BDSException.hh"
 #include "BDSExtentGlobal.hh"
 #include "BDSGlobalConstants.hh"
@@ -123,7 +123,8 @@ std::ostream& operator<< (std::ostream& out, BDSBeamline const &bl)
 
 void BDSBeamline::AddComponent(BDSAcceleratorComponent* component,
                                BDSTiltOffset*           tiltOffset,
-                               BDSSamplerInfo*          samplerInfo)
+                               BDSSamplerInfo*          samplerInfo,
+                               const BDSBeamlineIntegral* beamlineIntegral)
 {
   if (!component)
     {
@@ -155,13 +156,13 @@ void BDSBeamline::AddComponent(BDSAcceleratorComponent* component,
         {
           if (i < sizeLine-1)
             {
-              AddSingleComponent((*line)[i], tiltOffset);
+              AddSingleComponent((*line)[i], tiltOffset, nullptr, beamlineIntegral);
         if (i == 0)
           {first = back();}
             }
           else 
             {// only attach the desired sampler to the last one in the line
-              AddSingleComponent((*line)[i], tiltOffset, samplerInfo);
+              AddSingleComponent((*line)[i], tiltOffset, samplerInfo, beamlineIntegral);
               last = back();
             }
         }
@@ -201,14 +202,15 @@ void BDSBeamline::AddComponent(BDSAcceleratorComponent* component,
         }
     }
   else
-    {AddSingleComponent(component, tiltOffset, samplerInfo);}
+    {AddSingleComponent(component, tiltOffset, samplerInfo, beamlineIntegral);}
   // free memory - as once the rotations are calculated, this is no longer needed
   delete tiltOffset;
 }
 
 void BDSBeamline::AddSingleComponent(BDSAcceleratorComponent* component,
                                      BDSTiltOffset*           tiltOffset,
-                                     BDSSamplerInfo*          samplerInfo)
+                                     BDSSamplerInfo*          samplerInfo,
+                                     const BDSBeamlineIntegral* beamlineIntegral)
 {
 #ifdef BDSDEBUG
   G4cout << G4endl << __METHOD_NAME__ << "adding component to beamline and calculating coordinates" << G4endl;
@@ -501,7 +503,17 @@ void BDSBeamline::AddSingleComponent(BDSAcceleratorComponent* component,
   BDSTiltOffset* tiltOffsetToStore = nullptr;
   if (tiltOffset)
     {tiltOffsetToStore = new BDSTiltOffset(*tiltOffset);} // copy as can be used multiple times
-  
+
+  G4double midT = 0;
+  G4double staP = 0;
+  G4double staEk = 0;
+  if (beamlineIntegral)
+    {
+      midT = beamlineIntegral->synchronousTAtMiddleOfLastElement;
+      staP = beamlineIntegral->MomentumAtStartOfLastElement();
+      staEk = beamlineIntegral->KineticEnergyAtStartOfLastElement();
+    }
+
   BDSBeamlineElement* element;
   element = new BDSBeamlineElement(component,
                                    positionStart,
@@ -519,6 +531,9 @@ void BDSBeamline::AddSingleComponent(BDSAcceleratorComponent* component,
                                    sPositionStart,
                                    sPositionMiddle,
                                    sPositionEnd,
+                                   midT,
+                                   staP,
+                                   staEk,
                                    tiltOffsetToStore,
                                    samplerInfo,
                                    (G4int)beamline.size());
@@ -554,7 +569,7 @@ void BDSBeamline::ApplyTransform3D(BDSTransform3D* component)
   
   // if not the first element in the beamline, get information from
   // the end of the last element in the beamline
-  if (!empty())
+  if (!empty() && !transformHasJustBeenApplied)
     {
       BDSBeamlineElement* last = back();
       previousReferenceRotationEnd = last->GetReferenceRotationEnd();
@@ -564,7 +579,7 @@ void BDSBeamline::ApplyTransform3D(BDSTransform3D* component)
   // apply position
   // transform the local dx,dy,dz displacement into the global frame then apply
   G4ThreeVector delta = G4ThreeVector(dx, dy, dz).transform(*previousReferenceRotationEnd);
-  previousReferencePositionEnd = previousReferencePositionEnd + G4ThreeVector(dx, dy, dz);
+  previousReferencePositionEnd = previousReferencePositionEnd + delta;
   
   // apply rotation
   G4RotationMatrix trRotInverse = component->rotationMatrix.inverse();
@@ -849,6 +864,9 @@ BDSBeamlineElement* BDSBeamline::ProvideEndPieceElementBefore(BDSSimpleComponent
                                                       elSPosStart - endPieceLength,
                                                       elSPosStart - 0.5*endPieceLength,
                                                       elSPosStart,
+                                                      element->GetSynchronousTMiddle(),
+                                                      element->GetStartMomentum(),
+                                                      element->GetStartKineticEnergy(),
                                                       forEndPiece);
   return result;
 }
@@ -893,6 +911,9 @@ BDSBeamlineElement* BDSBeamline::ProvideEndPieceElementAfter(BDSSimpleComponent*
                                                       elSPosEnd,
                                                       elSPosEnd + 0.5*endPieceLength,
                                                       elSPosEnd + endPieceLength,
+                                                      element->GetSynchronousTMiddle(),
+                                                      element->GetStartMomentum(),
+                                                      element->GetStartKineticEnergy(),
                                                       forEndPiece);
   delete elRotEnd;
   return result;
@@ -956,6 +977,6 @@ std::vector<G4int> BDSBeamline::GetIndicesOfElementsOfType(const std::set<G4Stri
 
 std::vector<G4int> BDSBeamline::GetIndicesOfCollimators() const
 {
-  std::set<G4String> collimatorTypes = {"ecol", "rcol", "jcol", "crystalcol", "element-collimator"};
+  std::set<G4String> collimatorTypes = {"ecol", "rcol", "jcol", "jcoltip", "crystalcol", "element-collimator"};
   return GetIndicesOfElementsOfType(collimatorTypes);
 }

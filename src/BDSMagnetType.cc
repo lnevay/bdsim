@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -34,9 +33,11 @@ std::map<BDSMagnetType, std::string>* BDSMagnetType::dictionary =
   {BDSMagnetType::rectangularbend, "rbend"},
   {BDSMagnetType::rfcavity,        "rfcavity"},
   {BDSMagnetType::sextupole,       "sextupole"},
+  {BDSMagnetType::undulator,       "undulator"},
   {BDSMagnetType::solenoid,        "solenoid"},
   {BDSMagnetType::multipole,       "multipole"},
   {BDSMagnetType::thinmultipole,   "thinmultipole"},
   {BDSMagnetType::dipolefringe,    "dipolefringe"},
-  {BDSMagnetType::undulator,       "undulator"}
+  {BDSMagnetType::rmatrix,         "rmatrix"},
+  {BDSMagnetType::paralleltransporter, "paralleltransporter"}
 });

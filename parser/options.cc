@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -261,6 +260,8 @@ void Options::PublishMembers()
   publish("yokeFieldsMatchLHCGeometry", &Options::yokeFieldsMatchLHCGeometry);
   publish("useOldMultipoleOuterFields", &Options::useOldMultipoleOuterFields);
   publish("scalingFieldOuter",    &Options::scalingFieldOuter);
+  publish("integrateKineticEnergyAlongBeamline", &Options::integrateKineticEnergyAlongBeamline);
+  publish("cavityFieldType",      &Options::cavityFieldType);
   publish("includeFringeFields",  &Options::includeFringeFields);
   publish("includeFringeFieldsCavities", &Options::includeFringeFieldsCavities);
   publish("beampipeRadius",       &Options::aper1);
@@ -353,8 +354,11 @@ void Options::PublishMembers()
   publish("muonSplittingExcludeWeight1Particles", &Options::muonSplittingExcludeWeight1Particles);
   publish("muonSplittingExclusionWeight",    &Options::muonSplittingExclusionWeight);
   publish("xrayAllSurfaceRoughness",         &Options::xrayAllSurfaceRoughness);
+  publish("extendPionDecayChannels",         &Options::extendPionDecayChannels);
+  publish("turnOffMuonDecay",                &Options::turnOffMuonDecay);
   
   // bias options
+  publish("scaleFactorLaser",    &Options::scaleFactorLaser);
   publish("defaultBiasVacuum",   &Options::defaultBiasVacuum);
   publish("defaultBiasMaterial", &Options::defaultBiasMaterial);
   publish("biasForWorldVolume",  &Options::biasForWorldVolume);
@@ -501,6 +505,8 @@ void Options::PublishMembers()
   
   publish("storeModel",                     &Options::storeModel);
 
+  publish("storePerEventHistos",            &Options::storePerEventHistos);
+
   publish("samplersSplitLevel",             &Options::samplersSplitLevel);
   publish("modelSplitLevel",                &Options::modelSplitLevel);
   publish("uprootCompatible",               &Options::uprootCompatible);
@@ -531,4 +537,11 @@ void Options::PublishMembers()
   publish("emin", &Options::emin);
   publish("emax", &Options::emax);
   publish("useScoringMap", &Options::useScoringMap);
+
+  // millicharged
+  publish("enableMillicharge",   &Options::enableMillicharge);
+  publish("millichargeName",     &Options::millichargeName);
+  publish("millichargeMass",     &Options::millichargeMass);
+  publish("millichargeCharge" ,  &Options::millichargeCharge);
+  publish("millichargeID",       &Options::millichargeID);
 }

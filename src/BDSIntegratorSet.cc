@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -48,7 +47,8 @@ BDSIntegratorSet::BDSIntegratorSet(BDSIntegratorType solenoidIn,
                                    BDSIntegratorType rmatrixThinIn,
                                    BDSIntegratorType parallelTransporterIn,
                                    BDSIntegratorType undulatorIn,
-                                   BDSIntegratorType cavityFringeIn):
+                                   BDSIntegratorType cavityFringeIn,
+                                   BDSIntegratorType gaborLensIn):
   solenoid(solenoidIn),
   dipole(dipoleIn),
   dipoleQuadrupole(dipoleQuadrupoleIn),
@@ -73,7 +73,8 @@ BDSIntegratorSet::BDSIntegratorSet(BDSIntegratorType solenoidIn,
   rmatrixThin(rmatrixThinIn),
   parallelTransporter(parallelTransporterIn),
   undulator(undulatorIn),
-  cavityFringe(cavityFringeIn)
+  cavityFringe(cavityFringeIn),
+  gaborLens(gaborLensIn)
 {
   isMatrix = false; //default
   // use dipolematrix integrator to check if matrix style as it is the
@@ -109,7 +110,8 @@ namespace BDS
                          BDSIntegratorType::rmatrixthin,      // thin rmatrix
                          BDSIntegratorType::paralleltransport,// parallel transport
                          BDSIntegratorType::g4classicalrk4,   // undulator
-                         BDSIntegratorType::cavityfringe);    // cavity fringe
+                         BDSIntegratorType::cavityfringe,     // cavity fringe
+                         BDSIntegratorType::g4classicalrk4);  // gabor lens
 
   const BDSIntegratorSet* integratorsBDSIMTwo =
     new BDSIntegratorSet(BDSIntegratorType::solenoid,         // solenoid
@@ -136,7 +138,8 @@ namespace BDS
                          BDSIntegratorType::rmatrixthin,      // thin rmatrix
                          BDSIntegratorType::paralleltransport,// parallel transport
                          BDSIntegratorType::g4classicalrk4,   // undulator
-                         BDSIntegratorType::cavityfringe);    // cavity fringe
+                         BDSIntegratorType::cavityfringe,     // cavity fringe
+                         BDSIntegratorType::g4classicalrk4);  // gabor lens
   /// Mad-x style tracking.
   const BDSIntegratorSet*  integratorsBDSIMMatrix =
     new BDSIntegratorSet(BDSIntegratorType::solenoid,            // solenoid
@@ -163,7 +166,8 @@ namespace BDS
                          BDSIntegratorType::rmatrixthin,         // thin rmatrix
                          BDSIntegratorType::paralleltransport,   // parallel transport
                          BDSIntegratorType::g4classicalrk4,      // undulator
-                         BDSIntegratorType::cavityfringe);       // cavity fringe
+                         BDSIntegratorType::cavityfringe,        // cavity fringe
+                         BDSIntegratorType::g4classicalrk4);     // gabor lens
   const BDSIntegratorSet*  integratorsBDSIMMatrixFringeScaling =
     new BDSIntegratorSet(BDSIntegratorType::solenoid,            // solenoid
                          BDSIntegratorType::dipolematrix,        // dipole
@@ -189,7 +193,8 @@ namespace BDS
                          BDSIntegratorType::rmatrixthin,         // thin rmatrix
                          BDSIntegratorType::paralleltransport,   // parallel transport
                          BDSIntegratorType::g4classicalrk4,      // undulator
-                         BDSIntegratorType::cavityfringe);       // cavity fringe
+                         BDSIntegratorType::cavityfringe,        // cavity fringe
+                         BDSIntegratorType::g4classicalrk4);     // gabor lens
   const BDSIntegratorSet* integratorsGeant4 =
     new BDSIntegratorSet(BDSIntegratorType::g4classicalrk4,    // solenoid
                          BDSIntegratorType::g4classicalrk4,    // dipole
@@ -215,7 +220,8 @@ namespace BDS
                          BDSIntegratorType::rmatrixthin,       // thin rmatrix
                          BDSIntegratorType::paralleltransport, // parallel transport
                          BDSIntegratorType::g4classicalrk4,    // undulator
-                         BDSIntegratorType::cavityfringe);     // cavity fringe
+                         BDSIntegratorType::cavityfringe,      // cavity fringe
+                         BDSIntegratorType::g4classicalrk4);   // gabor lens
 #if G4VERSION_NUMBER > 1039
   const BDSIntegratorSet* integratorsGeant4DP =
     new BDSIntegratorSet(BDSIntegratorType::g4dormandprince745, // solenoid
@@ -242,7 +248,8 @@ namespace BDS
                          BDSIntegratorType::rmatrixthin,        // thin rmatrix
                          BDSIntegratorType::paralleltransport,  // parallel transport
                          BDSIntegratorType::g4dormandprince745, // undulator
-                         BDSIntegratorType::cavityfringe);      // cavity fringe
+                         BDSIntegratorType::cavityfringe,       // cavity fringe
+                         BDSIntegratorType::g4classicalrk4);    // gabor lens
 #endif
 }
 
@@ -338,6 +345,8 @@ BDSIntegratorType BDSIntegratorSet::Integrator(const BDSFieldType field) const
       {return parallelTransporter; break;}
     case BDSFieldType::cavityfringe:
       {return cavityFringe;     break;}
+    case BDSFieldType::gaborlens:
+      {return gaborLens;        break;}
     case BDSFieldType::undulator:
       {return undulator;        break;}
     case BDSFieldType::dipole3d:

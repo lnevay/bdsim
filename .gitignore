@@ -64,5 +64,17 @@ examples/features/scoring/*build
 
 examples/features/interfaces/*build
 
+# Known field map files #
+#########################
+examples/features/components/*.dat
+examples/features/options/*.dat
+examples/features/scoring/validation/*
+
 .build*
 .install*
+cmake-build*
+
+# VSCode Development environment #
+###########################
+.devcontainer/
+.vscode/

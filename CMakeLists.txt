@@ -1,8 +1,12 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 cmake_policy(SET CMP0042 NEW)
 cmake_policy(SET CMP0057 NEW)
 if (CMAKE_VERSION VERSION_LESS 3.9.0)
   cmake_policy(SET CMP0042 OLD)
+endif()
+if (CMAKE_VERSION VERSION_GREATER 4.1.0)
+  # for FindROOT.cmake -> GCCXML which is deprecated in favour of CastXML.
+  cmake_policy(SET CMP0188 OLD)
 endif()
 
 set(CMAKE_CXX_STANDARD 11)
@@ -10,12 +14,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(GenerateExportHeader)
 
-project(bdsim)
+project(bdsim LANGUAGES CXX)
 
 # project version
 set( BDSIM_MAJOR_VERSION 1 )
-set( BDSIM_MINOR_VERSION 7 )
-set( BDSIM_PATCH_LEVEL   7 )
+set( BDSIM_MINOR_VERSION 8 )
+set( BDSIM_PATCH_LEVEL   0 )
 set( BDSIM_VERSION ${BDSIM_MAJOR_VERSION}.${BDSIM_MINOR_VERSION}.${BDSIM_PATCH_LEVEL})
 
 message(STATUS "Configuring BDSIM ${BDSIM_VERSION}")
@@ -84,6 +88,9 @@ include(cmake/DCMTK.cmake)
 # AWAKE
 include(modules/AWAKE.cmake)
 
+# PLASMA_HDF5
+include(modules/PLASMA_HDF5.cmake)
+
 # GDML (on by default)
 option( USE_GDML "Include GDML support."  ON )
 if(USE_GDML)
@@ -101,6 +108,9 @@ if(USE_SIXTRACKLINK)
   add_definitions("-DUSE_SIXTRACKLINK")
   message(STATUS "SixTrack link ON")
 endif()
+
+# CGAL boolean
+include(cmake/CGALBOOLEAN.cmake)
 
 # Find GEANT4
 include(cmake/Geant4.cmake)
@@ -127,7 +137,6 @@ if (USE_HEPMC3)
   #TBC - need to test if we can just use this
   #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
   set(CMAKE_INSTALL_RPATH "${Geant4_LIBRARY_DIR};${CMAKE_INSTALL_PREFIX}/lib;${HEPMC3_ROOT_DIR}/lib;${ROOT_LIBRARY_DIR}")
-  #message(STATUS "rpath = ${CMAKE_INSTALL_RPATH}")
 else()
   set(CMAKE_INSTALL_RPATH "${Geant4_LIBRARY_DIR};${CMAKE_INSTALL_PREFIX}/lib;${ROOT_LIBRARY_DIR}")
   #message(STATUS "rpath = ${CMAKE_INSTALL_RPATH}")
@@ -183,6 +192,11 @@ if (USE_AWAKE)
   file(GLOB awake_sources "${CMAKE_CURRENT_SOURCE_DIR}/modules/AWAKE/src/*.cc")
   list(APPEND bdsim_sources ${awake_sources})
 endif()
+if (USE_PLASMA_HDF5)
+  include_directories(${CMAKE_CURRENT_SOURCE_DIR}/modules/PLASMA_HDF5/include)
+  file(GLOB plasma_hdf5_sources "${CMAKE_CURRENT_SOURCE_DIR}/modules/PLASMA_HDF5/src/*.cc")
+  list(APPEND bdsim_sources ${plasma_hdf5_sources})
+endif()
 
 if($ENV{VERBOSE})
   message(STATUS "ROOT dictionaries ${root_dicts}")
@@ -192,6 +206,12 @@ endif()
 # Parser
 add_subdirectory(parser)
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/parser)
+
+# python binding
+option( USE_PYTHON_BINDINGS "Build pybind11 bindings"  OFF )
+if (USE_PYTHON_BINDINGS)
+  add_subdirectory(python)
+endif()
 
 # TBC - don't think is needed...
 # include current directory for parser includes
@@ -220,6 +240,10 @@ if (USE_GDML)
 endif()
 target_link_libraries(${BDSIM_LIB_NAME} gmad)
 generate_export_header(${BDSIM_LIB_NAME})
+if (USE_PLASMA_HDF5)
+  target_include_directories(${BDSIM_LIB_NAME} SYSTEM PUBLIC ${HDF5_INCLUDE_DIRS})
+  target_link_libraries(${BDSIM_LIB_NAME} ${HDF5_CXX_LIBRARIES})
+endif()
 
 add_executable(bdsimExec ${CMAKE_BINARY_DIR}/bdsim.cc)
 
@@ -242,6 +266,11 @@ if (USE_DICOM)
   target_link_libraries(${BDSIM_LIB_NAME} DCMTK::DCMTK)
   #target_include_directories(${BDSIM_LIB_NAME} SYSTEM PUBLIC ${DCMTK_INCLUDE_DIRS})
 endif()
+if (USE_GEANT4CGALBOOLEAN)
+  target_link_libraries(${BDSIM_LIB_NAME} geant4cgalboolean::g4cgalboolean)
+  get_target_property(var geant4cgalboolean::g4cgalboolean INTERFACE_INCLUDE_DIRECTORIES)
+  message(STATUS "${var}")
+endif()
 
 # link against ROOT
 target_link_libraries(${BDSIM_LIB_NAME} ${ROOT_LIBRARIES})
@@ -255,7 +284,8 @@ get_target_property(binaryname bdsimExec OUTPUT_NAME)
 set(bdsimBinary ${CMAKE_CURRENT_BINARY_DIR}/${binaryname})
 
 # ROOT Event Library
-set(bdsimRootEventSources ${root_dicts} ${root_files})
+set(bdsimRootEventSources ${root_dicts} ${root_files}
+        include/BDSPolarizationState.hh)
 
 # Add parser options
 list(APPEND bdsimRootEventSources ${CMAKE_CURRENT_SOURCE_DIR}/parser/optionsBase.cc)

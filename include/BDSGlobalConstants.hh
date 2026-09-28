@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -196,6 +195,8 @@ public:
   inline G4bool   MuonSplittingExcludeWeight1Particles() const {return G4bool(options.muonSplittingExcludeWeight1Particles);}
   inline G4double MuonSplittingExclusionWeight() const {return G4double(options.muonSplittingExclusionWeight);}
   inline G4double XrayAllSurfaceRoughness()  const {return G4double(options.xrayAllSurfaceRoughness*CLHEP::m);}
+  inline G4bool   ExtendPionDecayChannels()  const {return G4bool  (options.extendPionDecayChannels);}
+  inline G4bool   TurnOffMuonDecay()         const {return G4bool  (options.turnOffMuonDecay);}
   inline G4String BiasForWorldVolume()       const {return G4String(options.biasForWorldVolume);}
   inline G4String BiasForWorldContents()     const {return G4String(options.biasForWorldContents);}
   inline G4String BiasForWorldVacuum()       const {return G4String(options.biasForWorldVacuum);}
@@ -290,6 +291,7 @@ public:
   inline G4bool   StoreSamplerRigidity()     const {return G4bool  (options.storeSamplerRigidity);}
   inline G4bool   StoreSamplerIon()          const {return G4bool  (options.storeSamplerIon);}
   inline G4bool   StoreModel()               const {return G4bool  (options.storeModel);}
+  inline G4bool   StorePerEventHistos()      const {return G4bool  (options.storePerEventHistos);}
   inline G4int    SamplersSplitLevel()       const {return G4int   (options.samplersSplitLevel);}
   inline G4int    ModelSplitLevel()          const {return G4int   (options.modelSplitLevel);}
   inline G4int    UprootCompatible()         const {return G4int   (options.uprootCompatible);}
@@ -302,7 +304,7 @@ public:
   inline G4double MinimumRadiusOfCurvature() const {return G4double(options.minimumRadiusOfCurvature*CLHEP::m);}
   inline G4double ScintYieldFactor()         const {return G4double(options.scintYieldFactor);}
   inline G4int    MaximumPhotonsPerStep()    const {return G4int   (options.maximumPhotonsPerStep);}
-  inline G4int    MaximumBetaChangePerStep() const {return G4int   (options.maximumBetaChangePerStep);}
+  inline G4double MaximumBetaChangePerStep() const {return G4int   (options.maximumBetaChangePerStep);}
   inline G4long   MaximumTracksPerEvent()    const {return G4long  (options.maximumTracksPerEvent);}
   inline G4double MinimumKineticEnergy()     const {return G4double(options.minimumKineticEnergy*CLHEP::GeV);}
   inline G4double MinimumKineticEnergyTunnel() const {return G4double(options.minimumKineticEnergyTunnel)*CLHEP::GeV;}
@@ -321,6 +323,8 @@ public:
   inline G4bool   YokeFieldsMatchLHCGeometry()const{return G4bool  (options.yokeFieldsMatchLHCGeometry);}
   inline G4bool   UseOldMultipoleOuterFields()const{return G4bool  (options.useOldMultipoleOuterFields);}
   inline G4double ScalingFieldOuter()        const {return G4double(options.scalingFieldOuter);}
+  inline G4bool   IntegrateKineticEnergyAlongBeamline()const {return G4bool  (options.integrateKineticEnergyAlongBeamline);}
+  inline G4String CavityFieldType()          const {return G4String(options.cavityFieldType);}
   inline G4bool   TurnOnOpticalAbsorption()  const {return G4bool  (options.turnOnOpticalAbsorption);}
   inline G4bool   TurnOnRayleighScattering() const {return G4bool  (options.turnOnRayleighScattering);}
   inline G4bool   TurnOnMieScattering()      const {return G4bool  (options.turnOnMieScattering);}
@@ -354,6 +358,14 @@ public:
   inline G4double DEThresholdForScattering() const {return G4double(options.dEThresholdForScattering)*CLHEP::GeV;}
   inline G4String PTCOneTurnMapFileName()    const {return G4String (options.ptcOneTurnMapFileName);}
   inline G4double BackupStepperMomLimit()    const {return G4double(options.backupStepperMomLimit)*CLHEP::rad;}
+  inline G4double ScaleFactorLaser()         const {return G4double (options.scaleFactorLaser);}
+
+  // millicharge options
+  inline G4bool   EnableMillicharge()        const {return G4bool  (options.enableMillicharge);}
+  inline G4String MillichargeName()          const {return G4String(options.millichargeName);}
+  inline G4double MillichargeMass()          const {return G4double(options.millichargeMass * CLHEP::GeV);}
+  inline G4double MillichargeCharge()        const {return G4double(options.millichargeCharge);}
+  inline G4int    MillichargeID()            const {return G4int   (options.millichargeID);}
 
   /// @{ options that require some implementation.
   G4bool StoreTrajectoryTransportationSteps() const;
@@ -436,7 +448,7 @@ private:
   G4UserLimits* defaultUserLimits;
   G4UserLimits* defaultUserLimitsTunnel;
   std::set<G4int> particlesToExcludeFromCutsAsSet;
-  
+
   /// Turn Control
   G4int turnsTaken;
 
@@ -445,7 +457,7 @@ private:
   G4Transform3D        beamlineTransform;  ///< Transform for start of beam line.
 
   std::bitset<BDS::NTrajectoryFilters> trajectoryFiltersSet; ///< Which filters were used in the options.
-  
+
   /// Process the option string and fill the below vector.
   void ProcessTrajectoryELossSRange();
   

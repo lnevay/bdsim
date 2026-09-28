@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -65,7 +64,8 @@ std::map<BDSIntegratorType, std::string>* BDSIntegratorType::dictionary =
       {BDSIntegratorType::g4rkg3stepper,        "g4rkg3stepper"},
       {BDSIntegratorType::rmatrixthin,          "rmatrixthin"},
       {BDSIntegratorType::paralleltransport,    "paralleltransport"},
-      {BDSIntegratorType::cavityfringe,         "cavityfringe"}
+      {BDSIntegratorType::cavityfringe,         "cavityfringe"},
+      {BDSIntegratorType::gaborlens,            "g4classicalrk4"}
 #if G4VERSION_NUMBER > 1029
       // introduced in version 10.3
       ,
@@ -124,6 +124,7 @@ BDSIntegratorType BDS::DetermineIntegratorType(G4String integratorType)
   types["rmatrixthin"]          = BDSIntegratorType::rmatrixthin;
   types["paralleltransport"]    = BDSIntegratorType::paralleltransport;
   types["cavityfringe"]         = BDSIntegratorType::cavityfringe;
+  types["gaborlens"]            = BDSIntegratorType::g4classicalrk4;
 #if G4VERSION_NUMBER > 1029
   // introduced in version 10.3
   types["g4bogackishampine23"]  = BDSIntegratorType::g4bogackishampine23;

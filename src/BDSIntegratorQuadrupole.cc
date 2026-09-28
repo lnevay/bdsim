@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -44,9 +43,6 @@ BDSIntegratorQuadrupole::BDSIntegratorQuadrupole(BDSMagnetStrength const* streng
   bPrime = std::abs(brho) * (*strength)["k1"] / CLHEP::m2;
 
   zeroStrength = !BDS::IsFiniteStrength(bPrime);
-#ifdef BDSDEBUG
-  G4cout << __METHOD_NAME__ << "B' = " << bPrime << G4endl;
-#endif
 }
 
 void BDSIntegratorQuadrupole::Stepper(const G4double yIn[],
@@ -185,7 +181,7 @@ void BDSIntegratorQuadrupole::Stepper(const G4double yIn[],
     {zp1 = zp;} // ensure not nan
 
   // new z position will be projection of h onto the z axis
-  G4double z1 = z0 + std::sqrt(h2 - std::pow(x1-x0,2) - std::pow(y1-y0,2));
+  G4double z1 = z0 + std::sqrt(std::abs(h2 - std::pow(x1-x0,2) - std::pow(y1-y0,2)));
 
   localPos.setX(x1);
   localPos.setY(y1);

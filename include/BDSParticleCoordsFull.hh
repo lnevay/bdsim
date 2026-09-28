@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -36,19 +35,19 @@ class BDSParticleCoordsFull: public BDSParticleCoords
 public:
   BDSParticleCoordsFull();
   BDSParticleCoordsFull(G4double xIn,
-			G4double yIn,
-			G4double zIn,
-			G4double xpIn,
-			G4double ypIn,
-			G4double zpIn,
-			G4double tIn,
-			G4double sIn,
-			G4double totalEnergyIn,
-			G4double weightIn);
+                        G4double yIn,
+                        G4double zIn,
+                        G4double xpIn,
+                        G4double ypIn,
+                        G4double zpIn,
+                        G4double tIn,
+                        G4double sIn,
+                        G4double totalEnergyIn,
+                        G4double weightIn);
   BDSParticleCoordsFull(const BDSParticleCoords& localIn,
-			G4double                 sIn,
-			G4double                 totalEnergyIn,
-			G4double                 weightIn);
+                        G4double                 sIn,
+                        G4double                 totalEnergyIn,
+                        G4double                 weightIn);
 
   virtual ~BDSParticleCoordsFull(){;}
   

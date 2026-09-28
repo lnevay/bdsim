@@ -131,6 +131,7 @@ Magnet Strength Polarity
 	     purpose. This may be revised in future releases depending on changes
 	     to MAD-X.
 
+
 .. _synchronous-time-and-phase:
 	     
 Synchronous Time and Phase
@@ -138,18 +139,37 @@ Synchronous Time and Phase
 
 Some components have time dependent fields, such as an `rf` cavity element. By default, these
 are given a synchronous global time in their construction so that local time is zero at the
-centre of the component for a synchronous particle. The time is calculated for a particle
-travelling at the speed of light from the start of the accelerator.
+centre of the component for a synchronous particle. The time is calculated from the integration
+of the design particle throughout the beamline as it is constructed including acceleration
+and deceleration. See :ref:`fields-beamline-integration`.
 
 If the element is reused several times in a machine, it is constructed uniquely for
 each instance so that the fields are unique with their own synchronous time or phase.
 
-.. warning:: This currently does not calculate the time based on the true velocity of
-	     the particle that may vary (with acceleration) throughout the accelerator.
-	     The speed of light in vacuum is used to calculate this time and the user
-	     should calculate an appropriate global `tOffset` for the component if
-	     the beam is sub-relativistic. This may be improved upon in future.
 
+.. _acceleration:
+	     
+Acceleration
+------------
+
+BDSIM includes acceleration of particles. Along a beamline the nominal momentum of the
+beam may change. Up until BDSIM v1.8.0 it was the user's responsibility to recalculate
+normalised magnet strengths (such as k1 for a quadrupole) and scaling factors for
+dipoles externally to the program. Since v1.8.0, BDSIM calculates the change in kinetic
+energy and therefore momentum and rigidity of the nominal 'design' beam particle along
+the beamline and adjusts the rigidity used to calculate real field gradients from normalised
+strengths.
+
+The old behaviour (i.e. no rolling rigidity adjustment) can be restored by turning off the option: ::
+
+  option, integrateKineticEnergyInBeamline=0;
+
+
+which is turned on by default.
+
+If a change in energy is detected by any component along the beamline, the design particle
+properties will be printed out once more at the end of construction of the beamline, even
+if it ends up being similar (e.g. through the input parameters) to the starting ones.
 
 
 .. _lattice-elements:
@@ -185,24 +205,31 @@ The following elements may be defined
 * :ref:`component-rfx-rfy`
 * `target`_
 * `rcol`_
-* `jcol`_
 * `ecol`_
+* `jcol`_
+* `jcoltip`_
+* `bmcol`_
 * `degrader`_
 * `muspoiler`_
 * `shield`_
 * `dump`_
 * `solenoid`_
+* `wirescanner`_
 * `laser`_
 * `gap`_
 * `crystalcol`_
 * `undulator`_
+* `gaborlens`_
 * `transform3d`_
 * `rmatrix`_
 * `thinrmatrix`_
 * `element`_
 * `marker`_
-* `wirescanner`_
 * `ct`_
+* `muoncooler`_
+* `gascap`_
+* `gasjet`_
+
 
 .. TODO add screen, awakescreen
 
@@ -367,6 +394,10 @@ If `k1` is specified, the integrator from the `bdsimmatrix` integrator set is us
 results in no physical pole face angle being constructed for tracking purposes. The
 tracking still includes the pole face effects.
 
+The default geometry is a C-shaped yoke and this is by default built on the inside
+of the bend. For H-shaped used :code:`hStyle=1` and for the yoke on the outside, use
+:code:`yokeOnInside=0` in the definition respectively.
+
 .. note:: See :ref:`bend-tracking-behaviour` for important notes about dipole tracking.
 
 +-----------------+-----------------------------------+-----------+-----------------+
@@ -384,7 +415,7 @@ tracking still includes the pole face effects.
 +-----------------+-----------------------------------+-----------+-----------------+
 | `material`      | Magnet outer material             | Iron      | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
-| `yokeOnInside`  | Yoke on inside of bend            | 0         | No              |
+| `yokeOnInside`  | Yoke on inside of bend            | 1         | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
 | `hStyle`        | H style poled geometry            | 0         | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
@@ -508,6 +539,10 @@ makes no effect on tracking, but allows a much higher variety of apertures and m
 geometry to be used given the Geant4 geometry. The number of segments is computed such
 that the maximum tangential error in the aperture is 1 mm.
 
+The default geometry is a C-shaped yoke and this is by default built on the inside
+of the bend. For H-shaped used :code:`hStyle=1` and for the yoke on the outside, use
+:code:`yokeOnInside=0` in the definition respectively.
+
 With the default integrator set, the pole face rotations are not built into the geometry
 such that the tracking will match MADX. If you use the :code:`geant4` integrator set,
 the pole face geometry will be built fully.
@@ -529,7 +564,7 @@ the pole face geometry will be built fully.
 +-----------------+-----------------------------------+-----------+-----------------+
 | `material`      | Magnet outer material             | Iron      | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
-| `yokeOnInside`  | Yoke on inside of bend            | 0         | No              |
+| `yokeOnInside`  | Yoke on inside of bend            | 1         | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
 | `hStyle`        | H style poled geometry            | 0         | No              |
 +-----------------+-----------------------------------+-----------+-----------------+
@@ -730,7 +765,7 @@ decapole
 
 .. math::
 
-   k_{2} = \frac{1}{B \rho}\,\frac{d^{4}B_{y}}{dx^{4}}\,[m^{-5}]
+   k_{4} = \frac{1}{B \rho}\,\frac{d^{4}B_{y}}{dx^{4}}\,[m^{-5}]
 
 ================  ===========================  ==========  ===========
 Parameter         Description                  Default     Required
@@ -981,14 +1016,14 @@ the edge effects are provided by default and are controllable with the option `i
 +----------------+-------------------------------+--------------+---------------------+
 | `phase`        | Phase offset (rad)            | 0            | No                  |
 +----------------+-------------------------------+--------------+---------------------+
-| `tOffset`      | Offset in time (s)            | 0            | No                  |
+| `tOffset`      | Offset in global time (s)     | 0            | No                  |
 +----------------+-------------------------------+--------------+---------------------+
 | `material`     | Outer material                | ""           | Yes                 |
 +----------------+-------------------------------+--------------+---------------------+
 | `cavityModel`  | Name of cavity model object   | ""           | No                  |
 +----------------+-------------------------------+--------------+---------------------+
 
-Either :code:`gradient` or :code:`E` should be specified. :code:`E` (the *voltage* is given in Volts,
+Either :code:`gradient` or :code:`E` should be specified. :code:`E` (the *voltage*) is given in Volts,
 and internally is divided by the length of the element (:code:`l`) to give the electric
 field in Volts/m. If :code:`gradient` is specified, this is already Volts/m and the length
 is not involved. The slight misnomer of `E` instead of say `voltage` is historical.
@@ -997,11 +1032,11 @@ is not involved. The slight misnomer of `E` instead of say `voltage` is historic
 difference whether you write :code:`gradient=10*MV/m` or :code:`gradient=10*MV`. However,
 it is best to be explicit in units or none at all and assume the default ones.
 
-.. note:: The design energy of the machine is not affected, so the strength and fields
-	  of components after an RF cavity in a lattice are calculated with respect to
-	  the design energy, the particle and therefore, design rigidity. The user should
-	  scale the strength values appropriately if they wish to match the increased
-	  momentum of the particle.
+.. note:: The design energy of the machine is affected by the accelerator (or decceleration)
+          and the nominal rigidity used to calculate fields from normalised strenghts
+          such as :code:`k1` for a quadrupole will be updated accordingly. This is the
+          default behaviour since v1.8.0 and can be turned off with
+          :code:`option, integrateKineticEnergyAlongBeamline=0;`.
 
 .. warning:: The elliptical cavity geometry may not render or appear in the Geant4
 	     QT visualiser.  The geometry exists and is valid, but this is due to
@@ -1010,30 +1045,26 @@ it is best to be explicit in units or none at all and assume the default ones.
 
 * The field is such that a positive E-field results in acceleration of the primary particle
   (depending on the primary particle charge).
-* The phase is calculated automatically such that zero phase results in the peak E-field at
-  the centre of the component for its position in the lattice.
+* The global synchronous time at the centre of the element is calculated automatically
+  such that zero phase results in the peak E-field at the centre of the component
+  for its position in the lattice.
 * Either `tOffset` or `phase` may be used to specify the phase of the oscillator.
+* If `phase` is specified, this is added to the calculated synchronous (global) phase from
+  either the lattice position or `tOffset`.
 * The material must be specified in the `rf` gmad element or in the attached cavity model
   by name. The cavity model will override the element material.
 * The entrance / exit cavity fringes are not constructed if the previous / next element
   is also an rf cavity.
 * The cavity fringe element is by default the same radius as the beam pipe radius. If a cavity
   model is supplied, the cavity fringes are built with the same radius as the model iris radius.
-* If `phase` is specified, this is added to the calculated phase offset from either the lattice
-  position or `tOffset`.
 * The step length in the cavity is limited for all particles to be 2.5% of the minimum
   of the element length and the wavelength (given the frequency). In the case of 0 frequency,
   only the length is considered. This is to ensure accurate numerical integration of the
   motion through the varying field.
-* If `tOffset` is specified, a phase offset is calculated from this time for the **speed
-  of light in a vacuum**. Otherwise, the curvilinear S-coordinate of the centre of the rf
-  element is used to find the phase offset.
-* In the case where `frequency` is not set, the phase offset is ignored and only the `phase` is
-  used. See the developer documentation :ref:`field-sinusoid-efield` for a description of the field.
-  
-.. note:: As the phase offset is calculated from the speed of light in a vacuum, this is
-	  only correct for already relativistic beams. Development is underway to improve
-	  this calculation for sub-relativistic beams.
+* If `tOffset` is specified, a phase offset is calculated from this and the frequency provided.
+* In the case where `frequency` is not set and therefore 0, the field is multiplied by the
+  cosine of the phase. See the developer documentation :ref:`field-sinusoid-efield` for a
+  description of the field.
 
 
 Simple examples: ::
@@ -1282,20 +1313,20 @@ This feature can be useful for example in aligning the jaws to the beam envelope
 Notes: 
 
 * The `horizontalWidth` must be greater than 2x `xsize`.
-* To prevent the jaws overlapping with one another, a jaw cannot be constructed that crosses the
-  X axis of the element (i.e supplying a negative `xsizeLeft` or `xsizeRight` will not work). Should
-  you require this, please offset the element using the element parameters `offsetX` and `offsetY` instead.
+* A positive tilt angle rotates either jaw to the left on the downstream side. So, a positive jawTiltLeft
+  increases the left jaw aperture on the downstream side. A positive jawTiltRight decreases the right
+  aperture on the downstream side. Left positive and righ negative give diverging jaws.
 * To construct a collimator jaws with one jaw closed (i.e. an offset of 0), the horizontal half aperture
-  must be set to 0, with the other jaws half aperture set as appropriate.
+  (`xsize`) must be set to 0.
 * If `xsize`, `xsizeLeft` and `xsizeRight` are not specified, the collimator will be constructed
   as a box with no aperture.
 * For **only one jaw**, specifying a jaw aperture which is larger than half the `horizontalWidth` value
   will result in that jaw not being constructed. If both jaw apertures are greater than
   half the `horizontalWidth`, no jaws will be built and BDSIM will exit.
-* To preserve the longitudinal dimensions, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
+* To preserve the length strictly, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
   uses parallelepipeds instead of boxes for the collimator jaws. Relative to using angled boxes, this can introduce and
-  error in the material traversed by incident particles, which scales as $b\tan(\alpha)$, where b is
-  the impact parameter (depth of impact) and $\alpha$ is the jaw tilt angle.
+  error in the material traversed by incident particles, which scales as :math:`b \tan(\alpha)`, where b is
+  the impact parameter (depth of impact) and :math:`\alpha` is the jaw tilt angle.
 * The parameter `minimumKineticEnergy` (GeV by default) may be specified to artificially kill
   particles below this kinetic energy in the collimator. This is useful to match other simulations
   where collimators can be assumed to be infinite absorbers. If this behaviour is required, the
@@ -1316,6 +1347,146 @@ Examples: ::
    j2: jcol, l=0.9*m, horizontalWidth=1*m, material="Cu", xsizeLeft=1*cm, xsizeRight=2*m;
 
 
+jcoltip
+^^^^^^^
+
+.. figure:: figures/jcoltip.png
+    :width: 40%
+    :align: center
+
+`jcoltip` defines a jaw collimator with an additional tip material. It consists of two square blocks on either side in the horizontal plane, similar to `jcol`, but with a tip of a different material. If a vertical `jcoltip` is required, the `tilt` parameter should be used to rotate it by :math:`\pi/2`. The horizontal position of each jaw can be set separately with the `xsizeLeft` and `xsizeRight` apertures, which are the distances from the centre of the element to the left and right jaws, respectively.
+
+The tip thickness and material are defined using `tipThickness` and `tipMaterial`. The collimator jaws can be individually tilted in a plane perpendicular to the jaw opening plane with the `jawTiltLeft` and `jawTiltRight` arguments. In this case, the set aperture is in the middle of the collimator. This feature can be useful for example in aligning the jaws to the beam envelope.
+
+.. tabularcolumns:: |p{4cm}|p{4cm}|p{2cm}|p{2cm}|
+
++------------------------+-----------------------------------+----------------+---------------+
+| **Parameter**          | **Description**                   | **Default**    | **Required**  |
++========================+===================================+================+===============+
+| `l`                    | Length [m]                        | 0              | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `xsize`                | Horizontal half aperture [m]      | 0              | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `ysize`                | Half height of jaws [m]           | 0              | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `material`             | Bulk material of the jaw          | None           | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `tipMaterial`          | Material of the jaw tip           | None           | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `tipThickness`         | Thickness of the tip [m]          | 0              | Yes           |
++------------------------+-----------------------------------+----------------+---------------+
+| `xsizeLeft`            | Left jaw aperture [m]             | 0              | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `xsizeRight`           | Right jaw aperture [m]            | 0              | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `jawTiltLeft`          | Left jaw tilt angle [rad]         | 0              | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `jawTiltRight`         | Right jaw tilt angle [rad]        | 0              | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `horizontalWidth`      | Outer full width [m]              | 0.5 m          | No            |
++------------------------+-----------------------------------+----------------+---------------+
+| `colour`               | Name of colour desired for        | ""             | No            |
+|                        | block. See :ref:`colours`.        |                |               |
++------------------------+-----------------------------------+----------------+---------------+
+| `minimumKineticEnergy` | Minimum kinetic energy below      | 0              | No            |
+|                        | which to artificially kill        |                |               |
+|                        | particles in this collimator only |                |               |
++------------------------+-----------------------------------+----------------+---------------+
+
+Notes: 
+
+* The `horizontalWidth` must be greater than 2x `xsize`.
+* A positive tilt angle rotates either jaw to the left on the downstream side. So, a positive jawTiltLeft
+  increases the left jaw aperture on the downstream side. A positive jawTiltRight decreases the right
+  aperture on the downstream side. Left positive and righ negative give diverging jaws.
+* To construct a collimator jaws with one jaw closed (i.e. an offset of 0), the horizontal half aperture
+  (`xsize`) must be set to 0.
+* If `xsize`, `xsizeLeft` and `xsizeRight` are not specified, the collimator will be constructed
+  as a box with no aperture and a box of the `tipMaterial` placed inside it. It will be around 0.1 microns shorter.
+* For **only one jaw**, specifying a jaw aperture which is larger than half the `horizontalWidth` value
+  will result in that jaw not being constructed. If both jaw apertures are greater than
+  half the `horizontalWidth`, no jaws will be built and BDSIM will exit.
+* To preserve the length strictly, jaw tilt specified with `jawTiltLeft` or `jawTiltRight` and `xsizeRight`
+  uses parallelepipeds instead of boxes for the collimator jaws. Relative to using angled boxes, this can introduce and
+  error in the material traversed by incident particles, which scales as :math:`b\tan(\alpha)`, where b is
+  the impact parameter (depth of impact) and :math:`\alpha` is the jaw tilt angle.
+* The parameter `minimumKineticEnergy` (GeV by default) may be specified to artificially kill
+  particles below this kinetic energy in the collimator. This is useful to match other simulations
+  where collimators can be assumed to be infinite absorbers. If this behaviour is required, the
+  user should specify an energy greater than the total beam energy.
+* All collimators can be made infinite absorbers with the general option
+  :code:`collimatorsAreInfiniteAbsorbers` (see :ref:`options-tracking`).
+
+Examples: ::
+
+   ! standard
+   col: jcoltip, l=1.22*m, material="Cu", tipMaterial="W", tipThickness=1*cm, xsize=0.1*cm, ysize=5*cm;
+
+   ! two separately specified jaws with tip material
+   j1: jcoltip, l=1*m, horizontalWidth=1*m, material="Cu", tipMaterial="W", tipThickness=1*cm, xsizeLeft=1*cm, xsizeRight=1.5*cm;
+
+   ! only left jaw with tip
+   j2: jcoltip, l=1*m, horizontalWidth=1*m, material="Cu", tipMaterial="W", tipThickness=1*cm, xsizeLeft=1*cm, xsizeRight=2*m;
+
+
+
+.. _component-bmcol:
+
+bmcol
+^^^^^
+
+.. figure:: figures/bmcol.png
+	    :width: 60%
+	    :align: center
+
+A `bmcol` defines a beam mask that consists of solid material with two apertures ('slits') with
+adjustable sizes and positions. The main slit is always centered on the beam axis. The secondary
+slit position is defined with respect to the main one and can be tilted.
+
+* The whole mount can then have x and y offset inside of the beam pipe.
+
+.. tabularcolumns:: |p{4cm}|p{4cm}|p{2cm}|p{2cm}|
+
++-------------------+------------------------------------------------+----------------+---------------+
+| **Parameter**     | **Description**                                | **Default**    | **Required**  |
++===================+================================================+================+===============+
+| `l`               | Length [m]                                     | 0              | Yes           |
++-------------------+------------------------------------------------+----------------+---------------+
+| `material`        | Outer material                                 | None           | Yes           |
++-------------------+------------------------------------------------+----------------+---------------+
+| `horizontalWidth` | Outer full width [m]                           | 0.15 m         | No            |
++-------------------+------------------------------------------------+----------------+---------------+
+| `xsize`           | Horizontal half aperture of main slit [m]      | 0              | No            |
++-------------------+------------------------------------------------+----------------+---------------+
+| `ysize`           | Vertical half aperture of main slit [m]        | 0              | No            |
++-------------------+------------------------------------------------+----------------+---------------+
+| `xsize2`          | Horizontal half aperture of side slit [m]      | 0              | No            |
++-------------------+------------------------------------------------+----------------+---------------+
+| `ysize2`          | Vertical half aperture of side slit [m]        | 0              | No            |
++-------------------+------------------------------------------------+----------------+---------------+
+| `offsetX2`        | Horizontal displacement of side slit [m]       | 0              | No            |
++-------------------+------------------------------------------------+----------------+---------------+
+| `offsetY2`        | Vertical displacement of side slit [m]         | 0              | No            |
++-------------------+------------------------------------------------+----------------+---------------+
+| `tilt2`           | Clockwise rotation of side slit [rad].         | 0              | No            |
++-------------------+------------------------------------------------+----------------+---------------+
+| `outerShape`      | Shape of the outer material                    | 'rectangular'  | No            |
+|                   | (circular or rectangular).                     |                |               |
++-------------------+------------------------------------------------+----------------+---------------+
+
+Notes:
+
+* The :ref:`aperture-parameters` may also be specified.
+* The :ref:`offsets-and-tilts` may also be specified.
+
+Examples: ::
+
+  bm: bmcol, l=2*mm, aper1=0.15*m, horizontalWidth=0.15*m, material="G4_W",
+             offsetX=0*mm, offsetY=0*mm, xsize=5*mm, ysize=30*mm, outerShape="rectangular",
+             offsetX2=20*mm, offsetY2=0*mm, xsize2=1*mm, ysize2=30*mm, tilt2=0.3*rad;
+
+
+.. _component-degrader:
 
 degrader
 ^^^^^^^^
@@ -1403,6 +1574,11 @@ Notes:
 * The :ref:`aperture-parameters` may also be specified.
 * No field is constructed if B is the default 0.
 
+Examples::
+
+  musp2 : muonspoiler,l=5*m, aper1=1*cm, outerDiameter=240*cm, B=1.5;
+  musp3 : muonspoiler, l=2*m, aper1=3*cm, beampipeThickness=10*cm, horizontalWidth=50*cm;
+
 
 shield
 ^^^^^^
@@ -1429,6 +1605,21 @@ Parameter          Description                          Default     Required
 Notes:
 
 * The :ref:`aperture-parameters` may also be specified.
+
+Examples::
+
+  sh1 : shield, l=0.2*m,
+              aper1=3*cm,
+              aper2=1.5*cm,
+              apertureType="rectangular",
+              outerDiameter=50*cm,
+              beampipeThickness=1*mm,
+              xsize=7*cm,
+              ysize=7*cm,
+              material="concrete",
+              beampipeMaterial="stainlesssteel",
+              colour="iron";
+
 
 dump
 ^^^^
@@ -1490,6 +1681,10 @@ used in the case a particle cannot be tracked using the integrator. In this case
 is a perfect dipole field along the local :math:`z` axis inside the beam pipe with
 no spatial variation. Outside the beam pipe, in the *'yoke'*, a solenoidal field
 according to a cylindrical current source is constructed.
+
+.. math::
+
+   ks = \frac{B_0}{B \rho}\,[m^{-1}]
 
 =================  ============================  ==========  ===========
 Parameter          Description                   Default     Required
@@ -1559,22 +1754,23 @@ Notes:
 	     and this could result in the curvilinear world being made very small.
 
 The offsets are with respect to the centre of the beam pipe section the wire is placed inside.
-This should therefore be less than half the element length `l`. The usual beam pipe parameters
-can be specified and apply the to the beam pipe. For example, `material` is used for the beam
-pipe material whereas `wireMaterial` is used for the material of the wire.
+This should therefore be less than half the element length `l`.  For example, `beampipeMaterial`
+is used for the beam pipe material whereas `material` is used for the material of the wire.
 
 The user should take care to define a wire long enough to intercept the beam but be sufficiently
 short to fit inside the beam pipe given the offsets in x, y and z. Checks are made on the end
 points of the wire.
 
+* The :ref:`aperture-parameters` can be specified and apply the to the beampipe.
+
 Examples: ::
 
     ws45Deg: wirescanner, l=4*cm, wireDiameter=0.1*mm, wireLength=5*cm,
-                          wireOffsetX=1*cm, angle=pi/4, wireMaterial="C",
+                          wireOffsetX=1*cm, wireAngle=pi/4, material="C",
 			  aper1=5*cm;
 
     wsVertical: wirescanner, l=4*cm, wireDiameter=0.1*mm, wireLength=5*cm,
-                             wireOffsetX=1*cm, wireOffsetZ=1.6*cm, wireMaterial="C";
+                             wireOffsetX=1*cm, wireOffsetZ=1.6*cm, material="C";
 
 
 laser
@@ -1587,7 +1783,7 @@ of photons.
 Parameter         Description                                        Default     Required
 `l`               Length of drift section [m]                        0           Yes
 `x`, `y`, `z`     Components of laser direction vector (normalised)  (1,0,0)     yes
-`waveLength`      Laser wavelength [m]                               532*nm      Yes
+`wavelength`      Laser wavelength [m]                               532*nm      Yes
 ================  =================================================  ==========  ===========
 
 Examples: ::
@@ -1599,7 +1795,10 @@ gap
 ^^^
 
 `gap` defines a gap where no physical geometry is placed. It will be a region of the world,
-composed of the same material as the world volume.
+composed of the same material as the world volume. No geometry is built but the beamline
+cumulative coordinates advanced by that much when building the model. If an angle is specified,
+it behaves like an `sbend` and a gap according to a smooth arc of that angle is created. By
+default, the angle is 0 and it is a straight gap.
 
 .. tabularcolumns:: |p{4cm}|p{4cm}|p{2cm}|p{2cm}|
 
@@ -1611,7 +1810,7 @@ Parameter              Description                              Default     Requ
 
 Examples: ::
 
-    GAP1: gap, l=0.25*m, angle=0.01*rad;
+    g1: gap, l=0.25*m, angle=0.01*rad;
 
 .. _element-crystal-col:
     
@@ -1684,7 +1883,7 @@ Examples: ::
 			bendingAngleYAxis = 0.1*rad,
 			bendingAngleZAxis = 0;
 
-   col1 : crystalcol, l=6*mm, apertureType="rectangular", aper1=0.25*cm, aper2=5*cm,
+   col1 : crystalcol, l=6*mm, apertureType="rectangular", aper1=10*cm, aper2=10*cm,
                       crystalBoth="lovelycrystal", crystalAngleYAxisLeft=-0.1*rad,
 		      crystalAngleYAxisRight=-0.1*rad, xsize=2*mm;
 
@@ -1736,13 +1935,110 @@ Examples: ::
  u1: undulator, l=2.0*m, B=0.1*T, undulatorPeriod=0.2*m;
  u2: undulator, l=3.2*m, B=0.02*T, undulatorPeriod=0.16*m, undulatorGap=15*cm, undulatorMagnetHeight=10*cm;
 
+gaborlens
+^^^^^^^^^
+
+.. figure:: figures/gaborlens.png
+	    :width: 60%
+	    :align: center
+
+`gaborlens` defines a Gabor lens that provides a radially focusing electric field from a confined electron plasma in
+a Penning-Malmberg trap configuration. The lens' radial electric field along the element has field components:
+
+.. math::
+
+   E_{x} ~ &= ~ - \frac{B^2 c^2}{4\ m_p} x \\
+   E_{y} ~ &= ~ - \frac{B^2 c^2}{4\ m_p} y \\
+   E_{z} ~ &= ~ 0 \\
+
+where :math:`B` is the magnetic field of an equivalent strength solenoid, and :math:`m_p` is the beam particle
+mass. The field is internally calculated from the Gabor lens focusing parameter `Kg`, defined as
+
+.. math::
+
+   k_{G} = \frac{e}{2 \epsilon_0} \frac{m_p\ \gamma}{p^2} n_e
+
+where :math:`e` is the electron charge, :math:`\epsilon_0` is the permittivity of free space, :math:`m_p` is the beam
+particle mass, :math:`\gamma` is the beam particle Lorentz factor, :math:`p` is the beam particle momentum, and
+:math:`n_e` is the electron plasma density. It is assumed that the electron density in uniform. The Gabor lens plasma
+density depends on the strength of the electric and magnetic confinement fields that confine the plasma axially and
+radially respectively. The nominal electron density :math:`n_e` is achieved assuming the maximum axial and radial
+densities are in equilibrium. It is assumed in the `gaborlens` element that this equilibrium condition is met.
+
+.. note:: The electric and magnetic confinement fields are not constructed in the `gaborlens` element at present.
+
+The Gabor lens geometry is based upon a prototype design by Imperial College. The details of the lens are described
+in `<https://doi.org/10.3390/app11104357>`_. The internal structure of a Gabor lens is shown below. The main components
+are:
+
+1) The outer tube
+2) Solenoid coils (copper)
+3) Vacuum tube
+4) A cylindrical central copper anode
+5) End electrodes (copper)
+6) Grounding end caps (stainless steel)
+
+.. figure:: figures/gaborlensinterior.png
+	    :width: 60%
+	    :align: center
+
+.. note:: The transverse extent of the electric field from the plasma is limited to the radius of the
+  cylindrical anode.
+
+.. note:: The Gabor lens element contains 2 end caps that are crucial for grounding and vacuum in such
+  physical devices. In the BDSIM Gabor lenses, both of these are 1cm long. The plasma field does NOT extend
+  to within these volumes, and is limited to the length of the vacuum volume. The field length in Z is therefore
+  the total element length minus 2cm. This should be accounted for by the user when defining the
+  total element length.
+
+.. note:: The end cap aperture is set equal to the electrode radius as both the anode and electrode must be within
+  the beam pipe aperture.
+
+=======================  ================================  ==========  ===========
+Parameter                Description                       Default     Required
+`l`                      Length [m]                        0           Yes
+`Kg`                     Gabor Lens focusing parameter     0           Yes/No*
+`B`                      Solenoid-equivalent B field [T]   0           Yes/No*
+`anodeLength`            Anode length [m]                  0           Yes
+`anodeRadius`            Anode radius [m]                  0           Yes
+`anodeThickness`         Anode thickness [m]               0           Yes
+`electrodeLength`        Electrode length [m]              0           Yes
+`electrodeRadius`        Electrode radius [m]              0           Yes
+`electrodeThickness`     Electrode thickness [m]           0           Yes
+`material`               Gabor lens outer material         Iron        No
+=======================  ================================  ==========  ===========
+
+.. note:: Either `Kg` or `B` can be specified to set the Gabor Lens field strength with `Kg` being the main
+    parameter. `B` will only be used if `Kg` is not specifed (0). If both are unspecified, no field will be constructed.
+
+Notes:
+
+* The anode length must be shorter than the vacuum volume length (total element length minus 20 cm).
+* The anode radius + anode thickness must be smaller than the smallest aperture inner extent.
+* The transverse extent of the electric field from the plasma is limited to the radius of the cylindrical anode.
+* The :ref:`aperture-parameters` control the vacuum volume.
+* The electrode length must be smaller than half the vacuum volume length.
+* The electrode radius + thickness must be smaller than the anode radius.
+
+
+Examples: ::
+
+ g1: gaborlens, l=1.0*m, kg=0.289643, material="copper", anodeRadius=65*mm, anodeLength=0.920, anodeThickness=1.6*mm,
+     electrodeRadius=30*mm, electrodeLength=45*mm, electrodeThickness=1.6*mm, aper1=10*cm;
+
+ g2: gaborlens, l=1.0*m, B=0.6*T, material="copper", anodeRadius=65*mm, anodeLength=0.920, anodeThickness=1.6*mm,
+     electrodeRadius=30*mm, electrodeLength=45*mm, electrodeThickness=1.6*mm, aper1=10*cm;
+
 
 transform3d
 ^^^^^^^^^^^
 
 `transform3d` defines an arbitrary three-dimensional transformation of the curvilinear coordinate
-system at that point in the beam line sequence. The user is responsible for ensuring no overlaps
-in geometry are introduced. The drifts on either side currently will not have matching angular faces.
+system at that point in the beam line sequence. It applies a spatial offset in the cumulative curvilinear
+coordinate frame along the beamline, then it applies the rotation.
+
+The user is responsible for ensuring no overlaps in geometry are introduced. The drifts on either side
+currently will not have matching angular faces.
 
 Two representations of rotation can be used. Either Euler angles or Axis Angle where unit vector
 components are supplied to create an axis to rotate around by an angle. Euler is the default.
@@ -1837,7 +2133,7 @@ Parameter         Description                     Default     Required
 
 Examples: ::
 
-   rm1: rmatrix, rmat12=0.997, rmat21=-0.924;
+   r1: rmatrix, rmat11=1, rmat12=0.0, rmat21=500, rmat22=1, rmat33=0, rmat34=500, rmat43=0, rmat44=1, l=0.25;
 
 thinrmatrix
 ^^^^^^^^^^^
@@ -2041,7 +2337,7 @@ starting point.
 
 .. note:: For a correct visualization of the DICOM image, a path to a colourMap.dat file must also be given,
     as the parameter `dicomDataPath`. This file will allow the mapping of each material to a specific color in the
-    viewer. Its first line should bethe number of materials used in the simulation. Each material given in the
+    viewer. Its first line should be the number of materials used in the simulation. Each material given in the
     `data.dat` file should then have a colour scheme which the user defines via four numbers with the syntax
     :code:`:1MAT X Y Z A` where X, Y, Z and A are numbers between 0 and 1 respectively setting the amount of red, green,
     blue and opacity of the colour defined for the material MAT. An example of such a colourMap.dat file is provided in
@@ -2067,6 +2363,262 @@ Examples: ::
 | `dicomDataPath`         | Path to the colourMap.dat file. During the conversion of the CT    |
 |                         | image, the temporary .g4dcm file will also be stored in this path. |
 +-------------------------+--------------------------------------------------------------------+
+
+muoncooler
+^^^^^^^^^^^^
+
+.. figure:: figures/muoncooler.png
+	    :width: 70%
+	    :align: center
+
+
+`muoncooler` defines a **complete** 6D muon cooling lattice. Upon instantiation, a logical volume
+with the specified horizontal width and length is generated, providing space for the
+placement of the main 6D ionisation cooling beamline elements: solenoids, dipoles, RF cavities, and absorbers.
+The element ensures that fringe effects from all magnets are accounted for and
+allowing for accurate summation of the electric and magnetic field contributions across the entire
+lattice.
+
+In the current 6D cooling implementation, the cooling channel can include:
+
+- **Solenoids (coils)**
+- **Dipoles (field only, no physical magnet)**
+- **RF cavities**
+- **Absorbers**
+
+Parameters for these components can be specified as either:
+
+- A **single value**, applying uniformly across all instances of that component
+- A **list of values**, where each value corresponds to the respective component's position in the cooling channel
+
+**Electric and Magnetic Field Models**
+
+- The **solenoid field model** can be either a **sheet model** (`solenoidsheet`) or a **block model** (`solenoidblock`).
+- For dipoles, two models exist currently: `dipole` and `dipoleenge`. The `dipole` model is a simple hard-edge dipole field, while the `dipoleenge` model includes Enge-type fringe fields and follows the treatment outlined in: Muratori, B.D. et al (2015) ‘Analytical expressions for fringe fields in multipole magnets’, *Physical Review Special Topics - Accelerators and Beams*, 18(6). https://doi.org/10.1103/physrevstab.18.064001
+- For the RF cavities, a simple RF pillbox (`rfpillbox`) model has been implemented.
+
+
+**Table of Parameters**
+
+
++------------------------------+-------------------------------+--------------+
+| **Parameter**                | **Description**               | **Type**     |
++==============================+===============================+==============+
+| `nCoils`                     | Number of solenoid coils in   | Integer      |
+|                              | the cooling channel           |              |
++------------------------------+-------------------------------+--------------+
+| `coilInnerRadius`            | Inner radii of coils [m]      | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `coilRadialThickness`        | Radial thicknesses of coils   | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `coilLengthZ`                | Lengths of coils along Z [m]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `coilOffsetZ`                | Z-positions of coil centers   | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `coilCurrent`                | Currents in [A] (sheet model) | List[Float]  |
+|                              | or densities                  |              |
+|                              | [A/m^2] (block model)         |              |
++------------------------------+-------------------------------+--------------+
+| `coilMaterial`               | Materials of coils            | List[String] |
++------------------------------+-------------------------------+--------------+
+| `onAxisTolerance`            | on-axis Tolerance for         | Float        |
+|                              | CEL integral calculation [T]  |              |
++------------------------------+-------------------------------+--------------+
+| `nDipoles`                   | Number of dipoles             | Integer      |
++------------------------------+-------------------------------+--------------+
+| `dipoleAperture`             |Aperture radii of dipoles [m]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `dipoleLengthZ`              | Lengths of dipoles along Z [m]| List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `dipoleFieldStrength`        | Peak magnetic field strengths | List[Float]  |
+|                              | of dipoles [T]                |              |
++------------------------------+-------------------------------+--------------+
+| `dipoleEngeCoefficient`      | C1 Enge coefficients of       | List[Float]  |
+|                              | dipoles                       |              |
++------------------------------+-------------------------------+--------------+
+| `dipoleOffsetZ`              | Z-positions of dipoles [m]    | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `nAbsorbers`                 | Number of absorbers           | Integer      |
++------------------------------+-------------------------------+--------------+
+| `absorberType`               | Types of absorbers            | List[String] |
+|                              | ("cylinder" or "wedge")       |              |
++------------------------------+-------------------------------+--------------+
+| `absorberMaterial`           | Materials of absorbers        | List[String] |
++------------------------------+-------------------------------+--------------+
+| `absorberOffsetZ`            | Z-positions of absorbers [m]  | List[Float]  |
++------------------------------+-------------------------------+--------------+
+| `absorberCylinderLength`     | Lengths of cylindrical        | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberCylinderRadius`     | Radii of cylindrical          | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeOpeningAngle`  | Opening angles of wedge       |List[Float]   |
+|                              | absorbers [rad]               |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeHeight`        | Heights of wedge              | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeRotationAngle` | Rotation angles of            | List[Float]  |
+|                              | wedge absorbers [rad]         |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeOffsetX`       | X-offsets of wedge            | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeOffsetY`       | Y-offsets of wedge            | List[Float]  |
+|                              | absorbers [m]                 |              |
++------------------------------+-------------------------------+--------------+
+| `absorberWedgeApexToBase`    | Apex-to-base lengths          | List[Float]  |
+|                              | of wedge absorbers [m]        |              |
++------------------------------+-------------------------------+--------------+
+| `nRFCavities`                | Number of RF cavities         | Integer      |
++------------------------------+-------------------------------+--------------+
+| `rfOffsetZ`                  | Z-positions of RF cavities    | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfTimeOffset`               | Time offsets for RF cavities  | List[Float]  |
+|                              | [ns]                          |              |
++------------------------------+-------------------------------+--------------+
+| `rfLength`                   | Inner lengths of RF cavities  | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfVoltage`                  | Peak E-Field of RF cavities   | List[Float]  |
+|                              | [MV/m]                        |              |
++------------------------------+-------------------------------+--------------+
+| `rfPhase`                    | Phases of RF cavities         | List[Float]  |
+|                              | [rad]                         |              |
++------------------------------+-------------------------------+--------------+
+| `rfFrequency`                | Frequencies of RF cavities    | List[Float]  |
+|                              | [Hz]                          |              |
++------------------------------+-------------------------------+--------------+
+| `rfWindowThickness`          | Thickness of the RF window    | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfWindowMaterial`           | RF Window Material            | List[String] |
++------------------------------+-------------------------------+--------------+
+| `rfWindowRadius`             | Radii of RF cavities          | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `rfCavityMaterial`           | RF cavity materials           | List[String] |
+|                              |                               |              |
++------------------------------+-------------------------------+--------------+
+| `rfCavityVacuumMaterial`     | RF cavity vacuum material     | List[String] |
++------------------------------+-------------------------------+--------------+
+| `rfCavityThickness`          | Thickness of RF cavities      | List[Float]  |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `magneticFieldModel`         | Model for solenoid field      | String       |
++------------------------------+-------------------------------+--------------+
+| `dipoleFieldModel`           | Model for dipole field        | String       |
++------------------------------+-------------------------------+--------------+
+| `electricFieldModel`         | Model for RF electric field   | String       |
++------------------------------+-------------------------------+--------------+
+| `l`                          | Length of the cooling channel | Float        |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+| `horizontalWidth`            | Width of the cooling channel  | Float        |
+|                              | [m]                           |              |
++------------------------------+-------------------------------+--------------+
+
+An example of a cooling channel has been provided in `/examples/components/muoncooler.gmad`, and can be used as a template for development.
+
+
+.. _component-gascap:
+
+gascap
+^^^^^^
+
+.. figure:: figures/gascap.png
+	    :width: 60%
+	    :align: center
+
+A `gascap` defines a gas capillary that can be used to perform beam-gas interaction and/or plasma wake field acceleration.
+This element is composed of an inner cylindrical material (e.g. gas), an outer capillary material and two
+electrodes on each sides (with respect to beam axis).
+
+* The inner gas cell is always center on the beam axis.
+* The electrodes have the same shape and thickness.
+
+.. tabularcolumns:: |p{4cm}|p{4cm}|p{2cm}|p{2cm}|
+
++---------------------+----------------------------------------------+----------------+---------------+
+| **Parameter**       | **Description**                              | **Default**    | **Required**  |
++=====================+==============================================+================+===============+
+| `l`                 | Length [m]                                   | 0              | Yes           |
++---------------------+----------------------------------------------+----------------+---------------+
+| `layerMaterials`    | List of materials in order :                 | None           | Yes           |
+|                     | {Outer, Inner, Electrodes}                   |                |               |
++---------------------+----------------------------------------------+----------------+---------------+
+| `horizontalWidth`   | Outer full width [m]                         | 0.15 m         | No            |
++---------------------+----------------------------------------------+----------------+---------------+
+| `xsize`             | Diameter of inner material [m]               | 0              | No            |
++---------------------+----------------------------------------------+----------------+---------------+
+| `materialThickness` | Thickness of the two electrodes on each sides| 0              | No            |
+|                     | [m]                                          |                |               |
++---------------------+----------------------------------------------+----------------+---------------+
+| `outerShape`        | Shape of the outer material                  | 'rectangular'  | No            |
+|                     | (circular or rectangular).                   |                |               |
++---------------------+----------------------------------------------+----------------+---------------+
+
+Notes:
+
+* The :ref:`aperture-parameters` may also be specified.
+
+Examples: ::
+
+  gc: gascap, l=0.5*m, aper1=0.15*m, horizontalWidth=0.1*m, xsize=0.03*m, outerShape="circular",
+              layerMaterials={"G4_Si", "G4_Xe" ,"G4_C"}, materialThickness=0.01*m;
+
+
+.. _component-gasjet:
+
+gasjet
+^^^^^^
+
+.. figure:: figures/gasjet.png
+	    :width: 60%
+	    :align: center
+
+A `gasjet` defines a gas jet that can be used to perform beam-gas interaction inside a beam pipe. This
+element is a box of material that can be placed in x and y with respect to the beam axis and angled in
+all directions with respect to the center of the beam pipe.
+
+* The gas jet size is independent of the beam pipe length. However, its position is relative to the
+  center of the pipe along the beam axis.
+
+.. tabularcolumns:: |p{4cm}|p{4cm}|p{2cm}|p{2cm}|
+
++-------------------+----------------------------+----------------+---------------+
+| **Parameter**     | **Description**            | **Default**    | **Required**  |
++===================+============================+================+===============+
+| `l`               | Length [m]                 | 0              | Yes           |
++-------------------+----------------------------+----------------+---------------+
+| `material`        | Material of the jet        | None           | Yes           |
++-------------------+----------------------------+----------------+---------------+
+| `xdir`            | Size along x axis [m]      | 0              | No            |
++-------------------+----------------------------+----------------+---------------+
+| `ydir`            | Size along y axis [m]      | 0              | No            |
++-------------------+----------------------------+----------------+---------------+
+| `zdir`            | Size along z axis [m]      | 0              | No            |
++-------------------+----------------------------+----------------+---------------+
+| `phi`             | Angle along x axis [rad]   | 0              | No            |
++-------------------+----------------------------+----------------+---------------+
+| `theta`           | Angle along y axis [rad]   | 0              | No            |
++-------------------+----------------------------+----------------+---------------+
+| `psi`             | Angle along z axis [rad]   | 0              | No            |
++-------------------+----------------------------+----------------+---------------+
+
+Notes:
+
+* The :ref:`aperture-parameters` may also be specified.
+* The :ref:`offsets-and-tilts` may also be specified.
+
+Examples: ::
+
+  gj: gasjet, l=0.15*m, aper1=0.15*m, material="G4_AIR", offsetX=0*m, offsetY=0*m,
+              xdir=0.07*m, ydir=0.07*m, zdir=0.01*m, phi=0, theta=1, psi=0;
 
 
 .. _offsets-and-tilts:

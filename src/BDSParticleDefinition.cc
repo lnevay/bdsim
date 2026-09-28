@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -36,12 +35,12 @@ along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 
 BDSParticleDefinition::BDSParticleDefinition(G4ParticleDefinition* particleIn,
-					     G4double              totalEnergyIn,
-					     G4double              kineticEnergyIn,
-					     G4double              momentumIn,
-					     G4double              ffactIn,
-					     BDSIonDefinition*     ionDefinitionIn,
-					     G4int                 ionPDGIDIn):
+                                             G4double              totalEnergyIn,
+                                             G4double              kineticEnergyIn,
+                                             G4double              momentumIn,
+                                             G4double              ffactIn,
+                                             BDSIonDefinition*     ionDefinitionIn,
+                                             G4int                 ionPDGIDIn):
   particle(particleIn),
   ionDefinition(nullptr),
   ionPDGID(ionPDGIDIn),
@@ -62,21 +61,20 @@ BDSParticleDefinition::BDSParticleDefinition(G4ParticleDefinition* particleIn,
     {
       ionDefinition = new BDSIonDefinition(*ionDefinitionIn);
       if (ionDefinition->OverrideCharge()) // if override for ions
-	{charge = ionDefinition->Charge();}
+        {charge = ionDefinition->Charge();}
     }
-
   SetEnergies(totalEnergyIn, kineticEnergyIn, momentumIn);
 }
 
 BDSParticleDefinition::BDSParticleDefinition(const G4String&   nameIn,
-					     G4double          massIn,
-					     G4double          chargeIn,
-					     G4double          totalEnergyIn,
-					     G4double          kineticEnergyIn,
-					     G4double          momentumIn,
-					     G4double          ffactIn,
-					     BDSIonDefinition* ionDefinitionIn,
-					     G4int             ionPDGIDIn):
+                                             G4double          massIn,
+                                             G4double          chargeIn,
+                                             G4double          totalEnergyIn,
+                                             G4double          kineticEnergyIn,
+                                             G4double          momentumIn,
+                                             G4double          ffactIn,
+                                             BDSIonDefinition* ionDefinitionIn,
+                                             G4int             ionPDGIDIn):
   particle(nullptr),
   ionDefinition(nullptr),
   ionPDGID(ionPDGIDIn),
@@ -262,12 +260,13 @@ void BDSParticleDefinition::CalculateRigidity(const G4double& ffactIn)
 void BDSParticleDefinition::CalculateLorentzFactors()
 {
   gamma = totalEnergy / mass;
-
-  beta = std::sqrt(1 - (1./std::pow(gamma,2)) );
+  beta = std::sqrt(1 - (1./std::pow(gamma,2)));
 }
 
 void BDSParticleDefinition::ApplyChangeInKineticEnergy(G4double dEk)
 {
+  if (!BDS::IsFinite(dEk))
+    {return;}
   G4double newEk = kineticEnergy + dEk;
   if (newEk < 0)
     {

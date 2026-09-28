@@ -38,7 +38,7 @@ simple_testing(option-executable-startFromEvent          "--file=sm.gmad --start
 simple_testing(option-executable-writeSeedState          "--file=sm.gmad --writeSeedState"             "")
 simple_testing(option-executable-seedState               "--file=sm.gmad --seedState=example-seed-state.txt"         "")
 simple_testing(option-executable-seedStateFileName       "--file=sm.gmad --seedStateFileName=example-seed-state.txt" "")
-simple_testing(option-executable-survey                  "--file=sm.gmad --survey=survey.dat"          "")
+simple_testing(option-executable-survey                  "--file=oneOfEach.gmad --survey=survey.dat"   "")
 simple_testing(option-executable-ngenerate               "--file=sm.gmad --ngenerate=2"                "")
 simple_testing(option-executable-nGenerate               "--file=sm.gmad --nGenerate=2"                "")
 simple_testing(option-executable-nturns                  "--file=sm.gmad --nturns=2"                   "")
@@ -58,6 +58,7 @@ simple_fail(option-outer-diameter-too-small        "--file=smallOuterDiameter.gm
 simple_fail(option-zero-beam-energy                "--file=zeroBeamEnergy.gmad"     "")
 
 # general input options
+simple_testing(option-cavityFieldType              "--file=option_cavityFieldType.gmad"   "")
 simple_testing(option-collimator-info              "--file=collimatorinfo.gmad"           "")
 simple_testing(option-eloss-sensitive-vacuum       "--file=eloss-vacuum.gmad"             "")
 simple_testing(option-eloss-physics-processes      "--file=eloss-physics-processes.gmad"  "")

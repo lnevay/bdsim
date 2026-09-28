@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -39,8 +38,7 @@ void BDSPhysicsEMDissociation::ConstructParticle()
   G4Gamma::Gamma();
   G4GenericIon::GenericIon();
 
-  G4IonConstructor pConstructor;
-  pConstructor.ConstructParticle();
+  G4IonConstructor::ConstructParticle();
 }
 
 void BDSPhysicsEMDissociation::ConstructProcess()

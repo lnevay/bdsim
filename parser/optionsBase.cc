@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -145,6 +144,9 @@ OptionsBase::OptionsBase()
   yokeFieldsMatchLHCGeometry = true;
   useOldMultipoleOuterFields = false;
   scalingFieldOuter    = 1.0;
+  integrateKineticEnergyAlongBeamline = true;
+  
+  cavityFieldType = "constantinz";
   
   // beam pipe / aperture
   beampipeThickness    = 0.0025;
@@ -228,8 +230,11 @@ OptionsBase::OptionsBase()
   muonSplittingExcludeWeight1Particles = false;
   muonSplittingExclusionWeight = 1e99;
   xrayAllSurfaceRoughness = 0;
+  extendPionDecayChannels = false;
+  turnOffMuonDecay = false;
   
   // biasing options
+  scaleFactorLaser         = 1;
   defaultBiasVacuum        = "";
   defaultBiasMaterial      = "";
   biasForWorldVolume       = "";
@@ -349,6 +354,8 @@ OptionsBase::OptionsBase()
   
   storeModel               = true;
 
+  storePerEventHistos      = true;
+
   samplersSplitLevel       = 0;
   modelSplitLevel          = 1;
   uprootCompatible         = 0;
@@ -378,6 +385,13 @@ OptionsBase::OptionsBase()
   emin   = 1e-12;
   emax   = 1e4;
   useScoringMap = false;
+
+  // millicharge options
+  enableMillicharge = false;
+  millichargeName = "millicharged";
+  millichargeMass = 100;
+  millichargeCharge = 0.1;
+  millichargeID = 411000; // check this pdgID is not in use
 }
 
 

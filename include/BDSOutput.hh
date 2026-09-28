@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -72,6 +71,8 @@ namespace GMAD
 class BDSOutput: protected BDSOutputStructures
 {
 public:
+  /// No default constructor.
+  BDSOutput() = delete;
   /// Constructor with base file name (without extension or number suffix).
   BDSOutput(const G4String& baseFileNameIn,
             const G4String& fileExtentionIn,
@@ -174,6 +175,7 @@ protected:
   G4bool storeApertureImpactsHistograms;
   G4bool storePrimaries;
   G4bool storeTrajectory;
+  G4bool storePerEventHistos;
   /// @}
 
   /// Mapping from complete collection name ("SD/PS") to histogram ID to fill. We have this
@@ -288,9 +290,6 @@ private:
   void CopyFromHistToHist1D(const G4String& sourceName,
                             const G4String& destinationName,
                             const std::vector<G4int>& indices);
-
-  /// No default constructor.
-  BDSOutput() = delete;
   
   const G4String baseFileName;  ///< Base file name.
   const G4String fileExtension; ///< File extension to add to each file.

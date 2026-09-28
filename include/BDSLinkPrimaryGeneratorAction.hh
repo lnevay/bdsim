@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -41,7 +40,7 @@ class BDSLinkPrimaryGeneratorAction: public G4VUserPrimaryGeneratorAction
 public:
   /// Bunch must have a valid particle definition (ie not nullptr).
   BDSLinkPrimaryGeneratorAction(BDSBunch* bunchIn,
-				int*      currentElementIndexIn,
+                                int*      currentElementIndexIn,
                                 BDSLinkDetectorConstruction* constructionIn,
                                 G4bool    debugIn = false);
   virtual ~BDSLinkPrimaryGeneratorAction();

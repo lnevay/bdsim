@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -211,7 +210,11 @@ BDSGeometryExternal* BDSGeometryFactorySQL::Build(G4String /*componentName*/,
   std::set<G4LogicalVolume*> tempVols;
   for (auto lv : VOL_LIST)
     {tempVols.insert(lv);}
-  ApplyColourMapping(tempVols, colourMapping, autoColour);
+
+  std::map<G4String, G4Colour*> mapping;
+  if (colourMapping)
+    {mapping = *colourMapping;}
+  auto visesSQL = ApplyColourMapping(tempVols, mapping, autoColour);
 
   BDSGeometryExternal* result = new BDSGeometryExternal(containerSolid, itsMarkerVol, Extent());
   result->RegisterRotationMatrix(allRotationMatrices);
@@ -219,6 +222,7 @@ BDSGeometryExternal* BDSGeometryFactorySQL::Build(G4String /*componentName*/,
   result->RegisterLogicalVolume(allLogicalVolumes);
   result->RegisterPhysicalVolume(allPhysicalVolumes);
   result->RegisterVisAttributes(allVisAttributes);
+  result->RegisterVisAttributes(visesSQL);
 
   return result;
 }

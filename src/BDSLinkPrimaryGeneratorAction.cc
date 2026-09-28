@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -17,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with BDSIM.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "BDSBunch.hh"
+#include "BDSLinkBunch.hh"
 #include "BDSBunchSixTrackLink.hh"
 #include "BDSDebug.hh"
 #include "BDSEventInfo.hh"
@@ -68,12 +68,12 @@ void BDSLinkPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   try
     {
       coords = bunch->GetNextParticleLocal();
-      auto bunchSTL = dynamic_cast<BDSBunchSixTrackLink*>(bunch);
+      auto bunchSTL = dynamic_cast<BDSLinkBunch*>(bunch);
       if (bunchSTL)
-	{
-	  eventInfo->externalParticleIDofPrimary = bunchSTL->CurrentExternalParticleID();
-	  eventInfo->externalParentIDofPrimary   = bunchSTL->CurrentExternalParentID();
-	}
+        {
+          eventInfo->externalParticleIDofPrimary = bunchSTL->CurrentExternalParticleID();
+          eventInfo->externalParentIDofPrimary   = bunchSTL->CurrentExternalParentID();
+        }
     }
   catch (const BDSException& exception)
     {// we couldn't safely generate a particle -> abort

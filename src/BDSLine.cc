@@ -1,6 +1,5 @@
 /* 
-Beam Delivery Simulation (BDSIM) Copyright (C) Royal Holloway, 
-University of London 2001 - 2024.
+Beam Delivery Simulation (BDSIM) Copyright (C) BDSIM Collaboration, 2001 - 2026.
 
 This file is part of BDSIM.
 
@@ -89,6 +88,13 @@ void BDSLine::SetBiasMaterialList(const std::list<std::string>& biasMaterialList
   BDSAcceleratorComponent::SetBiasMaterialList(biasMaterialListIn);
   for (auto component : *this)
     {component->SetBiasMaterialList(biasMaterialListIn);}
+}
+
+void BDSLine::SetBiasMaterialLVList(const std::list<std::string>& biasMaterialLVListIn)
+{
+  BDSAcceleratorComponent::SetBiasMaterialLVList(biasMaterialLVListIn);
+  for (auto component : *this)
+  {component->SetBiasMaterialLVList(biasMaterialLVListIn);}
 }
 
 void BDSLine::SetRegion(const G4String& regionIn)
