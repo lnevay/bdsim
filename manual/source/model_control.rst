@@ -4238,8 +4238,9 @@ They are defined using the following syntax::
 
   sample, range=<element_name>;
 
-where `element_name` is the name of the element you wish to sample. Depending on the
-output format chosen, the element name may be recorded in the output ('rootevent' output only).
+where `element_name` is the name of the element you wish to sample. This creates a branch
+in the output file with the element name where the information (per-event) is stored for that
+plane.
 
 .. note:: Samplers **can only** be defined **after** the main sequence has been defined
 	  using the **use** command (see :ref:`the-use-command`). Failure to do
