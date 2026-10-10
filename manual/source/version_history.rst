@@ -87,7 +87,6 @@ to maintain the expected high quality of the code.
   Boolean flag still works, but by default is false. Any linked tracking code must now
   filter the particles they can handle themselves.
 
-
 New Features
 ------------
 * New Gabor lens beam line component. Constructed with a radial electric field that would be generated
@@ -155,7 +154,6 @@ New Options
 |                                     | the design rigidity for normalised fields             |
 |                                     | accordingly.                                          |
 +-------------------------------------+-------------------------------------------------------+
-
 
 General Updates
 ---------------
