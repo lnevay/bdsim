@@ -27,7 +27,7 @@ beam, particle="e+",
       sigmaXp=0.1,
       sigmaYp=0.1;
 
-option, physicsList="g4FTFP_BERT",
+option, physicsList="em",
         minimumKineticEnergy=100*MeV,
         worldMaterial="vacuum";
 
@@ -36,3 +36,5 @@ option, elossHistoBinWidth=10*cm;
 option, storeCollimatorInfo=1;
 
 option, seed=123;
+
+option, ngenerate=100;
