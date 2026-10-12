@@ -12,6 +12,14 @@ if you'd like to give us feedback or help in the development.  See :ref:`support
 * Any aperture shape can be used for both the inside and the outside of a collimator.
 
 
+v1.8.1 - 2026 / 10 / XX
+=======================
+
+Bug Fixes
+---------
+
+* Fix a crash when using collimators, a target and collimator-specific output.
+
 v1.8.0 - 2026 / 09 / 27
 =======================
 
