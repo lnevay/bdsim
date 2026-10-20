@@ -25,7 +25,7 @@ Bug Fixes
 * Improved description on single-diffraction patch in the manual and added missing links.
 * Python version in the Python bindings.
 
-No change of data version or structures and no new features..
+No change of data version or structures and no new features.
   
 
 v1.8.0 - 2026 / 09 / 27
